@@ -17,6 +17,7 @@ public class Entity {
     private int eGainOnEat;
 
     private final int[] xOffset;
+    private final int[] xReverseOffset;
     private final int[] yOffset;
     private int[] sensorArray;
 
@@ -24,7 +25,6 @@ public class Entity {
 
     public Entity(World m) {
         mat = m;
-//        sensorSize = 4;
         moves = 0;
         energy = 100;
         inventory = false;
@@ -32,6 +32,7 @@ public class Entity {
         eLossOnTurn = 1;
         eGainOnEat = 10;
         xOffset = new int[]{-4, -3, -2, -1, 0, 1, 2, 3, 4, -3, -2, -1, 0, 1, 2, 3, -2, -1, 0, 1, 2, -1, 0, 1, 0};
+        xReverseOffset = new int[]{4, 3, 2, 1, 0, -1, -2, -3, -4, 3, 2, 1, 0, -1, -2, -3, 2, 1, 0, -1, -2, 1, 0, -1, 0};
         yOffset = new int[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 0};
     }
 
@@ -155,7 +156,7 @@ public class Entity {
     }
 
     public void coneRight() {
-        
+
         sensorArray = new int[xOffset.length];
         for (int i = 0; i < sensorArray.length; i++) {
             int sX = x + yOffset[i];
@@ -169,10 +170,10 @@ public class Entity {
     }
 
     public void coneDown() {
-        //Reverse order of x values
+
         sensorArray = new int[xOffset.length];
         for (int i = 0; i < sensorArray.length; i++) {
-            int sX = x + xOffset[i];
+            int sX = x + xReverseOffset[i];
             int sY = y + yOffset[i];
             if (this.inBounds(sX, sY)) {
                 sensorArray[i] = mat.getMatrix()[sY][sX];
@@ -183,11 +184,11 @@ public class Entity {
     }
 
     public void coneLeft() {
-        //Reverse order of traverse
+
         sensorArray = new int[xOffset.length];
         for (int i = 0; i < sensorArray.length; i++) {
             int sX = x - yOffset[i];
-            int sY = y + xOffset[i];
+            int sY = y + xReverseOffset[i];
             if (this.inBounds(sX, sY)) {
                 sensorArray[i] = mat.getMatrix()[sY][sX];
             } else {
