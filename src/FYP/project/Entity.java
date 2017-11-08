@@ -1,9 +1,5 @@
 package FYP.project;
 
-import java.util.ArrayList;
-import java.util.Set;
-import java.util.LinkedHashSet;
-
 /**
  *
  * @author Chris
@@ -13,7 +9,6 @@ public class Entity {
     private int x;
     private int y;
     private int o;
-    private int sensorSize;
     private int energy;
     private boolean inventory;
     private int moves;
@@ -21,19 +16,23 @@ public class Entity {
     private int eLossOnTurn;
     private int eGainOnEat;
 
-    private Set<ArrayList<Integer>> sensor;
+    private final int[] xOffset;
+    private final int[] yOffset;
+    private int[] sensorArray;
 
     private final World mat;
 
     public Entity(World m) {
         mat = m;
-        sensorSize = 4;
+//        sensorSize = 4;
         moves = 0;
         energy = 100;
         inventory = false;
         eLossOnMove = 5;
         eLossOnTurn = 1;
         eGainOnEat = 10;
+        xOffset = new int[]{-4, -3, -2, -1, 0, 1, 2, 3, 4, -3, -2, -1, 0, 1, 2, 3, -2, -1, 0, 1, 2, -1, 0, 1, 0};
+        yOffset = new int[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 0};
     }
 
     public void setLocation(int a, int b) {
@@ -141,103 +140,59 @@ public class Entity {
         energy -= eLossOnTurn;
     }
 
-    public void setSensorSize(int s) {
-        sensorSize = s;
-    }
-
-    public int getSensorSize() {
-        return sensorSize;
-    }
-
     public void coneUp() {
-        int sY = y - sensorSize;
-        int sX = x - sensorSize;
-        int sS = sensorSize;
-        sensor = new LinkedHashSet<>();
-        ArrayList<Integer> temp;
 
-        while (sY <= y) {
-            while (sX <= (x + sS)) {
-                if (this.inBounds(sX, sY)) {
-                    temp = new ArrayList<>();
-                    temp.add(sX);
-                    temp.add(sY);
-                    sensor.add(temp);
-                }
-                sX++;
+        sensorArray = new int[xOffset.length];
+        for (int i = 0; i < sensorArray.length; i++) {
+            int sX = x + xOffset[i];
+            int sY = y - yOffset[i];
+            if (this.inBounds(sX, sY)) {
+                sensorArray[i] = mat.getMatrix()[sY][sX];
+            } else {
+                sensorArray[i] = -1;
             }
-            sY++;
-            sS--;
-            sX = x - sS;
         }
     }
 
     public void coneRight() {
-        int sY = y - sensorSize;
-        int sX = x + sensorSize;
-        int sS = sensorSize;
-        sensor = new LinkedHashSet<>();
-        ArrayList<Integer> temp;
-
-        while (sX >= x) {
-            while (sY <= (y + sS)) {
-                if (this.inBounds(sY, sX)) {
-                    temp = new ArrayList<>();
-                    temp.add(sX);
-                    temp.add(sY);
-                    sensor.add(temp);
-                }
-                sY++;
+        
+        sensorArray = new int[xOffset.length];
+        for (int i = 0; i < sensorArray.length; i++) {
+            int sX = x + yOffset[i];
+            int sY = y + xOffset[i];
+            if (this.inBounds(sX, sY)) {
+                sensorArray[i] = mat.getMatrix()[sY][sX];
+            } else {
+                sensorArray[i] = -1;
             }
-            sX--;
-            sS--;
-            sY = y - sS;
         }
     }
 
     public void coneDown() {
-        int sY = y + sensorSize;
-        int sX = x - sensorSize;
-        int sS = sensorSize;
-        sensor = new LinkedHashSet<>();
-        ArrayList<Integer> temp;
-
-        while (sY >= y) {
-            while (sX <= (x + sS)) {
-                if (this.inBounds(sX, sY)) {
-                    temp = new ArrayList<>();
-                    temp.add(sX);
-                    temp.add(sY);
-                    sensor.add(temp);
-                }
-                sX++;
+        //Reverse order of x values
+        sensorArray = new int[xOffset.length];
+        for (int i = 0; i < sensorArray.length; i++) {
+            int sX = x + xOffset[i];
+            int sY = y + yOffset[i];
+            if (this.inBounds(sX, sY)) {
+                sensorArray[i] = mat.getMatrix()[sY][sX];
+            } else {
+                sensorArray[i] = -1;
             }
-            sY--;
-            sS--;
-            sX = x - sS;
         }
     }
 
     public void coneLeft() {
-        int sY = y - sensorSize;
-        int sX = x - sensorSize;
-        int sS = sensorSize;
-        sensor = new LinkedHashSet<>();
-        ArrayList<Integer> temp;
-
-        while (sX <= x) {
-            while (sY <= (y + sS)) {
-                if (this.inBounds(sY, sX)) {
-                    temp = new ArrayList<>();
-                    temp.add(sX);
-                    temp.add(sY);
-                    sensor.add(temp);
-                }
-                sY++;
+        //Reverse order of traverse
+        sensorArray = new int[xOffset.length];
+        for (int i = 0; i < sensorArray.length; i++) {
+            int sX = x - yOffset[i];
+            int sY = y + xOffset[i];
+            if (this.inBounds(sX, sY)) {
+                sensorArray[i] = mat.getMatrix()[sY][sX];
+            } else {
+                sensorArray[i] = -1;
             }
-            sX++;
-            sS--;
-            sY = y - sS;
         }
     }
 
@@ -263,8 +218,8 @@ public class Entity {
         }
     }
 
-    public Set<ArrayList<Integer>> getSensor() {
-        return sensor;
+    public int[] getSensor() {
+        return sensorArray;
     }
 
     public int getMoves() {
@@ -315,8 +270,9 @@ public class Entity {
     }
 
     public void farm(Tile t) {
-        if (mat.getMatrix()[y][x] == 2) {
+        if (mat.getMatrix()[y][x] == 2 && inventory == true) {
             t.plantTile(x, y);
+            inventory = false;
         }
     }
 

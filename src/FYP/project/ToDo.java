@@ -29,6 +29,36 @@ public class ToDo {
 //TODO Switch chained if's to switch case in window
 
 /*
+        // Tile value retrieval from sensors
+        Entity e = new Entity(m);
+        e.setPosition(10, 10, 0);
+        e.coneSensor();
+        System.out.println(e.getSensor());
+        for (ArrayList<Integer> array : e.getSensor()){
+            int x = array.get(0);
+            int y = array.get(1);
+            System.out.println("X: " + x + " Y: " + y + " V: " + m.getMatrix()[y][x]);
+        }
 
+          int sY = y - sensorSize;
+//        int sX = x - sensorSize;
+//        int sS = sensorSize;
+//        sensor = new LinkedHashSet<>();
+//        ArrayList<Integer> temp;
+//
+//        while (sY <= y) {
+//            while (sX <= (x + sS)) {
+//                if (this.inBounds(sX, sY)) {
+//                    temp = new ArrayList<>();
+//                    temp.add(sX);
+//                    temp.add(sY);
+//                    sensor.add(temp);
+//                }
+//                sX++;
+//            }
+//            sY++;
+//            sS--;
+//            sX = x - sS;
+//        }
 
 */
