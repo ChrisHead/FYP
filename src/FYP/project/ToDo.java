@@ -18,6 +18,7 @@ public class ToDo {
 //TODO Add current location/sensor to window (circles)
 //
 //Secondary
+//Hmm
 //TODO Reorder Entity methods
 //TODO Entity '0 energy' behaviour
 //TODO Write tests (unit tests)
