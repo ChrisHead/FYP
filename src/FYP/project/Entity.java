@@ -269,6 +269,10 @@ public class Entity {
     public boolean getInventory() {
         return inventory;
     }
+    
+    public void setInventory(boolean b){
+        inventory = b;
+    }
 
     public void farm(Tile t) {
         if (mat.getMatrix()[y][x] == 2 && inventory == true) {
@@ -283,5 +287,4 @@ public class Entity {
             energy += eGainOnEat;
         }
     }
-
 }

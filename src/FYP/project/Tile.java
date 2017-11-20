@@ -68,6 +68,28 @@ public class Tile {
             a++;
         }
     }
+    
+    public void foodAll() {
+
+        int a = 0;
+        for (int[] array : test.getMatrix()) {
+            for (int i = 0; i < array.length; i++) {
+                this.foodTile(a, i);
+            }
+            a++;
+        }
+    }
+    
+    public void farmAll() {
+
+        int a = 0;
+        for (int[] array : test.getMatrix()) {
+            for (int i = 0; i < array.length; i++) {
+                this.farmTile(a, i);
+            }
+            a++;
+        }
+    }
 
     public void printFarm() {
         System.out.println();

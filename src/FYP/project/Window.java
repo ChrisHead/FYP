@@ -34,7 +34,7 @@ public class Window extends JFrame {
         setTitle("Test");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         p.setBackground(Color.BLACK);
-//        setLocationRelativeTo(null);
+        setLocationRelativeTo(null);
 
         pack();
         setVisible(true);

@@ -15,9 +15,13 @@ public class ToDo {
 
 //Primary
 //TODO Make pest class
+//TODO Add multithreading to pests
+//TODO Merge Tile class into World
+//TODO Add tick counter to world, make entities act on ticks
 //TODO Add current location/sensor to window (circles)
 //
 //Secondary
+//TODO Add analytics tracking to classes
 //TODO Reorder Entity methods
 //TODO Entity '0 energy' behaviour
 //TODO Write tests (unit tests)
