@@ -11,13 +11,11 @@ package FYP.project;
  */
 public class Axon {
 
-    private final String id;
     private final Neuron input;
     private final Neuron output;
     private double weight;
 
-    public Axon(String id, Neuron input, Neuron output, double weight) {
-        this.id = id;
+    public Axon(Neuron input, Neuron output, double weight) {
         this.input = input;
         this.output = output;
         this.weight = weight;
@@ -30,15 +28,11 @@ public class Axon {
     public void setWeight(double weight) {
         this.weight = weight;
     }
-    
-    public String getID() {
-        return this.id;
-    }
-    
+
     public Neuron getInput() {
         return this.input;
     }
-    
+
     public Neuron getOutput() {
         return this.output;
     }
