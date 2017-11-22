@@ -10,9 +10,15 @@ import java.util.concurrent.TimeUnit;
  * @author Chris
  */
 public class main {
+    
 
-//    public static void main(String[] args) {
+    public static void main(String[] args) {
         
+        Neuron test;
+        double[][] t = new double[10][10];
+        t[0][0] = 1.2;
+        test = new Neuron(Neuron.Type.INPUT, 1.0, t);
+        System.out.println(test.getInput());
 //        World m = new World(150);
 ////        m.loadWorld();
 ////        m.saveWorld();
@@ -82,5 +88,5 @@ public class main {
 //            System.out.println(e.getEnergy());
 //            win.repaint();
 //        }
-//    }
+    }
 }

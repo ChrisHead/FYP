@@ -19,8 +19,10 @@ public class ToDo {
 //TODO Merge Tile class into World
 //TODO Add tick counter to world, make entities act on ticks
 //TODO Add current location/sensor to window (circles)
+//Input/Output neuron restrictions
 //
 //Secondary
+//Use Atl+ins to generate code
 //TODO Add analytics tracking to classes
 //TODO Reorder Entity methods
 //TODO Entity '0 energy' behaviour

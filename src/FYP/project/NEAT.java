@@ -28,14 +28,13 @@ import org.neuroph.core.NeuralNetwork;
  */
 public class NEAT {
 
-    public void setParameters() {
-        SimpleNeatParameters params = new SimpleNeatParameters();
-        params.setFitnessFunction(new FitFunction());
-        params.setPopulationSize(150);
-        params.setMaximumFitness(1000);
-        params.setMaximumGenerations(100);
-    }
-
+//    public void setParameters() {
+//        SimpleNeatParameters params = new SimpleNeatParameters();
+//        params.setFitnessFunction(new FitFunction());
+//        params.setPopulationSize(1);
+//        params.setMaximumFitness(1000);
+//        params.setMaximumGenerations(1);
+//    }
     public void setEvolver(NeatParameters params) {
         NeuronGene xPosition = new NeuronGene(NeuronType.INPUT, params);
         NeuronGene yPosition = new NeuronGene(NeuronType.INPUT, params);
@@ -75,17 +74,22 @@ public class NEAT {
         NeuronGene pickUp = new NeuronGene(NeuronType.OUTPUT, params);
         NeuronGene drop = new NeuronGene(NeuronType.OUTPUT, params);
 
-        Evolver e = Evolver.createNew(params, Arrays.asList(xPosition, 
-                yPosition, orientation, energy, inventory, sensor1, sensor2, 
-                sensor3, sensor4, sensor5, sensor6, sensor7, sensor8, sensor9, 
-                sensor10, sensor11, sensor12, sensor13, sensor14, sensor15, 
-                sensor16, sensor17, sensor18, sensor19, sensor20, sensor21, 
+        Evolver e = Evolver.createNew(params, Arrays.asList(xPosition,
+                yPosition, orientation, energy, inventory, sensor1, sensor2,
+                sensor3, sensor4, sensor5, sensor6, sensor7, sensor8, sensor9,
+                sensor10, sensor11, sensor12, sensor13, sensor14, sensor15,
+                sensor16, sensor17, sensor18, sensor19, sensor20, sensor21,
                 sensor22, sensor23, sensor24, sensor25),
                 Arrays.asList(move, turnLeft, turnRight, eat, pickUp, drop));
-//        Organism best = e.evolve();
+        try {
+            Organism best = e.evolve();
+            System.out.println(best.toString());
+        } catch (Exception ex) {
+            System.out.println("Error evolving: " + ex);
+        }
     }
-    
-    public void convert(NeatParameters params, Organism o){
+
+    public void convert(NeatParameters params, Organism o) {
         org.neuroph.core.NeuralNetwork<?> nn = params.getNeuralNetworkBuilder().createNeuralNetwork(o);
     }
 }

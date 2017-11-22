@@ -266,8 +266,12 @@ public class Entity {
         }
     }
 
-    public boolean getInventory() {
-        return inventory;
+    public int getInventory() {
+        if (this.inventory == true) {
+            return 1;
+        } else {
+            return 0;
+        }
     }
     
     public void setInventory(boolean b){
