@@ -34,6 +34,24 @@ public class ToDo {
 //TODO Go over method encapsulation for main use
 //TODO Switch chained if's to switch case in window
 
+
+//Neuron[] n = new Neuron[20];
+//        for (int i = 0; i < 11; i++) {
+//            n[i] = new Neuron(); 
+//        }
+//        n[3].setValue(1.2);
+//        System.out.println(n[3].returnValue());
+
+
+
+
+
+
+
+
+
+
+
 /*
         // Tile value retrieval from sensors
         Entity e = new Entity(m);

@@ -19,6 +19,7 @@ public class Axon {
         this.input = input;
         this.output = output;
         this.weight = weight;
+        this.updateNeuron();
     }
 
     public double getWeight() {
@@ -36,4 +37,9 @@ public class Axon {
     public Neuron getOutput() {
         return this.output;
     }
+
+    private void updateNeuron() {
+        output.addInput(this);
+    }
+
 }
