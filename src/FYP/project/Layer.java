@@ -20,6 +20,10 @@ public class Layer {
         this.neurons = n;
     }
     
+    public Layer(int size) {
+        
+    }
+    
     public List<Neuron> getNeurons() {
         return neurons;
     }

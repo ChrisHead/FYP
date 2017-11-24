@@ -16,6 +16,7 @@ public class Network {
     private final Layer input;
     private final Layer output;
     private final List<Layer> hidden;
+//    private Axon[] axon;
 
     public Network(Layer i, List<Layer> h, Layer o) {
         this.input = i;
@@ -28,16 +29,30 @@ public class Network {
             i.getNeurons().stream()
                     .forEach((n) -> n.getValue());
         });
-        output.getNeurons().stream()
-                .forEach((n) -> System.out.println(n.getValue()));
+//        output.getNeurons().stream()
+//                .forEach((n) -> System.out.println(n.getValue()));
     }
 
     public void fullyConnect() {
-       
+        for (Neuron hn : hidden.get(0).getNeurons()) {
+            for (Neuron in : input.getNeurons()) {
+                Axon axon = new Axon(in, hn, Math.random());
+            }
+        }
+        for (Neuron hn : hidden.get(1).getNeurons()) {
+            for (Neuron hn1 : hidden.get(0).getNeurons()) {
+                Axon axon = new Axon(hn1, hn, Math.random());
+            }
+        }
+        for (Neuron on : output.getNeurons()) {
+            for (Neuron hn : hidden.get(1).getNeurons()) {
+                Axon axon = new Axon(hn, on, Math.random());
+            }
+        }
     }
-}
 
-// Neuron[] n = new Neuron[20];
-//        for (int i = 0; i < 11; i++) {
-//            n[i] = new Neuron(); 
-//        }
+    public void printSize() {
+        System.out.println(hidden.get(0).getNeurons().size());
+    }
+    
+}

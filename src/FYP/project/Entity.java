@@ -265,6 +265,13 @@ public class Entity {
             inventory = true;
         }
     }
+    
+    public void drop(Tile t) {
+        if (mat.getMatrix()[y][x] == 0 && inventory == true) {
+            t.foodTile(this.getX(), this.getY());
+            inventory = false;
+        }
+    }
 
     public int getInventory() {
         if (this.inventory == true) {
@@ -273,8 +280,8 @@ public class Entity {
             return 0;
         }
     }
-    
-    public void setInventory(boolean b){
+
+    public void setInventory(boolean b) {
         inventory = b;
     }
 
