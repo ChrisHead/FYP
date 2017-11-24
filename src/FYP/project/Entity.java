@@ -15,6 +15,7 @@ public class Entity {
     private int eLossOnMove;
     private int eLossOnTurn;
     private int eGainOnEat;
+    private int eLossOnAction;
 
     private final int[] xOffset;
     private final int[] xReverseOffset;
@@ -29,7 +30,8 @@ public class Entity {
         energy = 100;
         inventory = false;
         eLossOnMove = 5;
-        eLossOnTurn = 1;
+        eLossOnTurn = 3;
+        eLossOnAction = 1;
         eGainOnEat = 10;
         xOffset = new int[]{-4, -3, -2, -1, 0, 1, 2, 3, 4, -3, -2, -1, 0, 1, 2, 3, -2, -1, 0, 1, 2, -1, 0, 1, 0};
         xReverseOffset = new int[]{4, 3, 2, 1, 0, -1, -2, -3, -4, 3, 2, 1, 0, -1, -2, -3, 2, 1, 0, -1, -2, 1, 0, -1, 0};
@@ -99,32 +101,32 @@ public class Entity {
         if (y > 0) {
             y -= 1;
             this.setLocation(x, y);
-            energy -= eLossOnMove;
         }
+            energy -= eLossOnMove;
     }
 
     public void moveRight() {
         if (x < (mat.getSize() - 1)) {
             x += 1;
             this.setLocation(x, y);
-            energy -= eLossOnMove;
         }
+            energy -= eLossOnMove;
     }
 
     public void moveDown() {
         if (y < (mat.getSize() - 1)) {
             y += 1;
             this.setLocation(x, y);
-            energy -= eLossOnMove;
         }
+            energy -= eLossOnMove;
     }
 
     public void moveLeft() {
         if (x > 0) {
             x -= 1;
             this.setLocation(x, y);
-            energy -= eLossOnMove;
         }
+            energy -= eLossOnMove;
     }
 
     public void turnLeft() {
@@ -132,8 +134,8 @@ public class Entity {
             o = 3;
         } else {
             o = (o - 1) % 4;
-            energy -= eLossOnTurn;
         }
+            energy -= eLossOnTurn;
     }
 
     public void turnRight() {
@@ -264,13 +266,17 @@ public class Entity {
             t.emptyTile(this.getX(), this.getY());
             inventory = true;
         }
+        energy -= eLossOnAction;
     }
-    
+
     public void drop(Tile t) {
         if (mat.getMatrix()[y][x] == 0 && inventory == true) {
             t.foodTile(this.getX(), this.getY());
             inventory = false;
+        } else if (mat.getMatrix()[y][x] == 2 && inventory == true) {
+            this.farm(t);
         }
+        energy -= eLossOnAction;
     }
 
     public int getInventory() {
@@ -297,5 +303,6 @@ public class Entity {
             t.emptyTile(this.getX(), this.getY());
             energy += eGainOnEat;
         }
+        energy -= eLossOnAction;
     }
 }

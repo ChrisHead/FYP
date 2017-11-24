@@ -72,6 +72,8 @@ public class main {
 //        Axon aSeventeen = new Axon(seven, eight, Math.random());
 //        Axon aFourteen = new Axon(six, nine, Math.random());
 //        Axon aFithteen = new Axon(eight, nine, Math.random());
+//
+//
 //        Axon aOne = new Axon(one, four, 10.0);
 //        Axon aTwo = new Axon(one, five, 5.0);
 //        Axon aNine = new Axon(one, seven, 3.0);
@@ -90,7 +92,10 @@ public class main {
 //        Axon aFourteen = new Axon(six, nine, 8.0);
 //        Axon aFithteen = new Axon(eight, nine, 8.0);
 //
+//        network.fullyConnect();
+//        network.noHiddenConnect();
 //        network.runNetwork();
+//        
 //        Neuron[] n = new Neuron[20];
 //        for (int i = 0; i < 11; i++) {
 //            n[i] = new Neuron(); 
@@ -101,20 +106,19 @@ public class main {
 //
 //
 //
-        World m = new World(30);
+        World m = new World(50);
 //
         Window win = new Window();
         Tile t = new Tile(m);
         Entity e = new Entity(m);
-        e.setPosition(14, 14, 0);
-        win.createWindow(m, 20, e);
-        
-        t.farmAll();
+        e.setPosition(24, 24, 0);
+        win.createWindow(m, 10, e);
+
+//        t.farmAll();
 //
         List<Neuron> n = new ArrayList<>();
         List<Layer> h = new ArrayList<>();
 //
-        Neuron energy = new Neuron();
         Neuron inventory = new Neuron();
         Neuron sensor1 = new Neuron();
         Neuron sensor2 = new Neuron();
@@ -141,7 +145,6 @@ public class main {
         Neuron sensor23 = new Neuron();
         Neuron sensor24 = new Neuron();
         Neuron sensor25 = new Neuron();
-        n.add(energy);
         n.add(inventory);
         n.add(sensor1);
         n.add(sensor2);
@@ -245,82 +248,15 @@ public class main {
         Layer output = new Layer(n);
 //
         Network network = new Network(input, h, output);
-        network.fullyConnect();
+//        network.fullyConnect();
+
+        e.setEnergy(100);
+//        e.setInventory(true);
 //       
-        e.coneSensor();
-        energy.setValue(e.getEnergy());
-        inventory.setValue(e.getInventory());
-        sensor1.setValue(e.getSensor()[0]);
-        sensor2.setValue(e.getSensor()[1]);
-        sensor3.setValue(e.getSensor()[2]);
-        sensor4.setValue(e.getSensor()[3]);
-        sensor5.setValue(e.getSensor()[4]);
-        sensor6.setValue(e.getSensor()[5]);
-        sensor7.setValue(e.getSensor()[6]);
-        sensor8.setValue(e.getSensor()[7]);
-        sensor9.setValue(e.getSensor()[8]);
-        sensor10.setValue(e.getSensor()[8]);
-        sensor11.setValue(e.getSensor()[10]);
-        sensor12.setValue(e.getSensor()[11]);
-        sensor13.setValue(e.getSensor()[12]);
-        sensor14.setValue(e.getSensor()[13]);
-        sensor15.setValue(e.getSensor()[14]);
-        sensor16.setValue(e.getSensor()[15]);
-        sensor17.setValue(e.getSensor()[16]);
-        sensor18.setValue(e.getSensor()[17]);
-        sensor19.setValue(e.getSensor()[18]);
-        sensor20.setValue(e.getSensor()[19]);
-        sensor21.setValue(e.getSensor()[20]);
-        sensor22.setValue(e.getSensor()[21]);
-        sensor23.setValue(e.getSensor()[22]);
-        sensor24.setValue(e.getSensor()[23]);
-        sensor25.setValue(e.getSensor()[24]);
-        network.runNetwork();
-        
         int x = 0;
         while (e.getEnergy() > 0) {
-            double[] outputs = new double[6];
-            int i = 0;
-            for (Neuron out : output.getNeurons()) {
-                outputs[i] = out.returnValue();
-                i++;
-            }
-            int max = 0;
-            for (int a = 0; a < 6; a++) {
-                if ( outputs[a] > outputs[max]) {
-                    max = a;
-                }
-            }
-            switch (max) {
-                case 0:
-                    e.move();
-                    win.reload();
-                    break;
-                case 1:
-                    e.turnLeft();
-                    win.reload();
-                    break;
-                case 2:
-                    e.turnRight();
-                    win.reload();
-                    break;
-                case 3:
-                    e.eat(t);
-                    win.reload();
-                    break;
-                case 4:
-                    e.pickUp(t);
-                    win.reload();
-                    break;
-                case 5:
-                    e.drop(t);
-                    win.reload();
-                    break;
-            }
-            
-            win.reload();
+
             e.coneSensor();
-            energy.setValue(e.getEnergy());
             inventory.setValue(e.getInventory());
             sensor1.setValue(e.getSensor()[0]);
             sensor2.setValue(e.getSensor()[1]);
@@ -347,10 +283,90 @@ public class main {
             sensor23.setValue(e.getSensor()[22]);
             sensor24.setValue(e.getSensor()[23]);
             sensor25.setValue(e.getSensor()[24]);
+
+            h1.setValue(0.0);
+            h2.setValue(0.0);
+            h3.setValue(0.0);
+            h4.setValue(0.0);
+            h5.setValue(0.0);
+            h6.setValue(0.0);
+            h7.setValue(0.0);
+            h8.setValue(0.0);
+            h9.setValue(0.0);
+            h10.setValue(0.0);
+            h11.setValue(0.0);
+            h12.setValue(0.0);
+            h13.setValue(0.0);
+            h14.setValue(0.0);
+            h15.setValue(0.0);
+
+            h16.setValue(0.0);
+            h17.setValue(0.0);
+            h18.setValue(0.0);
+            h19.setValue(0.0);
+            h20.setValue(0.0);
+            h21.setValue(0.0);
+            h22.setValue(0.0);
+            h23.setValue(0.0);
+            h24.setValue(0.0);
+            h25.setValue(0.0);
+
+            move.setValue(0.0);
+            turnLeft.setValue(0.0);
+            turnRight.setValue(0.0);
+            eat.setValue(0.0);
+            pickUp.setValue(0.0);
+            drop.setValue(0.0);
+
+            network.fullyConnect();
             network.runNetwork();
 
+            double[] outputs = new double[6];
+            int i = 0;
+            for (Neuron out : output.getNeurons()) {
+                outputs[i] = out.returnValue();
+                i++;
+            }
+            int max = 0;
+            for (int a = 0; a < 6; a++) {
+                if (outputs[a] > outputs[max]) {
+                    max = a;
+                }
+            }
+            System.out.println("Action: " + max);
+
+            switch (max) {
+                case 0:
+                    e.move();
+                    win.reload();
+                    break;
+                case 1:
+                    e.turnLeft();
+                    win.reload();
+                    break;
+                case 2:
+                    e.turnRight();
+                    win.reload();
+                    break;
+                case 3:
+                    e.eat(t);
+                    win.reload();
+                    break;
+                case 4:
+                    e.pickUp(t);
+                    win.reload();
+                    break;
+                case 5:
+                    e.drop(t);
+                    win.reload();
+                    break;
+            }
+
+            System.out.println("Energy: " + e.getEnergy());
+            System.out.println();
+
             try {
-                Thread.sleep(100);
+                Thread.sleep(10);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
@@ -359,6 +375,7 @@ public class main {
 
         System.out.println(x);
         System.out.println("DONE");
+        move.printValue();
 
 //       move.getInputs();
 //       h1.getInputs();

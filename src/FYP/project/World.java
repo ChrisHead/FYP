@@ -23,12 +23,12 @@ public class World implements Serializable {
             for (int i = 0; i < array.length; i++) {
                 Random ran = new Random();
                 int num = ran.nextInt(101);
-                if (num == 100) {
+                if (num > 95) {
                     num = 2;
-                } else if (num < 85) {
-                    num = 0;
-                } else {
+                } else if (num > 65) {
                     num = 1;
+                } else {
+                    num = 0;
                 }
                 array[i] = num;
             }

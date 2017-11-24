@@ -25,12 +25,14 @@ public class Network {
     }
 
     public void runNetwork() {
+//        input.getNeurons().stream().forEach((i) -> 
+//            i.getSigValue());
         hidden.stream().forEach((i) -> {
             i.getNeurons().stream()
-                    .forEach((n) -> n.getValue());
+                    .forEach((n) -> n.getSigValue());
         });
-//        output.getNeurons().stream()
-//                .forEach((n) -> System.out.println(n.getValue()));
+        output.getNeurons().stream()
+                .forEach((n) -> System.out.println(n.getValue()));
     }
 
     public void fullyConnect() {
@@ -50,9 +52,22 @@ public class Network {
             }
         }
     }
+    
+    public void noHiddenConnect() {
+        for (Neuron on : output.getNeurons()) {
+            for (Neuron in : input.getNeurons()) {
+                Axon axon = new Axon(in, on, Math.random());
+                System.out.println(axon.getWeight());
+            }
+        }
+    }
 
     public void printSize() {
         System.out.println(hidden.get(0).getNeurons().size());
+    }
+    
+    public void resetNetwork(){
+        
     }
     
 }
