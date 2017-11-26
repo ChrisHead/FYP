@@ -248,10 +248,10 @@ public class main {
         Layer output = new Layer(n);
 //
         Network network = new Network(input, h, output);
-//        network.fullyConnect();
+        network.fullyConnect();
 
-        e.setEnergy(100);
-//        e.setInventory(true);
+        e.setEnergy(1000);
+        e.setInventory(true);
 //       
         int x = 0;
         while (e.getEnergy() > 0) {
@@ -317,6 +317,67 @@ public class main {
             eat.setValue(0.0);
             pickUp.setValue(0.0);
             drop.setValue(0.0);
+            
+            inventory.resetInputs();
+            sensor1.resetInputs();
+            sensor2.resetInputs();
+            sensor3.resetInputs();
+            sensor4.resetInputs();
+            sensor5.resetInputs();
+            sensor6.resetInputs();
+            sensor7.resetInputs();
+            sensor8.resetInputs();
+            sensor9.resetInputs();
+            sensor10.resetInputs();
+            sensor11.resetInputs();
+            sensor12.resetInputs();
+            sensor13.resetInputs();
+            sensor14.resetInputs();
+            sensor15.resetInputs();
+            sensor16.resetInputs();
+            sensor17.resetInputs();
+            sensor18.resetInputs();
+            sensor19.resetInputs();
+            sensor20.resetInputs();
+            sensor21.resetInputs();
+            sensor22.resetInputs();
+            sensor23.resetInputs();
+            sensor24.resetInputs();
+            sensor25.resetInputs();
+
+            h1.resetInputs();
+            h2.resetInputs();
+            h3.resetInputs();
+            h4.resetInputs();
+            h5.resetInputs();
+            h6.resetInputs();
+            h7.resetInputs();
+            h8.resetInputs();
+            h9.resetInputs();
+            h10.resetInputs();
+            h11.resetInputs();
+            h12.resetInputs();
+            h13.resetInputs();
+            h14.resetInputs();
+            h15.resetInputs();
+
+            h16.resetInputs();
+            h17.resetInputs();
+            h18.resetInputs();
+            h19.resetInputs();
+            h20.resetInputs();
+            h21.resetInputs();
+            h22.resetInputs();
+            h23.resetInputs();
+            h24.resetInputs();
+            h25.resetInputs();
+
+            move.resetInputs();
+            turnLeft.resetInputs();
+            turnRight.resetInputs();
+            eat.resetInputs();
+            pickUp.resetInputs();
+            drop.resetInputs();
 
             network.fullyConnect();
             network.runNetwork();
@@ -362,11 +423,12 @@ public class main {
                     break;
             }
 
+            System.out.println(network.returnAxons().size());
             System.out.println("Energy: " + e.getEnergy());
             System.out.println();
 
             try {
-                Thread.sleep(10);
+                Thread.sleep(50);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }
@@ -376,6 +438,8 @@ public class main {
         System.out.println(x);
         System.out.println("DONE");
         move.printValue();
+        
+        
 
 //       move.getInputs();
 //       h1.getInputs();

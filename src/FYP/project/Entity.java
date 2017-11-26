@@ -29,8 +29,8 @@ public class Entity {
         moves = 0;
         energy = 100;
         inventory = false;
-        eLossOnMove = 5;
-        eLossOnTurn = 3;
+        eLossOnMove = 1;
+        eLossOnTurn = 1;
         eLossOnAction = 1;
         eGainOnEat = 10;
         xOffset = new int[]{-4, -3, -2, -1, 0, 1, 2, 3, 4, -3, -2, -1, 0, 1, 2, 3, -2, -1, 0, 1, 2, -1, 0, 1, 0};

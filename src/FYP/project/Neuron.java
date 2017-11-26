@@ -16,6 +16,10 @@ public class Neuron {
         inputs = new ArrayList<>();
         value = 0.0;
     }
+    
+    public void resetInputs(){
+        inputs.clear();
+    }
 
     public void setValue(double value) {
         this.value = value;

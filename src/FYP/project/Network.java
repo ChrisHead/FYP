@@ -6,6 +6,8 @@
 package FYP.project;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  *
@@ -16,7 +18,7 @@ public class Network {
     private final Layer input;
     private final Layer output;
     private final List<Layer> hidden;
-//    private Axon[] axon;
+    private List<Axon> axon;
 
     public Network(Layer i, List<Layer> h, Layer o) {
         this.input = i;
@@ -36,21 +38,29 @@ public class Network {
     }
 
     public void fullyConnect() {
+        axon = new ArrayList<>();
         for (Neuron hn : hidden.get(0).getNeurons()) {
             for (Neuron in : input.getNeurons()) {
-                Axon axon = new Axon(in, hn, Math.random());
+                Axon a = new Axon(in, hn, Math.random());
+                axon.add(a);
             }
         }
         for (Neuron hn : hidden.get(1).getNeurons()) {
             for (Neuron hn1 : hidden.get(0).getNeurons()) {
-                Axon axon = new Axon(hn1, hn, Math.random());
+                Axon a = new Axon(hn1, hn, Math.random());
+                axon.add(a);
             }
         }
         for (Neuron on : output.getNeurons()) {
             for (Neuron hn : hidden.get(1).getNeurons()) {
-                Axon axon = new Axon(hn, on, Math.random());
+                Axon a = new Axon(hn, on, Math.random());
+                axon.add(a);
             }
         }
+    }
+    
+    public List<Axon> returnAxons(){
+        return axon;
     }
     
     public void noHiddenConnect() {
