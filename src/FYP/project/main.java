@@ -251,7 +251,7 @@ public class main {
         network.fullyConnect();
 
         e.setEnergy(1000);
-        e.setInventory(true);
+//        e.setInventory(true);
 //       
         int x = 0;
         while (e.getEnergy() > 0) {
@@ -428,7 +428,7 @@ public class main {
             System.out.println();
 
             try {
-                Thread.sleep(50);
+                Thread.sleep(100);
             } catch (InterruptedException ex) {
                 Thread.currentThread().interrupt();
             }

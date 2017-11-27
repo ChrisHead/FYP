@@ -36,6 +36,7 @@ public class Window extends JFrame {
     public void addGrid() {
         p.removeAll();
         Grid grid = new Grid(mat, s, e);
+        grid.setInv(e.returnInventory());
         int mSize = mat.getSize();
         int rep = mSize * (s + 1);
         int dim = rep + 20;
@@ -59,12 +60,14 @@ class Grid extends JPanel {
     private final World gMat;
     private final int eX;
     private final int eY;
+    private boolean inv;
 
     public Grid(World m, int s, Entity e) {
         size = s;
         gMat = m;
         eX = e.getX();
         eY = e.getY();
+        inv = false;
     }
 
     @Override
@@ -88,7 +91,15 @@ class Grid extends JPanel {
         }
         int a = 9 + eX * (size + 1);
         int b = 9 + eY * (size + 1);
+        if (inv) {
+        g.setColor(Color.GRAY);
+        } else {
         g.setColor(Color.BLUE);
+        }
         g.fillOval(a, b, size + 1, size + 1);
+    }
+    
+    public void setInv(boolean b) {
+        inv = b;
     }
 }

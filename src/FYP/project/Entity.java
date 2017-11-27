@@ -286,6 +286,10 @@ public class Entity {
             return 0;
         }
     }
+    
+    public boolean returnInventory(){
+        return inventory;
+    }
 
     public void setInventory(boolean b) {
         inventory = b;
