@@ -11,10 +11,16 @@ public class Neuron {
 
     private final List<Axon> inputs;
     private double value;
+    private String id;
 
-    public Neuron() {
+    public Neuron(String s) {
         inputs = new ArrayList<>();
         value = 0.0;
+        id = s;
+    }
+    
+    public String getName(){
+        return id;
     }
     
     public void resetInputs(){

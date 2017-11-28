@@ -25,6 +25,10 @@ public class Innovation {
     public void setInv(Integer x) {
         inv = x;
     }
+    
+    public void incInv(){
+        inv++;
+    }
 
     public void save() {
         Writer w;

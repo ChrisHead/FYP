@@ -24,7 +24,7 @@ public class Entity {
     private final int[] xReverseOffset;
     private final int[] yOffset;
     private int[] sensorArray;
-    
+
     private List<Neuron> in;
     private List<Neuron> out;
     private Layer input;
@@ -269,6 +269,14 @@ public class Entity {
         eGainOnEat = e;
     }
 
+    public int getELossOnAction() {
+        return eLossOnAction;
+    }
+
+    public void setELossOnAction(int e) {
+        eLossOnAction = e;
+    }
+
     public void pickUp(Tile t) {
         if (mat.getMatrix()[y][x] == 1 && inventory == false) {
             t.emptyTile(this.getX(), this.getY());
@@ -321,32 +329,32 @@ public class Entity {
     public Layer createInputs() {
         in = new ArrayList<>();
 
-        Neuron inv = new Neuron();
-        Neuron sensor1 = new Neuron();
-        Neuron sensor2 = new Neuron();
-        Neuron sensor3 = new Neuron();
-        Neuron sensor4 = new Neuron();
-        Neuron sensor5 = new Neuron();
-        Neuron sensor6 = new Neuron();
-        Neuron sensor7 = new Neuron();
-        Neuron sensor8 = new Neuron();
-        Neuron sensor9 = new Neuron();
-        Neuron sensor10 = new Neuron();
-        Neuron sensor11 = new Neuron();
-        Neuron sensor12 = new Neuron();
-        Neuron sensor13 = new Neuron();
-        Neuron sensor14 = new Neuron();
-        Neuron sensor15 = new Neuron();
-        Neuron sensor16 = new Neuron();
-        Neuron sensor17 = new Neuron();
-        Neuron sensor18 = new Neuron();
-        Neuron sensor19 = new Neuron();
-        Neuron sensor20 = new Neuron();
-        Neuron sensor21 = new Neuron();
-        Neuron sensor22 = new Neuron();
-        Neuron sensor23 = new Neuron();
-        Neuron sensor24 = new Neuron();
-        Neuron sensor25 = new Neuron();
+        Neuron inv = new Neuron("inv");
+        Neuron sensor1 = new Neuron("sensor1");
+        Neuron sensor2 = new Neuron("sensor2");
+        Neuron sensor3 = new Neuron("sensor3");
+        Neuron sensor4 = new Neuron("sensor4");
+        Neuron sensor5 = new Neuron("sensor5");
+        Neuron sensor6 = new Neuron("sensor6");
+        Neuron sensor7 = new Neuron("sensor7");
+        Neuron sensor8 = new Neuron("sensor8");
+        Neuron sensor9 = new Neuron("sensor9");
+        Neuron sensor10 = new Neuron("sensor10");
+        Neuron sensor11 = new Neuron("sensor11");
+        Neuron sensor12 = new Neuron("sensor12");
+        Neuron sensor13 = new Neuron("sensor13");
+        Neuron sensor14 = new Neuron("sensor14");
+        Neuron sensor15 = new Neuron("sensor15");
+        Neuron sensor16 = new Neuron("sensor16");
+        Neuron sensor17 = new Neuron("sensor17");
+        Neuron sensor18 = new Neuron("sensor18");
+        Neuron sensor19 = new Neuron("sensor19");
+        Neuron sensor20 = new Neuron("sensor20");
+        Neuron sensor21 = new Neuron("sensor21");
+        Neuron sensor22 = new Neuron("sensor22");
+        Neuron sensor23 = new Neuron("sensor23");
+        Neuron sensor24 = new Neuron("sensor24");
+        Neuron sensor25 = new Neuron("sensor25");
         in.add(inv);
         in.add(sensor1);
         in.add(sensor2);
@@ -376,20 +384,20 @@ public class Entity {
         input = new Layer(in);
         return input;
     }
-    
-    public Layer getInput(){
+
+    public Layer getInput() {
         return input;
     }
 
     public Layer createOutputs() {
         out = new ArrayList<>();
 
-        Neuron move = new Neuron();
-        Neuron turnLeft = new Neuron();
-        Neuron turnRight = new Neuron();
-        Neuron eat = new Neuron();
-        Neuron pickUp = new Neuron();
-        Neuron drop = new Neuron();
+        Neuron move = new Neuron("move");
+        Neuron turnLeft = new Neuron("turnLeft");
+        Neuron turnRight = new Neuron("turnRight");
+        Neuron eat = new Neuron("eat");
+        Neuron pickUp = new Neuron("pickUp");
+        Neuron drop = new Neuron("drop");
         out = new ArrayList<>();
         out.add(move);
         out.add(turnLeft);
@@ -400,8 +408,8 @@ public class Entity {
         output = new Layer(out);
         return output;
     }
-    
-    public Layer getOutput(){
+
+    public Layer getOutput() {
         return output;
     }
 
@@ -434,47 +442,88 @@ public class Entity {
         in.get(24).setValue(this.getSensor()[23]);
         in.get(25).setValue(this.getSensor()[24]);
     }
-    
-    public void action(Window win, Tile t){
-        double[] outputs = new double[6];
-            int i = 0;
-            for (Neuron out : this.getOutput().getNeurons()) {
-                outputs[i] = out.returnValue();
-                i++;
-            }
-            int max = 0;
-            for (int a = 0; a < 6; a++) {
-                if (outputs[a] > outputs[max]) {
-                    max = a;
-                }
-            }
-            System.out.println("Action: " + max);
 
-            switch (max) {
-                case 0:
-                    this.move();
-                    win.reload();
-                    break;
-                case 1:
-                    this.turnLeft();
-                    win.reload();
-                    break;
-                case 2:
-                    this.turnRight();
-                    win.reload();
-                    break;
-                case 3:
-                    this.eat(t);
-                    win.reload();
-                    break;
-                case 4:
-                    this.pickUp(t);
-                    win.reload();
-                    break;
-                case 5:
-                    this.drop(t);
-                    win.reload();
-                    break;
+    public void actionWin(Window win, Tile t, boolean b) {
+        double[] outputs = new double[6];
+        int i = 0;
+        for (Neuron nOut : this.getOutput().getNeurons()) {
+            outputs[i] = nOut.returnValue();
+            i++;
+        }
+        int max = 0;
+        for (int a = 0; a < 6; a++) {
+            if (outputs[a] > outputs[max]) {
+                max = a;
             }
+        }
+        if (b) {
+            System.out.println("Action: " + max);
+        }
+
+        switch (max) {
+            case 0:
+                this.move();
+                win.reload();
+                break;
+            case 1:
+                this.turnLeft();
+                win.reload();
+                break;
+            case 2:
+                this.turnRight();
+                win.reload();
+                break;
+            case 3:
+                this.eat(t);
+                win.reload();
+                break;
+            case 4:
+                this.pickUp(t);
+                win.reload();
+                break;
+            case 5:
+                this.drop(t);
+                win.reload();
+                break;
+        }
+    }
+
+    public void action(Tile t, boolean b) {
+        double[] outputs = new double[6];
+        int i = 0;
+        for (Neuron nOut : this.getOutput().getNeurons()) {
+            outputs[i] = nOut.returnValue();
+            i++;
+        }
+        int max = 0;
+        for (int a = 0; a < 6; a++) {
+            if (outputs[a] > outputs[max]) {
+                max = a;
+            }
+        }
+        if (b) {
+        System.out.println("Action: " + max);
+        }
+
+        switch (max) {
+            case 0:
+                this.move();
+                break;
+            case 1:
+                this.turnLeft();
+                break;
+            case 2:
+                this.turnRight();
+                break;
+            case 3:
+                this.eat(t);
+                break;
+            case 4:
+                this.pickUp(t);
+                break;
+            case 5:
+                this.drop(t);
+                break;
+        }
     }
 }

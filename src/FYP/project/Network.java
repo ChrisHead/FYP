@@ -21,7 +21,7 @@ public class Network {
         this.hidden = h;
     }
 
-    public void runNetwork() {
+    public void runNetwork(boolean a, boolean b) {
         hidden.stream().forEach((i) -> {
             i.getNeurons().stream()
                     .forEach((n) -> n.getSigValue());
@@ -29,10 +29,14 @@ public class Network {
         output.getNeurons().stream()
                 .forEach((n) -> n.getSigValue());
         //Print Values
-        input.getNeurons().stream()
-                .forEach((n) -> System.out.println(n.returnValue()));
-        output.getNeurons().stream()
-                .forEach((n) -> System.out.println(n.returnValue()));
+        if (a) {
+            input.getNeurons().stream()
+                    .forEach((n) -> System.out.println(n.returnValue()));
+        }
+        if (b) {
+            output.getNeurons().stream()
+                    .forEach((n) -> System.out.println(n.returnValue()));
+        }
     }
 
     public void fullyConnect() {
@@ -56,16 +60,17 @@ public class Network {
             }
         }
     }
-    
-    public List<Axon> returnAxons(){
+
+    public List<Axon> returnAxons() {
         return axon;
     }
-    
+
     public void noHiddenConnect() {
+        axon = new ArrayList<>();
         for (Neuron on : output.getNeurons()) {
             for (Neuron in : input.getNeurons()) {
-                Axon axon = new Axon(in, on, Math.random());
-                System.out.println(axon.getWeight());
+                Axon a = new Axon(in, on, Math.random());
+                axon.add(a);
             }
         }
     }
@@ -73,9 +78,9 @@ public class Network {
     public void printSize() {
         System.out.println(hidden.get(0).getNeurons().size());
     }
-    
-    public void resetNetwork(){
-        
+
+    public void resetNetwork() {
+
     }
-    
+
 }
