@@ -135,8 +135,8 @@ public class NEAT {
                 genome.put(Integer.parseInt(key), values);
             }
             s.close();
-        } catch (IOException e) {
-            System.out.println("Error reading from file: " + e);
+        } catch (IOException ex) {
+            System.out.println("Error reading from file: " + ex);
         }
     }
 }
