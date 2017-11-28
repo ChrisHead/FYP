@@ -19,6 +19,9 @@ public class main {
        Entity e = new Entity(w); 
        NEAT neat = new NEAT(); 
        neat.startingGenome(e);
+//       neat.buildNetworkFromGenome();
+//       neat.saveGenome();
+       neat.loadGenome();
        neat.printGenome();
         
 //        World m = new World(50);
