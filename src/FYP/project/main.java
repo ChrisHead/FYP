@@ -15,6 +15,101 @@ public class main {
 
     public static void main(String[] args) {
 
+        World m = new World(50);
+        Window win = new Window();
+        Tile t = new Tile(m);
+        Entity e = new Entity(m);
+        e.setPosition(24, 24, 0);
+        win.createWindow(m, 10, e);
+//        
+        List<Neuron> n = new ArrayList<>();
+        List<Layer> h = new ArrayList<>();
+        Neuron h1 = new Neuron();
+        Neuron h2 = new Neuron();
+        Neuron h3 = new Neuron();
+        Neuron h4 = new Neuron();
+        Neuron h5 = new Neuron();
+        Neuron h6 = new Neuron();
+        Neuron h7 = new Neuron();
+        Neuron h8 = new Neuron();
+        Neuron h9 = new Neuron();
+        Neuron h10 = new Neuron();
+        Neuron h11 = new Neuron();
+        Neuron h12 = new Neuron();
+        Neuron h13 = new Neuron();
+        Neuron h14 = new Neuron();
+        Neuron h15 = new Neuron();
+        n = new ArrayList<>();
+        n.add(h1);
+        n.add(h2);
+        n.add(h3);
+        n.add(h4);
+        n.add(h5);
+        n.add(h6);
+        n.add(h7);
+        n.add(h8);
+        n.add(h9);
+        n.add(h10);
+        n.add(h11);
+        n.add(h12);
+        n.add(h13);
+        n.add(h14);
+        n.add(h15);
+        Layer hl1 = new Layer(n);
+//
+        Neuron h16 = new Neuron();
+        Neuron h17 = new Neuron();
+        Neuron h18 = new Neuron();
+        Neuron h19 = new Neuron();
+        Neuron h20 = new Neuron();
+        Neuron h21 = new Neuron();
+        Neuron h22 = new Neuron();
+        Neuron h23 = new Neuron();
+        Neuron h24 = new Neuron();
+        Neuron h25 = new Neuron();
+        n = new ArrayList<>();
+        n.add(h16);
+        n.add(h17);
+        n.add(h18);
+        n.add(h19);
+        n.add(h20);
+        n.add(h21);
+        n.add(h22);
+        n.add(h23);
+        n.add(h24);
+        n.add(h25);
+        Layer hl2 = new Layer(n);
+//
+        h.add(hl1);
+        h.add(hl2);
+        Network network = new Network(e.createInputs(), h, e.createOutputs());
+        network.fullyConnect();
+
+        e.setEnergy(1000);
+//       
+        int x = 0;
+        while (e.getEnergy() > 0) {
+            e.updateInputValues();
+            hl1.LayerZeroInputs();
+            hl2.LayerZeroInputs();
+            e.getOutput().LayerZeroInputs();
+            network.fullyConnect();
+            network.runNetwork();
+            e.action(win, t);
+            System.out.println("Energy: " + e.getEnergy());
+            System.out.println();
+//            try {
+//                Thread.sleep(100);
+//            } catch (InterruptedException ex) {
+//                Thread.currentThread().interrupt();
+//            }
+            x++;
+        }
+        System.out.println(x);
+        System.out.println("DONE");
+
+//        
+//        
 //        Layer test = new Layer(3);
 //        List<Neuron> n = new ArrayList<>();
 //        List<Layer> h = new ArrayList<>();
@@ -105,351 +200,20 @@ public class main {
 //
 //
 //
-//
-        World m = new World(50);
-//
-        Window win = new Window();
-        Tile t = new Tile(m);
-        Entity e = new Entity(m);
-        e.setPosition(24, 24, 0);
-        win.createWindow(m, 10, e);
-
-//        t.farmAll();
-//
-        List<Neuron> n = new ArrayList<>();
-        List<Layer> h = new ArrayList<>();
-//
-        Neuron inventory = new Neuron();
-        Neuron sensor1 = new Neuron();
-        Neuron sensor2 = new Neuron();
-        Neuron sensor3 = new Neuron();
-        Neuron sensor4 = new Neuron();
-        Neuron sensor5 = new Neuron();
-        Neuron sensor6 = new Neuron();
-        Neuron sensor7 = new Neuron();
-        Neuron sensor8 = new Neuron();
-        Neuron sensor9 = new Neuron();
-        Neuron sensor10 = new Neuron();
-        Neuron sensor11 = new Neuron();
-        Neuron sensor12 = new Neuron();
-        Neuron sensor13 = new Neuron();
-        Neuron sensor14 = new Neuron();
-        Neuron sensor15 = new Neuron();
-        Neuron sensor16 = new Neuron();
-        Neuron sensor17 = new Neuron();
-        Neuron sensor18 = new Neuron();
-        Neuron sensor19 = new Neuron();
-        Neuron sensor20 = new Neuron();
-        Neuron sensor21 = new Neuron();
-        Neuron sensor22 = new Neuron();
-        Neuron sensor23 = new Neuron();
-        Neuron sensor24 = new Neuron();
-        Neuron sensor25 = new Neuron();
-        n.add(inventory);
-        n.add(sensor1);
-        n.add(sensor2);
-        n.add(sensor3);
-        n.add(sensor4);
-        n.add(sensor5);
-        n.add(sensor6);
-        n.add(sensor7);
-        n.add(sensor8);
-        n.add(sensor9);
-        n.add(sensor10);
-        n.add(sensor11);
-        n.add(sensor12);
-        n.add(sensor13);
-        n.add(sensor14);
-        n.add(sensor15);
-        n.add(sensor16);
-        n.add(sensor17);
-        n.add(sensor18);
-        n.add(sensor19);
-        n.add(sensor20);
-        n.add(sensor21);
-        n.add(sensor22);
-        n.add(sensor23);
-        n.add(sensor24);
-        n.add(sensor25);
-        Layer input = new Layer(n);
-//
-        Neuron h1 = new Neuron();
-        Neuron h2 = new Neuron();
-        Neuron h3 = new Neuron();
-        Neuron h4 = new Neuron();
-        Neuron h5 = new Neuron();
-        Neuron h6 = new Neuron();
-        Neuron h7 = new Neuron();
-        Neuron h8 = new Neuron();
-        Neuron h9 = new Neuron();
-        Neuron h10 = new Neuron();
-        Neuron h11 = new Neuron();
-        Neuron h12 = new Neuron();
-        Neuron h13 = new Neuron();
-        Neuron h14 = new Neuron();
-        Neuron h15 = new Neuron();
-        n = new ArrayList<>();
-        n.add(h1);
-        n.add(h2);
-        n.add(h3);
-        n.add(h4);
-        n.add(h5);
-        n.add(h6);
-        n.add(h7);
-        n.add(h8);
-        n.add(h9);
-        n.add(h10);
-        n.add(h11);
-        n.add(h12);
-        n.add(h13);
-        n.add(h14);
-        n.add(h15);
-        Layer hl1 = new Layer(n);
-//
-        Neuron h16 = new Neuron();
-        Neuron h17 = new Neuron();
-        Neuron h18 = new Neuron();
-        Neuron h19 = new Neuron();
-        Neuron h20 = new Neuron();
-        Neuron h21 = new Neuron();
-        Neuron h22 = new Neuron();
-        Neuron h23 = new Neuron();
-        Neuron h24 = new Neuron();
-        Neuron h25 = new Neuron();
-        n = new ArrayList<>();
-        n.add(h16);
-        n.add(h17);
-        n.add(h18);
-        n.add(h19);
-        n.add(h20);
-        n.add(h21);
-        n.add(h22);
-        n.add(h23);
-        n.add(h24);
-        n.add(h25);
-        Layer hl2 = new Layer(n);
-//
-        h.add(hl1);
-        h.add(hl2);
-//
-        Neuron move = new Neuron();
-        Neuron turnLeft = new Neuron();
-        Neuron turnRight = new Neuron();
-        Neuron eat = new Neuron();
-        Neuron pickUp = new Neuron();
-        Neuron drop = new Neuron();
-        n = new ArrayList<>();
-        n.add(move);
-        n.add(turnLeft);
-        n.add(turnRight);
-        n.add(eat);
-        n.add(pickUp);
-        n.add(drop);
-        Layer output = new Layer(n);
-//
-        Network network = new Network(input, h, output);
-        network.fullyConnect();
-
-        e.setEnergy(1000);
-//        e.setInventory(true);
-//       
-        int x = 0;
-        while (e.getEnergy() > 0) {
-
-            e.coneSensor();
-            inventory.setValue(e.getInventory());
-            sensor1.setValue(e.getSensor()[0]);
-            sensor2.setValue(e.getSensor()[1]);
-            sensor3.setValue(e.getSensor()[2]);
-            sensor4.setValue(e.getSensor()[3]);
-            sensor5.setValue(e.getSensor()[4]);
-            sensor6.setValue(e.getSensor()[5]);
-            sensor7.setValue(e.getSensor()[6]);
-            sensor8.setValue(e.getSensor()[7]);
-            sensor9.setValue(e.getSensor()[8]);
-            sensor10.setValue(e.getSensor()[8]);
-            sensor11.setValue(e.getSensor()[10]);
-            sensor12.setValue(e.getSensor()[11]);
-            sensor13.setValue(e.getSensor()[12]);
-            sensor14.setValue(e.getSensor()[13]);
-            sensor15.setValue(e.getSensor()[14]);
-            sensor16.setValue(e.getSensor()[15]);
-            sensor17.setValue(e.getSensor()[16]);
-            sensor18.setValue(e.getSensor()[17]);
-            sensor19.setValue(e.getSensor()[18]);
-            sensor20.setValue(e.getSensor()[19]);
-            sensor21.setValue(e.getSensor()[20]);
-            sensor22.setValue(e.getSensor()[21]);
-            sensor23.setValue(e.getSensor()[22]);
-            sensor24.setValue(e.getSensor()[23]);
-            sensor25.setValue(e.getSensor()[24]);
-
-            h1.setValue(0.0);
-            h2.setValue(0.0);
-            h3.setValue(0.0);
-            h4.setValue(0.0);
-            h5.setValue(0.0);
-            h6.setValue(0.0);
-            h7.setValue(0.0);
-            h8.setValue(0.0);
-            h9.setValue(0.0);
-            h10.setValue(0.0);
-            h11.setValue(0.0);
-            h12.setValue(0.0);
-            h13.setValue(0.0);
-            h14.setValue(0.0);
-            h15.setValue(0.0);
-
-            h16.setValue(0.0);
-            h17.setValue(0.0);
-            h18.setValue(0.0);
-            h19.setValue(0.0);
-            h20.setValue(0.0);
-            h21.setValue(0.0);
-            h22.setValue(0.0);
-            h23.setValue(0.0);
-            h24.setValue(0.0);
-            h25.setValue(0.0);
-
-            move.setValue(0.0);
-            turnLeft.setValue(0.0);
-            turnRight.setValue(0.0);
-            eat.setValue(0.0);
-            pickUp.setValue(0.0);
-            drop.setValue(0.0);
-            
-            inventory.resetInputs();
-            sensor1.resetInputs();
-            sensor2.resetInputs();
-            sensor3.resetInputs();
-            sensor4.resetInputs();
-            sensor5.resetInputs();
-            sensor6.resetInputs();
-            sensor7.resetInputs();
-            sensor8.resetInputs();
-            sensor9.resetInputs();
-            sensor10.resetInputs();
-            sensor11.resetInputs();
-            sensor12.resetInputs();
-            sensor13.resetInputs();
-            sensor14.resetInputs();
-            sensor15.resetInputs();
-            sensor16.resetInputs();
-            sensor17.resetInputs();
-            sensor18.resetInputs();
-            sensor19.resetInputs();
-            sensor20.resetInputs();
-            sensor21.resetInputs();
-            sensor22.resetInputs();
-            sensor23.resetInputs();
-            sensor24.resetInputs();
-            sensor25.resetInputs();
-
-            h1.resetInputs();
-            h2.resetInputs();
-            h3.resetInputs();
-            h4.resetInputs();
-            h5.resetInputs();
-            h6.resetInputs();
-            h7.resetInputs();
-            h8.resetInputs();
-            h9.resetInputs();
-            h10.resetInputs();
-            h11.resetInputs();
-            h12.resetInputs();
-            h13.resetInputs();
-            h14.resetInputs();
-            h15.resetInputs();
-
-            h16.resetInputs();
-            h17.resetInputs();
-            h18.resetInputs();
-            h19.resetInputs();
-            h20.resetInputs();
-            h21.resetInputs();
-            h22.resetInputs();
-            h23.resetInputs();
-            h24.resetInputs();
-            h25.resetInputs();
-
-            move.resetInputs();
-            turnLeft.resetInputs();
-            turnRight.resetInputs();
-            eat.resetInputs();
-            pickUp.resetInputs();
-            drop.resetInputs();
-
-            network.fullyConnect();
-            network.runNetwork();
-
-            double[] outputs = new double[6];
-            int i = 0;
-            for (Neuron out : output.getNeurons()) {
-                outputs[i] = out.returnValue();
-                i++;
-            }
-            int max = 0;
-            for (int a = 0; a < 6; a++) {
-                if (outputs[a] > outputs[max]) {
-                    max = a;
-                }
-            }
-            System.out.println("Action: " + max);
-
-            switch (max) {
-                case 0:
-                    e.move();
-                    win.reload();
-                    break;
-                case 1:
-                    e.turnLeft();
-                    win.reload();
-                    break;
-                case 2:
-                    e.turnRight();
-                    win.reload();
-                    break;
-                case 3:
-                    e.eat(t);
-                    win.reload();
-                    break;
-                case 4:
-                    e.pickUp(t);
-                    win.reload();
-                    break;
-                case 5:
-                    e.drop(t);
-                    win.reload();
-                    break;
-            }
-
-            System.out.println(network.returnAxons().size());
-            System.out.println("Energy: " + e.getEnergy());
-            System.out.println();
-
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
-            x++;
-        }
-
-        System.out.println(x);
-        System.out.println("DONE");
-        move.printValue();
-        
-        
-
+//        
+//        Innovation i = new Innovation();
+//        i.setInv(100);
+//        i.save();
+//        System.out.println(i.getInv());
+//        i = new Innovation();
+//        System.out.println(i.getInv());
+//        i.load();
+//        System.out.println(i.getInv());
 //       move.getInputs();
 //       h1.getInputs();
 //       System.out.println();
 //       h2.getInputs();
 //       network.printSize();
-//
-//
-//
-//
 //
 //
 //        Neuron one = new Neuron();

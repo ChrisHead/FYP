@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package FYP.project;
 
 import java.util.List;
@@ -27,14 +22,17 @@ public class Network {
     }
 
     public void runNetwork() {
-//        input.getNeurons().stream().forEach((i) -> 
-//            i.getSigValue());
         hidden.stream().forEach((i) -> {
             i.getNeurons().stream()
                     .forEach((n) -> n.getSigValue());
         });
         output.getNeurons().stream()
-                .forEach((n) -> System.out.println(n.getValue()));
+                .forEach((n) -> n.getSigValue());
+        //Print Values
+        input.getNeurons().stream()
+                .forEach((n) -> System.out.println(n.returnValue()));
+        output.getNeurons().stream()
+                .forEach((n) -> System.out.println(n.returnValue()));
     }
 
     public void fullyConnect() {

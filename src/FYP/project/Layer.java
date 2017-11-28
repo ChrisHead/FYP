@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package FYP.project;
 
 import java.util.List;
@@ -26,5 +21,12 @@ public class Layer {
     
     public List<Neuron> getNeurons() {
         return neurons;
+    }
+    
+    public void LayerZeroInputs(){
+        for (Neuron n : this.getNeurons()){
+            n.resetInputs();
+            n.setValue(0.0);
+        }
     }
 }
