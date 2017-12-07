@@ -11,7 +11,7 @@ public class Neuron {
 
     private final List<Axon> inputs;
     private double value;
-    private String id;
+    private final String id;
 
     public Neuron(String s) {
         inputs = new ArrayList<>();

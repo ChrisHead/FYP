@@ -28,6 +28,7 @@ public class Innovation {
     
     public void incInv(){
         inv++;
+        this.save();
     }
 
     public void save() {

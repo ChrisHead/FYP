@@ -49,7 +49,7 @@ public class NEAT {
             genome.put(i.getInv(), values);
             i.incInv();
         }
-        i.save();
+//        i.save();
     }
 
     public void printGenome() {
@@ -78,18 +78,20 @@ public class NEAT {
 //        System.out.println(x);
 //        System.out.println("DONE");
 //    }
+    
     public void genomeManipulation() {
         //Genome manipulation stuff
     }
 
     public void buildNetworkFromGenome() {
-        //Clear axon and neuron input lists
+        //Clear axon and neuron input (class)lists
         List<String> input = new ArrayList<>();
         List<String> output = new ArrayList<>();
         for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
             if (!input.contains(m.getValue().get(0))) {
                 input.add(m.getValue().get(0));
             }
+            //Loop for hidden layers
             if (!output.contains(m.getValue().get(1))
                     && !input.contains(m.getValue().get(1))) {
                 output.add(m.getValue().get(1));
@@ -99,6 +101,7 @@ public class NEAT {
 //        for (String s : input) {
 //            Neuron neuron = new Neuron(s);
 //        }
+//        Loop for hidden layers
 //        for (String s : output) {
 //            Neuron neuron = new Neuron(s);
 //        }
