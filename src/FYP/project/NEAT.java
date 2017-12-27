@@ -27,6 +27,7 @@ public class NEAT {
     private final List<Neuron> inputNeurons;
     private final List<Neuron> outputNeurons;
     private final List<Neuron> hiddenNeurons;
+    private final List<Axon> axons;
 
     public NEAT(List<String> i, List<String> o) {
         generation = 0;
@@ -38,6 +39,7 @@ public class NEAT {
         inputNeurons = new ArrayList<>();
         outputNeurons = new ArrayList<>();
         hiddenNeurons = new ArrayList<>();
+        axons = new ArrayList<>();
     }
 
     public void createNeurons() {
@@ -78,11 +80,85 @@ public class NEAT {
 //            System.out.print(n.getName() + " ");
 //        }
 //        System.out.println();
-        Layer inputLayer = new Layer(inputNeurons);
-        Layer outputLayer = new Layer(outputNeurons);
     }
 
-    //Create Hidden Layers
+    public void createLayers() {
+        Layer inputLayer = new Layer(inputNeurons);
+        Layer outputLayer = new Layer(outputNeurons);
+
+        List<Neuron> temp = new ArrayList<>();
+        List<String> hiddenIds = new ArrayList<>();
+
+        int layerInc = 0;
+
+        for (Neuron n : hiddenNeurons) {
+            hiddenIds.add(n.getName());
+        }
+
+        for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
+            for (Neuron n : hiddenNeurons) {
+                if (idsOfInputs.contains(m.getValue().get(0))
+                        && hiddenIds.contains(m.getValue().get(1))
+                        && n.getName().equals(m.getValue().get(1))) {
+                    temp.add(n);
+                    hiddenIds.remove(m.getValue().get(1));
+                }
+            }
+        }
+        Layer hiddenLayer = new Layer(Integer.toString(layerInc), temp);
+        layerInc++;
+
+//        for (Neuron n : temp) {
+//            System.out.println(n.getName() + " ");
+//        }
+//        System.out.println(hiddenIds);
+    }
+
+    public void createAxons() {
+        for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
+            if (m.getValue().get(3).equals("ENABLED")) {
+
+                Neuron input = new Neuron();
+                Neuron output = new Neuron();
+
+                for (Neuron n : allNeurons) {
+                    if (n.getName().equals(m.getValue().get(0))) {
+                        input = n;
+                    }
+                }
+                for (Neuron n : allNeurons) {
+                    if (n.getName().equals(m.getValue().get(1))) {
+                        output = n;
+                    }
+                }
+                Axon a = new Axon(input, output, Double.parseDouble(m.getValue().get(2)));
+                axons.add(a);
+
+            }
+        }
+//        System.out.println(idsOfOutputs);
+//        System.out.println(hiddenNeurons.get(0).getName());
+//        hiddenNeurons.get(0).getInputs();
+//        System.out.println(genome.get(157));
+//        System.out.println(axons.size());
+//        System.out.println(axons.get(157).getInput().getName());
+//        System.out.println(allNeurons.size());
+//        for (Neuron n : allNeurons) {
+//            System.out.println(n.getName());
+//        }
+        System.out.println(axons);
+//        for (Axon a : axons) {
+//            System.out.println(a.getInput().getName());
+//        }
+//        System.out.println(axons.size());
+        for (Neuron n : hiddenNeurons) {
+            System.out.println("Name: " + n.getName());
+            n.getInputs();
+        }
+//        outputNeurons.get(5).getInputs();
+    }
+    
+    
     //Modify for new code
     public void startingGenome(Entity ent) {
         e = ent;

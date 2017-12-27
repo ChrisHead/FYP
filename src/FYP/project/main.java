@@ -60,6 +60,8 @@ public class main {
 //       neat.saveGenome();
        neat.loadGenome(0,0);
        neat.createNeurons();
+       neat.createLayers();
+       neat.createAxons();
 //       neat.printGenome();
         
 //        World m = new World(50);

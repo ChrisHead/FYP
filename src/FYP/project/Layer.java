@@ -9,10 +9,17 @@ import java.util.ArrayList;
  */
 public class Layer {
     private List<Neuron> neurons;
+    private String id;
     
     public Layer(List<Neuron> n) {
         neurons = new ArrayList<>();
         this.neurons = n;
+    }
+    
+    public Layer(String i, List<Neuron> n) {
+        neurons = new ArrayList<>();
+        this.neurons = n;
+        id = i;
     }
     
     public Layer(int size) {
@@ -21,6 +28,10 @@ public class Layer {
     
     public List<Neuron> getNeurons() {
         return neurons;
+    }
+    
+    public String getId(){
+        return id;
     }
     
     public void LayerZeroInputs(){

@@ -14,6 +14,13 @@ public class Neuron {
     private final String id;
     private boolean isCalculated;
 
+    public Neuron() {
+        inputs = new ArrayList<>();
+        value = 0.0;
+        id = "temp";
+        isCalculated = false;
+    }
+    
     public Neuron(String s) {
         inputs = new ArrayList<>();
         value = 0.0;
