@@ -43,19 +43,19 @@ public class Network {
         axon = new ArrayList<>();
         for (Neuron hn : hidden.get(0).getNeurons()) {
             for (Neuron in : input.getNeurons()) {
-                Axon a = new Axon(in, hn, Math.random());
+                Axon a = new Axon(in, hn, (Math.random()*2-1));
                 axon.add(a);
             }
         }
         for (Neuron hn : hidden.get(1).getNeurons()) {
             for (Neuron hn1 : hidden.get(0).getNeurons()) {
-                Axon a = new Axon(hn1, hn, Math.random());
+                Axon a = new Axon(hn1, hn, (Math.random()*2-1));
                 axon.add(a);
             }
         }
         for (Neuron on : output.getNeurons()) {
             for (Neuron hn : hidden.get(1).getNeurons()) {
-                Axon a = new Axon(hn, on, Math.random());
+                Axon a = new Axon(hn, on, (Math.random()*2-1));
                 axon.add(a);
             }
         }
@@ -69,7 +69,7 @@ public class Network {
         axon = new ArrayList<>();
         for (Neuron on : output.getNeurons()) {
             for (Neuron in : input.getNeurons()) {
-                Axon a = new Axon(in, on, Math.random());
+                Axon a = new Axon(in, on, (Math.random()*2-1));
                 axon.add(a);
             }
         }

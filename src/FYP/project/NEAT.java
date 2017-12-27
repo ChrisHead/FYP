@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.Scanner;
 
 /**
- *
  * @author Chris
  */
 public class NEAT {
@@ -19,18 +18,72 @@ public class NEAT {
     private Map<Integer, List<String>> genome;
     private Network net;
     private Entity e;
+    private final int generation;
+    private final int organism;
+    private final int numOfHiddenLayers;
+    private final List<String> idsOfInputs;
+    private final List<String> idsOfOutputs;
+    private final List<Neuron> allNeurons;
+    private final List<Neuron> inputNeurons;
+    private final List<Neuron> outputNeurons;
+    private final List<Neuron> hiddenNeurons;
 
-    //Create Entity/World/Tile (Done)
-    //Create input/ouputs (Done)
-    //NoHiddenConnect inputs/outputs (Done)
-    //Generate initial genome (Done)
-    //Generate other genomes
-    //Run each genome, record genome/score
-    //Organise genomes, take surviving sample
-    //Run evolve on surviving sample
-    public NEAT() {
+    public NEAT(List<String> i, List<String> o) {
+        generation = 0;
+        organism = 0;
+        numOfHiddenLayers = 0;
+        idsOfInputs = i;
+        idsOfOutputs = o;
+        allNeurons = new ArrayList<>();
+        inputNeurons = new ArrayList<>();
+        outputNeurons = new ArrayList<>();
+        hiddenNeurons = new ArrayList<>();
     }
 
+    public void createNeurons() {
+        List<String> neurons = new ArrayList<>();
+        for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
+            if (!neurons.contains(m.getValue().get(0))) {
+                neurons.add(m.getValue().get(0));
+            }
+            if (!neurons.contains(m.getValue().get(1))) {
+                neurons.add(m.getValue().get(1));
+            }
+        }
+//        System.out.println(neurons);
+        for (String s : neurons) {
+            Neuron n = new Neuron(s);
+            allNeurons.add(n);
+            if (idsOfInputs.contains(s)) {
+                inputNeurons.add(n);
+            } else if (idsOfOutputs.contains(s)) {
+                outputNeurons.add(n);
+            } else {
+                hiddenNeurons.add(n);
+            }
+        }
+//        for (Neuron n : allNeurons) {
+//            System.out.print(n.getName() + " ");
+//        }
+//        System.out.println();
+//        for (Neuron n : inputNeurons) {
+//            System.out.print(n.getName() + " ");
+//        }
+//        System.out.println();
+//        for (Neuron n : outputNeurons) {
+//            System.out.print(n.getName() + " ");
+//        }
+//        System.out.println();
+//        for (Neuron n : hiddenNeurons) {
+//            System.out.print(n.getName() + " ");
+//        }
+//        System.out.println();
+        Layer inputLayer = new Layer(inputNeurons);
+        Layer outputLayer = new Layer(outputNeurons);
+    }
+
+    //Create Hidden Layers
+    //Modify for new code
     public void startingGenome(Entity ent) {
         e = ent;
         List<Layer> h = new ArrayList<>();
@@ -49,7 +102,6 @@ public class NEAT {
             genome.put(i.getInv(), values);
             i.incInv();
         }
-//        i.save();
     }
 
     public void printGenome() {
@@ -58,63 +110,16 @@ public class NEAT {
         }
     }
 
-//    public void runGenome() {
-//        //Initial position?
-//        World w = new World(50);
-//        Tile t = new Tile(w);
-//        int x = 0;
-//        while (e.getEnergy() > 0) {
-//            e.updateInputValues();
-//            e.getOutput().LayerZeroInputs();
-//            net.runNetwork(false, false);
-//            e.action(t, false);
-////            try {
-////                Thread.sleep(100);
-////            } catch (InterruptedException ex) {
-////                Thread.currentThread().interrupt();
-////            }
-//            x++;
-//        }
-//        System.out.println(x);
-//        System.out.println("DONE");
-//    }
-    
-    public void genomeManipulation() {
-        //Genome manipulation stuff
-    }
-
-    public void buildNetworkFromGenome() {
-        //Clear axon and neuron input (class)lists
-        List<String> input = new ArrayList<>();
-        List<String> output = new ArrayList<>();
-        for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
-            if (!input.contains(m.getValue().get(0))) {
-                input.add(m.getValue().get(0));
-            }
-            //Loop for hidden layers
-            if (!output.contains(m.getValue().get(1))
-                    && !input.contains(m.getValue().get(1))) {
-                output.add(m.getValue().get(1));
-            }
-        }
-        //Activate after clearing axons/inputs
-//        for (String s : input) {
-//            Neuron neuron = new Neuron(s);
-//        }
-//        Loop for hidden layers
-//        for (String s : output) {
-//            Neuron neuron = new Neuron(s);
-//        }
-    }
-
     public void saveGenome() {
         Writer w;
         try {
-            w = new FileWriter("Genome.txt");
+//            File dir = new File("Generation: " + generation);
+//            dir.mkdir();
+            w = new FileWriter("Generation_" + generation + "_Organsim_" + organism + ".txt");
             for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
-                w.write(m.getKey() + "," + m.getValue().get(0) + 
-                        "," + m.getValue().get(1) + "," + m.getValue().get(2) + 
-                        "," + m.getValue().get(3) + ",");
+                w.write("\r\n" + m.getKey() + "," + m.getValue().get(0)
+                        + "," + m.getValue().get(1) + "," + m.getValue().get(2)
+                        + "," + m.getValue().get(3) + ",");
             }
             w.close();
         } catch (IOException ex) {
@@ -122,15 +127,17 @@ public class NEAT {
         }
     }
 
-    public void loadGenome() {
+    public void loadGenome(int g, int o) {
         genome = new LinkedHashMap<>();
-        try (Scanner s = new Scanner(new FileReader("Genome.txt"))) {
+        try (Scanner s = new Scanner(new FileReader("Generation_" + generation + "_Organsim_" + organism + ".txt"))) {
             s.delimiter();
             s.useDelimiter(",");
-             List<String> values;
+            List<String> values;
             while (s.hasNext()) {
                 values = new ArrayList<>();
                 String key = s.next();
+                key = key.replaceAll("\\r\\n", "");
+//                System.out.println(key);
                 values.add(s.next());
                 values.add(s.next());
                 values.add(s.next());
@@ -143,3 +150,19 @@ public class NEAT {
         }
     }
 }
+
+//public void buildNetworkFromGenome() {
+//        //Clear axon and neuron input (class)lists
+//        List<String> input = new ArrayList<>();
+//        List<String> output = new ArrayList<>();
+//        for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
+//            if (!input.contains(m.getValue().get(0))) {
+//                input.add(m.getValue().get(0));
+//            }
+//            //Loop for hidden layers
+//            if (!output.contains(m.getValue().get(1))
+//                    && !input.contains(m.getValue().get(1))) {
+//                output.add(m.getValue().get(1));
+//            }
+//        }
+//  

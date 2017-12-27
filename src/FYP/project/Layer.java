@@ -29,4 +29,8 @@ public class Layer {
             n.setValue(0.0);
         }
     }
+    
+    public void removeNeuron(Neuron n) {
+        neurons.remove(n);
+    }
 }

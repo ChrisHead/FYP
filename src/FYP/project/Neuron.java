@@ -12,11 +12,13 @@ public class Neuron {
     private final List<Axon> inputs;
     private double value;
     private final String id;
+    private boolean isCalculated;
 
     public Neuron(String s) {
         inputs = new ArrayList<>();
         value = 0.0;
         id = s;
+        isCalculated = false;
     }
     
     public String getName(){
@@ -62,5 +64,9 @@ public class Neuron {
         inputs.stream()
                 .forEach((a) -> System.out.println(a.getInput().returnValue()
                 + ", " + a.getWeight()));
+    }
+    
+    public void setIsCalculated(boolean b){
+        isCalculated = b;
     }
 }

@@ -14,108 +14,146 @@ import java.util.Scanner;
 public class main {
 
     public static void main(String[] args) {
+        
+       List<String> inputs = new ArrayList<>();
+       List<String> outputs = new ArrayList<>();
+       
+       inputs.add("inv");
+       inputs.add("sensor1");
+       inputs.add("sensor2");
+       inputs.add("sensor3");
+       inputs.add("sensor4");
+       inputs.add("sensor5");
+       inputs.add("sensor6");
+       inputs.add("sensor7");
+       inputs.add("sensor8");
+       inputs.add("sensor9");
+       inputs.add("sensor10");
+       inputs.add("sensor11");
+       inputs.add("sensor12");
+       inputs.add("sensor13");
+       inputs.add("sensor14");
+       inputs.add("sensor15");
+       inputs.add("sensor16");
+       inputs.add("sensor17");
+       inputs.add("sensor18");
+       inputs.add("sensor19");
+       inputs.add("sensor20");
+       inputs.add("sensor21");
+       inputs.add("sensor22");
+       inputs.add("sensor23");
+       inputs.add("sensor24");
+       inputs.add("sensor25");
+       
+       outputs.add("move");
+       outputs.add("turnLeft");
+       outputs.add("turnRight");
+       outputs.add("eat");
+       outputs.add("pickUp");
+       outputs.add("drop");
 
-//       World w = new World(26);     
-//       Entity e = new Entity(w); 
-//       NEAT neat = new NEAT(); 
-//       neat.startingGenome(e);
-//       neat.buildNetworkFromGenome();
+       World w = new World(26);     
+       Entity e = new Entity(w); 
+       NEAT neat = new NEAT(inputs, outputs); 
+       neat.startingGenome(e);
+////       neat.buildNetworkFromGenome();
 //       neat.saveGenome();
-//       neat.loadGenome();
+       neat.loadGenome(0,0);
+       neat.createNeurons();
 //       neat.printGenome();
         
-        World m = new World(50);
-        Window win = new Window();
-        Tile t = new Tile(m);
-        Entity e = new Entity(m);
-        e.setPosition(24, 24, 0);
-        win.createWindow(m, 10, e);
-//      
-        List<Neuron> n;
-        List<Layer> h = new ArrayList<>();
-        Neuron h1 = new Neuron("h1");
-        Neuron h2 = new Neuron("h2");
-        Neuron h3 = new Neuron("h3");
-        Neuron h4 = new Neuron("h4");
-        Neuron h5 = new Neuron("h5");
-        Neuron h6 = new Neuron("h6");
-        Neuron h7 = new Neuron("h7");
-        Neuron h8 = new Neuron("h8");
-        Neuron h9 = new Neuron("h9");
-        Neuron h10 = new Neuron("h10");
-        Neuron h11 = new Neuron("h11");
-        Neuron h12 = new Neuron("h12");
-        Neuron h13 = new Neuron("h13");
-        Neuron h14 = new Neuron("h14");
-        Neuron h15 = new Neuron("h15");
-        n = new ArrayList<>();
-        n.add(h1);
-        n.add(h2);
-        n.add(h3);
-        n.add(h4);
-        n.add(h5);
-        n.add(h6);
-        n.add(h7);
-        n.add(h8);
-        n.add(h9);
-        n.add(h10);
-        n.add(h11);
-        n.add(h12);
-        n.add(h13);
-        n.add(h14);
-        n.add(h15);
-        Layer hl1 = new Layer(n);
+//        World m = new World(50);
+//        Window win = new Window();
+//        Tile t = new Tile(m);
+//        Entity e = new Entity(m);
+//        e.setPosition(24, 24, 0);
+//        win.createWindow(m, 10, e);
+////      
+//        List<Neuron> n;
+//        List<Layer> h = new ArrayList<>();
+//        Neuron h1 = new Neuron("h1");
+//        Neuron h2 = new Neuron("h2");
+//        Neuron h3 = new Neuron("h3");
+//        Neuron h4 = new Neuron("h4");
+//        Neuron h5 = new Neuron("h5");
+//        Neuron h6 = new Neuron("h6");
+//        Neuron h7 = new Neuron("h7");
+//        Neuron h8 = new Neuron("h8");
+//        Neuron h9 = new Neuron("h9");
+//        Neuron h10 = new Neuron("h10");
+//        Neuron h11 = new Neuron("h11");
+//        Neuron h12 = new Neuron("h12");
+//        Neuron h13 = new Neuron("h13");
+//        Neuron h14 = new Neuron("h14");
+//        Neuron h15 = new Neuron("h15");
+//        n = new ArrayList<>();
+//        n.add(h1);
+//        n.add(h2);
+//        n.add(h3);
+//        n.add(h4);
+//        n.add(h5);
+//        n.add(h6);
+//        n.add(h7);
+//        n.add(h8);
+//        n.add(h9);
+//        n.add(h10);
+//        n.add(h11);
+//        n.add(h12);
+//        n.add(h13);
+//        n.add(h14);
+//        n.add(h15);
+//        Layer hl1 = new Layer(n);
+////
+//        Neuron h16 = new Neuron("h16");
+//        Neuron h17 = new Neuron("h17");
+//        Neuron h18 = new Neuron("h18");
+//        Neuron h19 = new Neuron("h19");
+//        Neuron h20 = new Neuron("h20");
+//        Neuron h21 = new Neuron("h21");
+//        Neuron h22 = new Neuron("h22");
+//        Neuron h23 = new Neuron("h23");
+//        Neuron h24 = new Neuron("h24");
+//        Neuron h25 = new Neuron("h25");
+//        n = new ArrayList<>();
+//        n.add(h16);
+//        n.add(h17);
+//        n.add(h18);
+//        n.add(h19);
+//        n.add(h20);
+//        n.add(h21);
+//        n.add(h22);
+//        n.add(h23);
+//        n.add(h24);
+//        n.add(h25);
+//        Layer hl2 = new Layer(n);
+////
+//        h.add(hl1);
+//        h.add(hl2);
+//        Network network = new Network(e.createInputs(), h, e.createOutputs());
+//        network.fullyConnect();
 //
-        Neuron h16 = new Neuron("h16");
-        Neuron h17 = new Neuron("h17");
-        Neuron h18 = new Neuron("h18");
-        Neuron h19 = new Neuron("h19");
-        Neuron h20 = new Neuron("h20");
-        Neuron h21 = new Neuron("h21");
-        Neuron h22 = new Neuron("h22");
-        Neuron h23 = new Neuron("h23");
-        Neuron h24 = new Neuron("h24");
-        Neuron h25 = new Neuron("h25");
-        n = new ArrayList<>();
-        n.add(h16);
-        n.add(h17);
-        n.add(h18);
-        n.add(h19);
-        n.add(h20);
-        n.add(h21);
-        n.add(h22);
-        n.add(h23);
-        n.add(h24);
-        n.add(h25);
-        Layer hl2 = new Layer(n);
-//
-        h.add(hl1);
-        h.add(hl2);
-        Network network = new Network(e.createInputs(), h, e.createOutputs());
-        network.fullyConnect();
-
-        e.setEnergy(1000);
-//       
-        int x = 0;
-        while (e.getEnergy() > 0) {
-            e.updateInputValues();
-            hl1.LayerZeroInputs();
-            hl2.LayerZeroInputs();
-            e.getOutput().LayerZeroInputs();
-            network.fullyConnect();
-            network.runNetwork(false, false);
-            e.actionWin(win, t, false);
+//        e.setEnergy(1000);
+////       
+//        int x = 0;
+//        while (e.getEnergy() > 0) {
+//            e.updateInputValues();
+//            hl1.LayerZeroInputs();
+//            hl2.LayerZeroInputs();
+//            e.getOutput().LayerZeroInputs();
+//            network.fullyConnect();
+//            network.runNetwork(false, true);
+//            e.actionWin(win, t, false);
 //            System.out.println("Energy: " + e.getEnergy());
 //            System.out.println();
-            try {
-                Thread.sleep(50);
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
-            x++;
-        }
-        System.out.println(x);
-        System.out.println("DONE");
+//            try {
+//                Thread.sleep(50);
+//            } catch (InterruptedException ex) {
+//                Thread.currentThread().interrupt();
+//            }
+//            x++;
+//        }
+//        System.out.println(x);
+//        System.out.println("DONE");
 
 //        
 //        
