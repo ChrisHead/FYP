@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
+import java.util.Stack;
 
 /**
  * @author Chris
@@ -82,36 +83,37 @@ public class NEAT {
 //        System.out.println();
     }
 
+    // Not needed anymore
     public void createLayers() {
-        Layer inputLayer = new Layer(inputNeurons);
-        Layer outputLayer = new Layer(outputNeurons);
-
-        List<Neuron> temp = new ArrayList<>();
-        List<String> hiddenIds = new ArrayList<>();
-
-        int layerInc = 0;
-
-        for (Neuron n : hiddenNeurons) {
-            hiddenIds.add(n.getName());
-        }
-
-        for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
-            for (Neuron n : hiddenNeurons) {
-                if (idsOfInputs.contains(m.getValue().get(0))
-                        && hiddenIds.contains(m.getValue().get(1))
-                        && n.getName().equals(m.getValue().get(1))) {
-                    temp.add(n);
-                    hiddenIds.remove(m.getValue().get(1));
-                }
-            }
-        }
-        Layer hiddenLayer = new Layer(Integer.toString(layerInc), temp);
-        layerInc++;
-
-//        for (Neuron n : temp) {
-//            System.out.println(n.getName() + " ");
+//        Layer inputLayer = new Layer(inputNeurons);
+//        Layer outputLayer = new Layer(outputNeurons);
+//
+//        List<Neuron> temp = new ArrayList<>();
+//        List<String> hiddenIds = new ArrayList<>();
+//
+//        int layerInc = 0;
+//
+//        for (Neuron n : hiddenNeurons) {
+//            hiddenIds.add(n.getName());
 //        }
-//        System.out.println(hiddenIds);
+//
+//        for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
+//            for (Neuron n : hiddenNeurons) {
+//                if (idsOfInputs.contains(m.getValue().get(0))
+//                        && hiddenIds.contains(m.getValue().get(1))
+//                        && n.getName().equals(m.getValue().get(1))) {
+//                    temp.add(n);
+//                    hiddenIds.remove(m.getValue().get(1));
+//                }
+//            }
+//        }
+//        Layer hiddenLayer = new Layer(Integer.toString(layerInc), temp);
+//        layerInc++;
+//
+////        for (Neuron n : temp) {
+////            System.out.println(n.getName() + " ");
+////        }
+////        System.out.println(hiddenIds);
     }
 
     public void createAxons() {
@@ -146,19 +148,93 @@ public class NEAT {
 //        for (Neuron n : allNeurons) {
 //            System.out.println(n.getName());
 //        }
-        System.out.println(axons);
+//        System.out.println(axons);
 //        for (Axon a : axons) {
 //            System.out.println(a.getInput().getName());
 //        }
 //        System.out.println(axons.size());
-        for (Neuron n : hiddenNeurons) {
-            System.out.println("Name: " + n.getName());
-            n.getInputs();
-        }
+//        for (Neuron n : hiddenNeurons) {
+//            System.out.println("Name: " + n.getName());
+//            n.getInputs();
+//        }
 //        outputNeurons.get(5).getInputs();
+//          System.out.println(inputNeurons.get(0).returnInputs().isEmpty());
+
+//          System.out.println(hiddenNeurons.get(4).getName());
+//          hiddenNeurons.get(4).getInputs();
     }
-    
-    
+
+    public void runNetwork() {
+        Stack<Neuron> toCalculate = new Stack<>();
+
+        inputNeurons.get(0).setValue(5.0);
+        inputNeurons.get(1).setValue(10.0);
+        
+        inputNeurons.get(0).printValue();
+        inputNeurons.get(1).printValue();
+        System.out.println();
+
+        for (Neuron n : allNeurons) {
+            n.setIsCalculated(false);
+        }
+        
+        inputNeurons.get(0).setIsCalculated(true);
+        inputNeurons.get(1).setIsCalculated(true);
+
+        for (Neuron o : outputNeurons) {
+            for (Axon a : o.returnInputs()) {
+                if (!a.getInput().isCalculated() && !toCalculate.contains(a.getInput())) {
+                    toCalculate.push(a.getInput());
+                }
+            }
+        }
+
+        while (!toCalculate.isEmpty()) {
+
+//            System.out.println("Top: " + toCalculate.peek().getName());
+            if (toCalculate.peek().returnInputs().isEmpty()) {
+
+                //Calculate value
+                toCalculate.peek().getValue();
+
+                toCalculate.pop();
+            } else if (toCalculate.peek().isCalculated()) {
+                toCalculate.pop();
+            } else {
+                int temp = 0;
+                for (Axon a : toCalculate.peek().returnInputs()) {
+                    if (!a.getInput().isCalculated()) {
+                        toCalculate.add(a.getInput());
+                    } else {
+                        temp++;
+                    }
+                }
+                int noOfCalInputs = toCalculate.peek().returnInputs().size();
+//                System.out.println("Size: " + noOfCalInputs);
+                if (noOfCalInputs == temp) {
+
+                    //Calculate value
+                    toCalculate.peek().getValue();
+
+                    toCalculate.pop();
+                }
+            }
+
+//            for (Neuron n : toCalculate) {
+//                System.out.println("C: " + n.getName());
+//            }
+//            System.out.println();
+        }
+
+        outputNeurons.get(0).printValue();
+        outputNeurons.get(1).printValue();
+        outputNeurons.get(2).printValue();
+        
+        for (Axon a : outputNeurons.get(0).returnInputs()) {
+            a.getInput().printValue();
+        }
+    }
+
     //Modify for new code
     public void startingGenome(Entity ent) {
         e = ent;
@@ -226,19 +302,3 @@ public class NEAT {
         }
     }
 }
-
-//public void buildNetworkFromGenome() {
-//        //Clear axon and neuron input (class)lists
-//        List<String> input = new ArrayList<>();
-//        List<String> output = new ArrayList<>();
-//        for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
-//            if (!input.contains(m.getValue().get(0))) {
-//                input.add(m.getValue().get(0));
-//            }
-//            //Loop for hidden layers
-//            if (!output.contains(m.getValue().get(1))
-//                    && !input.contains(m.getValue().get(1))) {
-//                output.add(m.getValue().get(1));
-//            }
-//        }
-//  

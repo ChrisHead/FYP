@@ -46,6 +46,7 @@ public class Neuron {
                 value += (a.getWeight() * a.getInput().returnValue());
             });
         }
+        isCalculated = true;
         return value;
     }
 
@@ -73,7 +74,15 @@ public class Neuron {
                 + ", " + a.getWeight()));
     }
     
+    public List<Axon> returnInputs(){
+        return inputs;
+    }
+    
     public void setIsCalculated(boolean b){
         isCalculated = b;
+    }
+    
+    public boolean isCalculated() {
+        return isCalculated;
     }
 }

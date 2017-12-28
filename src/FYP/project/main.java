@@ -18,39 +18,46 @@ public class main {
        List<String> inputs = new ArrayList<>();
        List<String> outputs = new ArrayList<>();
        
-       inputs.add("inv");
-       inputs.add("sensor1");
-       inputs.add("sensor2");
-       inputs.add("sensor3");
-       inputs.add("sensor4");
-       inputs.add("sensor5");
-       inputs.add("sensor6");
-       inputs.add("sensor7");
-       inputs.add("sensor8");
-       inputs.add("sensor9");
-       inputs.add("sensor10");
-       inputs.add("sensor11");
-       inputs.add("sensor12");
-       inputs.add("sensor13");
-       inputs.add("sensor14");
-       inputs.add("sensor15");
-       inputs.add("sensor16");
-       inputs.add("sensor17");
-       inputs.add("sensor18");
-       inputs.add("sensor19");
-       inputs.add("sensor20");
-       inputs.add("sensor21");
-       inputs.add("sensor22");
-       inputs.add("sensor23");
-       inputs.add("sensor24");
-       inputs.add("sensor25");
-       
-       outputs.add("move");
-       outputs.add("turnLeft");
-       outputs.add("turnRight");
-       outputs.add("eat");
-       outputs.add("pickUp");
-       outputs.add("drop");
+//       inputs.add("inv");
+//       inputs.add("sensor1");
+//       inputs.add("sensor2");
+//       inputs.add("sensor3");
+//       inputs.add("sensor4");
+//       inputs.add("sensor5");
+//       inputs.add("sensor6");
+//       inputs.add("sensor7");
+//       inputs.add("sensor8");
+//       inputs.add("sensor9");
+//       inputs.add("sensor10");
+//       inputs.add("sensor11");
+//       inputs.add("sensor12");
+//       inputs.add("sensor13");
+//       inputs.add("sensor14");
+//       inputs.add("sensor15");
+//       inputs.add("sensor16");
+//       inputs.add("sensor17");
+//       inputs.add("sensor18");
+//       inputs.add("sensor19");
+//       inputs.add("sensor20");
+//       inputs.add("sensor21");
+//       inputs.add("sensor22");
+//       inputs.add("sensor23");
+//       inputs.add("sensor24");
+//       inputs.add("sensor25");
+//       
+//       outputs.add("move");
+//       outputs.add("turnLeft");
+//       outputs.add("turnRight");
+//       outputs.add("eat");
+//       outputs.add("pickUp");
+//       outputs.add("drop");
+
+         inputs.add("Input 1");
+         inputs.add("Input 2");
+         
+         outputs.add("Output 1");
+         outputs.add("Output 2");
+         outputs.add("Output 3");
 
        World w = new World(26);     
        Entity e = new Entity(w); 
@@ -60,8 +67,8 @@ public class main {
 //       neat.saveGenome();
        neat.loadGenome(0,0);
        neat.createNeurons();
-       neat.createLayers();
        neat.createAxons();
+       neat.runNetwork();
 //       neat.printGenome();
         
 //        World m = new World(50);
