@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.Scanner;
 import java.util.Stack;
+import java.io.File;
 
 /**
  * @author Chris
@@ -164,22 +165,14 @@ public class NEAT {
 //          hiddenNeurons.get(4).getInputs();
     }
 
+    //Add list of starting inputs condition
     public void runNetwork() {
-        Stack<Neuron> toCalculate = new Stack<>();
-
-        inputNeurons.get(0).setValue(5.0);
-        inputNeurons.get(1).setValue(10.0);
         
-        inputNeurons.get(0).printValue();
-        inputNeurons.get(1).printValue();
-        System.out.println();
+        Stack<Neuron> toCalculate = new Stack<>();
 
         for (Neuron n : allNeurons) {
             n.setIsCalculated(false);
         }
-        
-        inputNeurons.get(0).setIsCalculated(true);
-        inputNeurons.get(1).setIsCalculated(true);
 
         for (Neuron o : outputNeurons) {
             for (Axon a : o.returnInputs()) {
@@ -190,13 +183,8 @@ public class NEAT {
         }
 
         while (!toCalculate.isEmpty()) {
-
-//            System.out.println("Top: " + toCalculate.peek().getName());
             if (toCalculate.peek().returnInputs().isEmpty()) {
-
-                //Calculate value
                 toCalculate.peek().getValue();
-
                 toCalculate.pop();
             } else if (toCalculate.peek().isCalculated()) {
                 toCalculate.pop();
@@ -210,29 +198,18 @@ public class NEAT {
                     }
                 }
                 int noOfCalInputs = toCalculate.peek().returnInputs().size();
-//                System.out.println("Size: " + noOfCalInputs);
                 if (noOfCalInputs == temp) {
-
-                    //Calculate value
                     toCalculate.peek().getValue();
-
                     toCalculate.pop();
                 }
             }
-
-//            for (Neuron n : toCalculate) {
-//                System.out.println("C: " + n.getName());
-//            }
-//            System.out.println();
         }
 
-        outputNeurons.get(0).printValue();
-        outputNeurons.get(1).printValue();
-        outputNeurons.get(2).printValue();
+        for (Neuron o : outputNeurons) {
+            o.getValue();
+        }
         
-        for (Axon a : outputNeurons.get(0).returnInputs()) {
-            a.getInput().printValue();
-        }
+        outputNeurons.get(0).printValue();
     }
 
     //Modify for new code
@@ -262,12 +239,16 @@ public class NEAT {
         }
     }
 
-    public void saveGenome() {
+    public void saveGenome(int g, int o) {
         Writer w;
         try {
-//            File dir = new File("Generation: " + generation);
-//            dir.mkdir();
-            w = new FileWriter("Generation_" + generation + "_Organsim_" + organism + ".txt");
+            File folder = new File(System.getProperty("user.dir") + "/Generation_" + g);
+            if (folder.mkdir()) {
+                System.out.println("Directory Created");
+            } else {
+                System.out.println("Directory Not Created");
+            }
+            w = new FileWriter(System.getProperty("user.dir") + "/Generation_" + g + "/Organism_" + o + ".txt");
             for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
                 w.write("\r\n" + m.getKey() + "," + m.getValue().get(0)
                         + "," + m.getValue().get(1) + "," + m.getValue().get(2)
@@ -281,7 +262,7 @@ public class NEAT {
 
     public void loadGenome(int g, int o) {
         genome = new LinkedHashMap<>();
-        try (Scanner s = new Scanner(new FileReader("Generation_" + generation + "_Organsim_" + organism + ".txt"))) {
+        try (Scanner s = new Scanner(new FileReader(System.getProperty("user.dir") + "/Generation_" + g + "/Organism_" + o + ".txt"))) {
             s.delimiter();
             s.useDelimiter(",");
             List<String> values;

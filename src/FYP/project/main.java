@@ -52,12 +52,11 @@ public class main {
 //       outputs.add("pickUp");
 //       outputs.add("drop");
 
-         inputs.add("Input 1");
-         inputs.add("Input 2");
+         inputs.add("i1");
+         inputs.add("i2");
+         inputs.add("i3");
          
-         outputs.add("Output 1");
-         outputs.add("Output 2");
-         outputs.add("Output 3");
+         outputs.add("o1");
 
        World w = new World(26);     
        Entity e = new Entity(w); 
@@ -69,6 +68,7 @@ public class main {
        neat.createNeurons();
        neat.createAxons();
        neat.runNetwork();
+       neat.saveGenome(0,0);
 //       neat.printGenome();
         
 //        World m = new World(50);
