@@ -17,6 +17,7 @@ public class main {
         
        List<String> inputs = new ArrayList<>();
        List<String> outputs = new ArrayList<>();
+       List<Double> values = new ArrayList<>();
        
 //       inputs.add("inv");
 //       inputs.add("sensor1");
@@ -57,8 +58,12 @@ public class main {
          inputs.add("i3");
          
          outputs.add("o1");
+         
+         values.add(2.0);
+         values.add(3.0);
+         values.add(5.0);
 
-       World w = new World(26);     
+       World w = new World(50);     
        Entity e = new Entity(w); 
        NEAT neat = new NEAT(inputs, outputs); 
        neat.startingGenome(e);
@@ -67,16 +72,27 @@ public class main {
        neat.loadGenome(0,0);
        neat.createNeurons();
        neat.createAxons();
-       neat.runNetwork();
-       neat.saveGenome(0,0);
+//       neat.runNetwork(values,true);
+//       neat.printAxons();
+       neat.addNeuron();
+       neat.saveGenome(0,0,false);
+//        neat.printHiddenNeurons();
+
+//       neat.getFitness();
+//       neat.saveGenerationResults(0);
 //       neat.printGenome();
         
 //        World m = new World(50);
 //        Window win = new Window();
-//        Tile t = new Tile(m);
-//        Entity e = new Entity(m);
+//        Tile t = new Tile(w);
+////        Entity e = new Entity(m);
 //        e.setPosition(24, 24, 0);
-//        win.createWindow(m, 10, e);
+//        win.createWindow(w, 10, e);
+//        
+//        e.coneSensor();
+//        for (int i : e.getSensor()) {
+//            System.out.println(i);
+//        }
 ////      
 //        List<Neuron> n;
 //        List<Layer> h = new ArrayList<>();

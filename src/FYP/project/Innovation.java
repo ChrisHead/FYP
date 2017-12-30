@@ -19,11 +19,13 @@ public class Innovation {
     }
 
     public int getInv() {
+        this.load();
         return inv;
     }
 
     public void setInv(Integer x) {
         inv = x;
+        this.save();
     }
     
     public void incInv(){
