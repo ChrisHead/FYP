@@ -73,8 +73,9 @@ public class main {
        neat.createNeurons();
        neat.createAxons();
 //       neat.runNetwork(values,true);
+       neat.addAxon();
 //       neat.printAxons();
-       neat.addNeuron();
+//       neat.addNeuron();
        neat.saveGenome(0,0,false);
 //        neat.printHiddenNeurons();
 
