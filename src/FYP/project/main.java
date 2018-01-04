@@ -58,6 +58,8 @@ public class main {
          inputs.add("i3");
          
          outputs.add("o1");
+         outputs.add("o2");
+         outputs.add("o3");
          
          values.add(2.0);
          values.add(3.0);
@@ -66,16 +68,19 @@ public class main {
        World w = new World(50);     
        Entity e = new Entity(w); 
        NEAT neat = new NEAT(inputs, outputs); 
-       neat.startingGenome(e);
+//       neat.startingGenome(e);
 ////       neat.buildNetworkFromGenome();
 //       neat.saveGenome();
+
        neat.loadGenome(0,0);
        neat.createNeurons();
        neat.createAxons();
 //       neat.runNetwork(values,true);
-       neat.addAxon();
+//        neat.addAxon();
+//        neat.addNeuron();
+       neat.changeWeights(10.0, 10);
+        
 //       neat.printAxons();
-//       neat.addNeuron();
        neat.saveGenome(0,0,false);
 //        neat.printHiddenNeurons();
 

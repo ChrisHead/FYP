@@ -58,7 +58,6 @@ public class NEAT {
                 neurons.add(m.getValue().get(1));
             }
         }
-//        System.out.println(neurons);
         for (String s : neurons) {
             Neuron n = new Neuron(s);
             allNeurons.add(n);
@@ -70,22 +69,6 @@ public class NEAT {
                 hiddenNeurons.add(n);
             }
         }
-//        for (Neuron n : allNeurons) {
-//            System.out.print(n.getName() + " ");
-//        }
-//        System.out.println();
-//        for (Neuron n : inputNeurons) {
-//            System.out.print(n.getName() + " ");
-//        }
-//        System.out.println();
-//        for (Neuron n : outputNeurons) {
-//            System.out.print(n.getName() + " ");
-//        }
-//        System.out.println();
-//        for (Neuron n : hiddenNeurons) {
-//            System.out.print(n.getName() + " ");
-//        }
-//        System.out.println();
     }
 
     public void createAxons() {
@@ -212,6 +195,13 @@ public class NEAT {
         }
     }
 
+    public void printAllNeurons() {
+        System.out.println("Size: " + allNeurons.size());
+        for (Neuron n : allNeurons) {
+            System.out.println(n.getName());
+        }
+    }
+
     public void printHiddenNeurons() {
         System.out.println("Size: " + hiddenNeurons.size());
         for (Neuron n : hiddenNeurons) {
@@ -294,7 +284,6 @@ public class NEAT {
         } catch (IOException ex) {
             System.out.println("Error reading from file: " + ex);
         }
-        List<Integer> keySet = new ArrayList<>(genome.keySet());
     }
 
     public void saveGenerationResults(int g) {
@@ -383,73 +372,69 @@ public class NEAT {
     }
 
     public void addAxon() {
-        //get random input/hidden neuron
+
+        List<Neuron> existingOutputs;
+        List<Neuron> available = new ArrayList<>();
+
         List<Neuron> inHid = new ArrayList<>();
         inHid.addAll(inputNeurons);
         inHid.addAll(hiddenNeurons);
-        int inHidRand = ThreadLocalRandom.current().nextInt(0, inHid.size());
-        String newIn = inHid.get(inHidRand).getName();
 
-        //get random hidden/output neuron
         List<Neuron> hidOut = new ArrayList<>();
         hidOut.addAll(hiddenNeurons);
         hidOut.addAll(outputNeurons);
-        int hidOutRand = ThreadLocalRandom.current().nextInt(0, hidOut.size());
-        String newOut = hidOut.get(hidOutRand).getName();
 
-        List<String> hidOutNames = new ArrayList<>();
-
-        //checks whether new input neuron is already connected to all
-        //hidden and output neurons, changes input if this is the case
-        boolean cont = false;
-        while (!cont) {
-            List<String> tempNames = new ArrayList<>();
-            //get list of outputs in existing axons for given new input
+        for (Neuron inh : inHid) {
+            existingOutputs = new ArrayList<>();
             for (Axon a : axons) {
-                if (a.getInput().getName().equals(newIn)) {
-                    tempNames.add(a.getOutput().getName());
+                if (a.getInput() == inh) {
+                    existingOutputs.add(a.getOutput());
                 }
             }
-            //adds all hidden and output neuron names to a list
-            List<String> names = new ArrayList<>();
-            for (Neuron n : hidOut) {
-                names.add(n.getName());
+            if (!existingOutputs.containsAll(hidOut)) {
+                available.add(inh);
             }
-            if (tempNames.containsAll(names)) {
-                inHidRand = ThreadLocalRandom.current().nextInt(0, inHid.size());
-                newIn = inHid.get(inHidRand).getName();
+        }
+
+        if (available.isEmpty()) {
+            System.out.println("No Available Connections");
+        } else {
+            int availRand = ThreadLocalRandom.current().nextInt(0, available.size());
+            existingOutputs = new ArrayList<>();
+            List<Neuron> outTemp = new ArrayList<>();
+            for (Axon a : axons) {
+                if (a.getInput() == available.get(availRand)) {
+                    outTemp.add(a.getOutput());
+                }
+            }
+            for (Neuron o : hidOut) {
+                if (!outTemp.contains(o)) {
+                    existingOutputs.add(o);
+                }
+            }
+            int outRand = ThreadLocalRandom.current().nextInt(0, existingOutputs.size());
+
+            double weight = (Math.random() * 2 - 1);
+            Axon a = new Axon(available.get(availRand), existingOutputs.get(outRand), weight);
+            axons.add(a);
+            List<String> temp = new ArrayList<>();
+            temp.add(available.get(availRand).getName());
+            temp.add(existingOutputs.get(outRand).getName());
+            temp.add(String.valueOf(weight));
+            temp.add("ENABLED");
+            genome.put(innov.getInv(), temp);
+            innov.incInv();
+        }
+    }
+
+    public void changeWeights(Double d, int r) {
+        for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
+            int uniform = ThreadLocalRandom.current().nextInt(0, 100);
+            if (uniform > r) {
+                m.getValue().set(2, Double.toString(Double.parseDouble(m.getValue().get(2)) + d));
             } else {
-                hidOutNames.addAll(tempNames);
-                System.out.println(hidOutNames);
-                cont = true;
+                m.getValue().set(2, Double.toString(Math.random() * 2 - 1));
             }
-
         }
-
-        //changes new output if new input already has a connect to it
-        while (!hidOutNames.contains(newOut)) {
-            hidOutRand = ThreadLocalRandom.current().nextInt(0, hidOut.size());
-            newOut = hidOut.get(hidOutRand).getName();
-        }
-        
-        //create new axon, add to axons and genome
-        double weight = (Math.random()*2-1);
-        Axon a = new Axon(inHid.get(inHidRand), hidOut.get(hidOutRand), weight);
-        axons.add(a);
-        List<String> temp = new ArrayList<>();
-        temp.add(newIn);
-        temp.add(newOut);
-        temp.add(String.valueOf(weight));
-        temp.add("ENABLED");
-        genome.put(innov.getInv(), temp);
-        innov.incInv();
-    }
-
-    public void removeAxon() {
-
-    }
-
-    public void changeWeight() {
-
     }
 }
