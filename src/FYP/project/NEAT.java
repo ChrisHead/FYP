@@ -207,6 +207,12 @@ public class NEAT {
         }
     }
 
+    public void printGenerationresults() {
+        for (Map.Entry<Integer, Integer> m : results.entrySet()) {
+            System.out.println(m.getKey() + ", " + m.getValue());
+        }
+    }
+
     public void printPreviousValues() {
         for (Map.Entry<Neuron, Double> p : previousValues.entrySet()) {
             System.out.println(p.getKey() + ", " + p.getValue());
@@ -291,14 +297,16 @@ public class NEAT {
         Writer w;
         try {
             if (b) {
-                File folder = new File(System.getProperty("user.dir") + "/results/Generation_" + g);
+                File folder = new File(System.getProperty("user.dir")
+                        + "/results/Generation_" + g);
                 if (folder.mkdir()) {
                     System.out.println("Directory Created");
                 } else {
                     System.out.println("Directory Not Created");
                 }
             }
-            w = new FileWriter(System.getProperty("user.dir") + "/results/Generation_" + g + "/Organism_" + o + ".txt");
+            w = new FileWriter(System.getProperty("user.dir")
+                    + "/results/Generation_" + g + "/Organism_" + o + ".txt");
             for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
                 w.write("\r\n" + m.getKey() + "," + m.getValue().get(0)
                         + "," + m.getValue().get(1) + "," + m.getValue().get(2)
@@ -312,7 +320,8 @@ public class NEAT {
 
     public void loadGenome(int g, int o) {
         genome = new LinkedHashMap<>();
-        try (Scanner s = new Scanner(new FileReader(System.getProperty("user.dir") + "/results/Generation_" + g + "/Organism_" + o + ".txt"))) {
+        try (Scanner s = new Scanner(new FileReader(System.getProperty("user.dir")
+                + "/results/Generation_" + g + "/Organism_" + o + ".txt"))) {
             s.delimiter();
             s.useDelimiter(",");
             List<String> values;
@@ -335,7 +344,8 @@ public class NEAT {
     public void saveGenerationResults(int g) {
         Writer w;
         try {
-            w = new FileWriter(System.getProperty("user.dir") + "/results/Generation_" + g + "/results.txt");
+            w = new FileWriter(System.getProperty("user.dir")
+                    + "/results/Generation_" + g + "/results.txt");
             for (Map.Entry<Integer, Integer> r : results.entrySet()) {
                 w.write("\r\n" + r.getKey() + "," + r.getValue());
             }
@@ -345,13 +355,160 @@ public class NEAT {
         }
     }
 
+    public void loadGenerationResults(int g) {
+        results = new LinkedHashMap<>();
+        try (Scanner s = new Scanner(new FileReader(System.getProperty("user.dir")
+                + "/results/Generation_" + g + "/results.txt"))) {
+            s.delimiter();
+            s.useDelimiter(",");
+            int result;
+            while (s.hasNext()) {
+                String key = s.next();
+                key = key.replaceAll("\\r\\n", "");
+                result = Integer.parseInt(s.next());
+                results.put(Integer.parseInt(key), result);
+            }
+            s.close();
+        } catch (IOException ex) {
+            System.out.println("Error reading from file: " + ex);
+        }
+    }
+
     //Mutation Functions
     public void mutate() {
         //80% chance for changeWeights
     }
 
-    public void crossover() {
+    public Map<Integer, List<String>> crossover(int generation, int organsim1, int organsim2, int enableChance) {
+        this.loadGenome(generation, organsim1);
+        Map<Integer, List<String>> genome1 = new LinkedHashMap<>(genome);
+        this.loadGenome(generation, organsim2);
+        Map<Integer, List<String>> genome2 = new LinkedHashMap<>(genome);
+        this.loadGenerationResults(generation);
 
+        int genome1Result = results.get(organsim1);
+        int genome2Result = results.get(organsim2);
+
+        String fittest;
+        if (genome1Result == genome2Result) {
+            fittest = "equal";
+        } else if (genome1Result > genome2Result) {
+            fittest = "genome1";
+        } else {
+            fittest = "genome2";
+        }
+
+        List<Integer> matching = new ArrayList<>();
+        List<Integer> disjoint1 = new ArrayList<>();
+        List<Integer> disjoint2 = new ArrayList<>();
+        List<Integer> excess = new ArrayList<>();
+
+        List<Integer> g1KeySet = new ArrayList<>(genome1.keySet());
+        List<Integer> g2KeySet = new ArrayList<>(genome2.keySet());
+
+        //matching
+        for (int i : genome1.keySet()) {
+            if (genome2.keySet().contains(i)) {
+                matching.add(i);
+            }
+        }
+        //excess
+        if (genome1.keySet().size() > genome2.keySet().size()) {
+            for (int i : g1KeySet) {
+                if (i > g2KeySet.get(g2KeySet.size() - 1)) {
+                    excess.add(i);
+                }
+            }
+        } else {
+            for (int i : g2KeySet) {
+                if (i > g1KeySet.get(g1KeySet.size() - 1)) {
+                    excess.add(i);
+                }
+            }
+        }
+        //disjoint
+        for (int i : g1KeySet) {
+            if (!matching.contains(i) && !excess.contains(i)) {
+                disjoint1.add(i);
+            }
+        }
+        for (int i : g2KeySet) {
+            if (!matching.contains(i) && !excess.contains(i)) {
+                disjoint2.add(i);
+            }
+        }
+
+//        System.out.println(matching);
+//        System.out.println(excess);
+//        System.out.println("D1: " + disjoint1);
+//        System.out.println("D2: " + disjoint2);
+
+        //create new genome
+        //matching
+        Map<Integer, List<String>> newGenome = new LinkedHashMap<>();
+        for (int i : matching) {
+            int rand = ThreadLocalRandom.current().nextInt(0, 100);
+            if (rand > 50) {
+                newGenome.put(i, genome1.get(i));
+            } else {
+                newGenome.put(i, genome2.get(i));
+            }
+            if (!(genome1.get(i).get(3).equals("ENABLED")
+                    && genome2.get(i).get(3).equals("ENABLED"))) {
+                int eChance = ThreadLocalRandom.current().nextInt(0, 100);
+                List<String> temp = new ArrayList<>(newGenome.get(i));
+                if (eChance > enableChance) {
+                    temp.set(3, "ENABLED");
+                    newGenome.put(i, temp);
+                } else {
+                    temp.set(3, "DISABLED");
+                    newGenome.put(i, temp);
+                }
+            }
+        }
+        //disjoint and excess
+        if (fittest.equals("equal")) {
+            for (int i : disjoint1) {
+                int rand = ThreadLocalRandom.current().nextInt(0, 100);
+                if (rand > 50) {
+                    newGenome.put(i, genome1.get(i));
+                }
+            }
+            for (int i : disjoint2) {
+                int rand = ThreadLocalRandom.current().nextInt(0, 100);
+                if (rand > 50) {
+                    newGenome.put(i, genome2.get(i));
+                }
+            }
+            for (int i : excess) {
+                int rand = ThreadLocalRandom.current().nextInt(0, 100);
+                if (rand > 50 && (genome1.keySet().size() > genome2.keySet().size())) {
+                    newGenome.put(i, genome1.get(i));
+                } else if (rand > 50) {
+                    newGenome.put(i, genome2.get(i));
+                }
+            }
+        } else if (fittest.equals("genome1")) {
+            for (int i : disjoint1) {
+                newGenome.put(i, genome1.get(i));
+            }
+            if (genome1.keySet().size() > genome2.keySet().size()) {
+                for (int i : excess) {
+                    newGenome.put(i, genome1.get(i));
+                }
+            }
+        } else {
+            for (int i : disjoint2) {
+                newGenome.put(i, genome2.get(i));
+            }
+            if (genome2.keySet().size() > genome1.keySet().size()) {
+                for (int i : excess) {
+                    newGenome.put(i, genome2.get(i));
+                }
+            }
+        }
+        genome = new LinkedHashMap<>(newGenome);
+       return newGenome; 
     }
 
     public void addNeuron() {
@@ -418,14 +575,11 @@ public class NEAT {
     }
 
     public void addAxon() {
-
         List<Neuron> existingOutputs;
         List<Neuron> available = new ArrayList<>();
-
         List<Neuron> hidOut = new ArrayList<>();
         hidOut.addAll(hiddenNeurons);
         hidOut.addAll(outputNeurons);
-
         for (Neuron all : allNeurons) {
             existingOutputs = new ArrayList<>();
             existingOutputs.add(all);
@@ -456,7 +610,6 @@ public class NEAT {
                 }
             }
             int outRand = ThreadLocalRandom.current().nextInt(0, availableOutputs.size());
-
             double weight = (Math.random() * 2 - 1);
             Axon a = new Axon(available.get(availRand), availableOutputs.get(outRand), weight);
             axons.add(a);

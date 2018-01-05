@@ -63,7 +63,7 @@ public class Neuron {
 
     public double calculateSigValue() {
         this.calculateValue();
-        value = 1 / (1 + Math.exp(-value));
+        value = 1 / (1 + Math.exp(-value*4.9));
         return value;
     }
 
