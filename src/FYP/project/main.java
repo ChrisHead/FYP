@@ -55,15 +55,17 @@ public class main {
 
          inputs.add("i1");
          inputs.add("i2");
-         inputs.add("i3");
+//         inputs.add("i3");
          
          outputs.add("o1");
          outputs.add("o2");
-         outputs.add("o3");
+//         outputs.add("o3");
          
-         values.add(2.0);
-         values.add(3.0);
-         values.add(5.0);
+         values.add(4.0);
+         values.add(9.0);
+//         values.add(3.0);
+         
+         
 
        World w = new World(50);     
        Entity e = new Entity(w); 
@@ -75,10 +77,26 @@ public class main {
        neat.loadGenome(0,0);
        neat.createNeurons();
        neat.createAxons();
+       
+//       neat.printPreviousValues();
+//       neat.printGenome();
+       neat.runNetwork(values,true);
 //       neat.runNetwork(values,true);
-//        neat.addAxon();
-//        neat.addNeuron();
-       neat.changeWeights(10.0, 10);
+//        neat.printPreviousValues();
+//       neat.printStartingValues();
+       
+//       neat.printHiddenNeurons();
+//        neat.printInputNeurons();
+//        neat.printOutputNeurons();
+//       System.out.println(neat.getHiddenNeurons().get(1).getInputs().get(1).getInput().getName());
+//       neat.getHiddenNeurons().get(0).printValue();
+//       neat.getHiddenNeurons().get(1).printValue();
+//       neat.getHiddenNeurons().get(2).printValue();
+//       neat.getHiddenNeurons().get(3).printValue();
+//       neat.getHiddenNeurons().get(4).printValue();
+        neat.addAxon();
+        neat.addNeuron();
+       neat.changeWeights(10);
         
 //       neat.printAxons();
        neat.saveGenome(0,0,false);

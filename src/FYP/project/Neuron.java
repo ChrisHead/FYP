@@ -13,12 +13,14 @@ public class Neuron {
     private double value;
     private final String id;
     private boolean isCalculated;
+    private boolean recurrentValueAvailable;
 
     public Neuron() {
         inputs = new ArrayList<>();
         value = 0.0;
         id = "temp";
         isCalculated = false;
+        recurrentValueAvailable = true;
     }
     
     public Neuron(String s) {
@@ -26,6 +28,7 @@ public class Neuron {
         value = 0.0;
         id = s;
         isCalculated = false;
+        recurrentValueAvailable = true;
     }
     
     public String getName(){
@@ -40,10 +43,10 @@ public class Neuron {
         this.value = value;
     }
 
-    public double getValue() {
+    public double calculateValue() {
         if (!inputs.isEmpty()) {
             inputs.stream().forEach((a) -> {
-                value += (a.getWeight() * a.getInput().returnValue());
+                value += (a.getWeight() * a.getInput().getValue());
             });
         }
         isCalculated = true;
@@ -54,12 +57,12 @@ public class Neuron {
         System.out.println(value);
     }
 
-    public double returnValue() {
+    public double getValue() {
         return value;
     }
 
-    public double getSigValue() {
-        this.getValue();
+    public double calculateSigValue() {
+        this.calculateValue();
         value = 1 / (1 + Math.exp(-value));
         return value;
     }
@@ -68,13 +71,13 @@ public class Neuron {
         inputs.add(axon);
     }
 
-    public void getInputs() {
+    public void printInputs() {
         inputs.stream()
-                .forEach((a) -> System.out.println(a.getInput().returnValue()
+                .forEach((a) -> System.out.println(a.getInput().getValue()
                 + ", " + a.getWeight()));
     }
     
-    public List<Axon> returnInputs(){
+    public List<Axon> getInputs(){
         return inputs;
     }
     
@@ -84,5 +87,13 @@ public class Neuron {
     
     public boolean isCalculated() {
         return isCalculated;
+    }
+    
+    public boolean getRecurrentValueAvailable(){
+        return recurrentValueAvailable;
+    }
+    
+    public void setRecurrentValueAvailable(boolean b) {
+        recurrentValueAvailable = b;
     }
 }

@@ -24,18 +24,18 @@ public class Network {
     public void runNetwork(boolean a, boolean b) {
         hidden.stream().forEach((i) -> {
             i.getNeurons().stream()
-                    .forEach((n) -> n.getSigValue());
+                    .forEach((n) -> n.calculateSigValue());
         });
         output.getNeurons().stream()
-                .forEach((n) -> n.getSigValue());
+                .forEach((n) -> n.calculateSigValue());
         //Print Values
         if (a) {
             input.getNeurons().stream()
-                    .forEach((n) -> System.out.println(n.returnValue()));
+                    .forEach((n) -> System.out.println(n.getValue()));
         }
         if (b) {
             output.getNeurons().stream()
-                    .forEach((n) -> System.out.println(n.returnValue()));
+                    .forEach((n) -> System.out.println(n.getValue()));
         }
     }
 

@@ -20,6 +20,7 @@ public class NEAT {
 
     private Map<Integer, List<String>> genome;
     private Map<Integer, Integer> results;
+    private Map<Neuron, Double> previousValues;
     private Network net;
     private Entity e;
     private int generation;
@@ -44,6 +45,7 @@ public class NEAT {
         hiddenNeurons = new ArrayList<>();
         axons = new ArrayList<>();
         results = new LinkedHashMap<>();
+        previousValues = new LinkedHashMap<>();
         innov = new Innovation();
     }
 
@@ -69,6 +71,10 @@ public class NEAT {
                 hiddenNeurons.add(n);
             }
         }
+        for (Neuron n : allNeurons) {
+            previousValues.put(n, n.getValue());
+        }
+
     }
 
     public void createAxons() {
@@ -90,14 +96,8 @@ public class NEAT {
                 }
                 Axon a = new Axon(input, output, Double.parseDouble(m.getValue().get(2)));
                 axons.add(a);
-
             }
         }
-//        System.out.println(axons.size());
-//        for (Neuron n : hiddenNeurons) {
-//            System.out.println("Name: " + n.getName());
-//            n.getInputs();
-//        }
     }
 
     //Network Running
@@ -105,41 +105,60 @@ public class NEAT {
         for (int i = 0; i < v.size(); i++) {
             inputNeurons.get(i).setValue(v.get(i));
         }
+        for (Neuron h : hiddenNeurons) {
+            h.setValue(0.0);
+        }
+        for (Neuron o : outputNeurons) {
+            o.setValue(0.0);
+        }
+        for (Neuron a : allNeurons) {
+            a.setRecurrentValueAvailable(true);
+        }
         Stack<Neuron> toCalculate = new Stack<>();
         for (Neuron n : allNeurons) {
             n.setIsCalculated(false);
         }
         for (Neuron o : outputNeurons) {
-            for (Axon a : o.returnInputs()) {
+            for (Axon a : o.getInputs()) {
                 if (!a.getInput().isCalculated() && !toCalculate.contains(a.getInput())) {
                     toCalculate.push(a.getInput());
                 }
             }
         }
         while (!toCalculate.isEmpty()) {
-            if (toCalculate.peek().returnInputs().isEmpty()) {
-                toCalculate.peek().getSigValue();
+            if (toCalculate.peek().getInputs().isEmpty()) {
+                toCalculate.peek().calculateValue();
                 toCalculate.pop();
             } else if (toCalculate.peek().isCalculated()) {
                 toCalculate.pop();
             } else {
                 int temp = 0;
-                for (Axon a : toCalculate.peek().returnInputs()) {
-                    if (!a.getInput().isCalculated()) {
-                        toCalculate.add(a.getInput());
+                Neuron tempNeuron = toCalculate.peek();
+                for (Axon a : toCalculate.peek().getInputs()) {
+                    if (!a.getInput().isCalculated() && a.getInput().getRecurrentValueAvailable()) {
+                        int r = toCalculate.search(a.getInput());
+                        if (r == -1 && !outputNeurons.contains(a.getInput())) {
+                            toCalculate.push(a.getInput());
+                        } else {
+                            tempNeuron.setValue(previousValues.get(a.getInput()) * a.getWeight());
+                            a.getInput().setRecurrentValueAvailable(false);
+                        }
                     } else {
                         temp++;
                     }
                 }
-                int noOfCalInputs = toCalculate.peek().returnInputs().size();
+                int noOfCalInputs = toCalculate.peek().getInputs().size();
                 if (noOfCalInputs == temp) {
-                    toCalculate.peek().getSigValue();
+                    toCalculate.peek().calculateValue();
                     toCalculate.pop();
                 }
             }
         }
         for (Neuron o : outputNeurons) {
-            o.getSigValue();
+            o.calculateValue();
+        }
+        for (Neuron n : allNeurons) {
+            previousValues.put(n, n.getValue());
         }
         if (b) {
             this.returnRunValues();
@@ -188,11 +207,25 @@ public class NEAT {
         }
     }
 
+    public void printPreviousValues() {
+        for (Map.Entry<Neuron, Double> p : previousValues.entrySet()) {
+            System.out.println(p.getKey() + ", " + p.getValue());
+        }
+    }
+
+    public List<Neuron> getInputNeurons() {
+        return inputNeurons;
+    }
+
     public void printInputNeurons() {
         System.out.println("Size: " + inputNeurons.size());
         for (Neuron n : inputNeurons) {
             System.out.println(n.getName());
         }
+    }
+
+    public List<Neuron> getAllNeurons() {
+        return allNeurons;
     }
 
     public void printAllNeurons() {
@@ -202,11 +235,19 @@ public class NEAT {
         }
     }
 
+    public List<Neuron> getHiddenNeurons() {
+        return hiddenNeurons;
+    }
+
     public void printHiddenNeurons() {
         System.out.println("Size: " + hiddenNeurons.size());
         for (Neuron n : hiddenNeurons) {
             System.out.println(n.getName());
         }
+    }
+
+    public List<Neuron> getOutputNeurons() {
+        return outputNeurons;
     }
 
     public void printOutputNeurons() {
@@ -222,6 +263,12 @@ public class NEAT {
             System.out.println("In: " + a.getInput().getName()
                     + " Out: " + a.getOutput().getName()
                     + " Weight: " + a.getWeight());
+        }
+    }
+
+    public void printStartingValues() {
+        for (Neuron n : inputNeurons) {
+            System.out.println(n.getValue());
         }
     }
 
@@ -273,7 +320,6 @@ public class NEAT {
                 values = new ArrayList<>();
                 String key = s.next();
                 key = key.replaceAll("\\r\\n", "");
-//                System.out.println(key);
                 values.add(s.next());
                 values.add(s.next());
                 values.add(s.next());
@@ -301,7 +347,7 @@ public class NEAT {
 
     //Mutation Functions
     public void mutate() {
-
+        //80% chance for changeWeights
     }
 
     public void crossover() {
@@ -376,50 +422,47 @@ public class NEAT {
         List<Neuron> existingOutputs;
         List<Neuron> available = new ArrayList<>();
 
-        List<Neuron> inHid = new ArrayList<>();
-        inHid.addAll(inputNeurons);
-        inHid.addAll(hiddenNeurons);
-
         List<Neuron> hidOut = new ArrayList<>();
         hidOut.addAll(hiddenNeurons);
         hidOut.addAll(outputNeurons);
 
-        for (Neuron inh : inHid) {
+        for (Neuron all : allNeurons) {
             existingOutputs = new ArrayList<>();
+            existingOutputs.add(all);
             for (Axon a : axons) {
-                if (a.getInput() == inh) {
+                if (a.getInput() == all) {
                     existingOutputs.add(a.getOutput());
                 }
             }
             if (!existingOutputs.containsAll(hidOut)) {
-                available.add(inh);
+                available.add(all);
             }
         }
-
         if (available.isEmpty()) {
             System.out.println("No Available Connections");
         } else {
             int availRand = ThreadLocalRandom.current().nextInt(0, available.size());
-            existingOutputs = new ArrayList<>();
+            List<Neuron> availableOutputs = new ArrayList<>();
             List<Neuron> outTemp = new ArrayList<>();
             for (Axon a : axons) {
                 if (a.getInput() == available.get(availRand)) {
+                    outTemp.add(a.getInput());
                     outTemp.add(a.getOutput());
                 }
             }
             for (Neuron o : hidOut) {
                 if (!outTemp.contains(o)) {
-                    existingOutputs.add(o);
+                    availableOutputs.add(o);
                 }
             }
-            int outRand = ThreadLocalRandom.current().nextInt(0, existingOutputs.size());
+            int outRand = ThreadLocalRandom.current().nextInt(0, availableOutputs.size());
 
             double weight = (Math.random() * 2 - 1);
-            Axon a = new Axon(available.get(availRand), existingOutputs.get(outRand), weight);
+            Axon a = new Axon(available.get(availRand), availableOutputs.get(outRand), weight);
             axons.add(a);
             List<String> temp = new ArrayList<>();
             temp.add(available.get(availRand).getName());
-            temp.add(existingOutputs.get(outRand).getName());
+            temp.add(availableOutputs.get(outRand).getName());
             temp.add(String.valueOf(weight));
             temp.add("ENABLED");
             genome.put(innov.getInv(), temp);
@@ -427,11 +470,12 @@ public class NEAT {
         }
     }
 
-    public void changeWeights(Double d, int r) {
+    public void changeWeights(int r) {
+        double value = ThreadLocalRandom.current().nextDouble(-1, 1);
         for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
             int uniform = ThreadLocalRandom.current().nextInt(0, 100);
             if (uniform > r) {
-                m.getValue().set(2, Double.toString(Double.parseDouble(m.getValue().get(2)) + d));
+                m.getValue().set(2, Double.toString(Double.parseDouble(m.getValue().get(2)) + value));
             } else {
                 m.getValue().set(2, Double.toString(Math.random() * 2 - 1));
             }
