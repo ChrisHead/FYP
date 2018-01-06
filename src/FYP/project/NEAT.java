@@ -28,11 +28,11 @@ public class NEAT {
     private int organism;
     private final List<String> idsOfInputs;
     private final List<String> idsOfOutputs;
-    private final List<Neuron> allNeurons;
-    private final List<Neuron> inputNeurons;
-    private final List<Neuron> outputNeurons;
-    private final List<Neuron> hiddenNeurons;
-    private final List<Axon> axons;
+    private List<Neuron> allNeurons;
+    private List<Neuron> inputNeurons;
+    private List<Neuron> outputNeurons;
+    private List<Neuron> hiddenNeurons;
+    private List<Axon> axons;
     private Innovation innov;
 
     public NEAT(List<String> i, List<String> o) {
@@ -181,25 +181,55 @@ public class NEAT {
         results.put(organism, fitness);
     }
 
-    //Modify for new code
-    public void startingGenome(Entity ent) {
-//        e = ent;
-//        List<Layer> h = new ArrayList<>();
-//        Network n = new Network(e.createInputs(), h, e.createOutputs());
-//        net = n;
-//        n.noHiddenConnect();
-//        Innovation i = new Innovation();
-//        genome = new LinkedHashMap<>();
-//        List<Axon> axons = n.returnAxons();
-//        for (Axon a : axons) {
-//            List<String> values = new ArrayList<>();
-//            values.add(a.getInput().getName());
-//            values.add(a.getOutput().getName());
-//            values.add(String.valueOf(a.getWeight()));
-//            values.add("ENABLED");
-//            genome.put(i.getInv(), values);
-//            i.incInv();
-//        }
+    public void createStartingGeneration(int size) {
+        innov.setInv(0);
+        List<String> neurons = new ArrayList<>();
+        neurons.addAll(idsOfInputs);
+        neurons.addAll(idsOfOutputs);
+        for (String s : neurons) {
+            Neuron n = new Neuron(s);
+            if (idsOfInputs.contains(s)) {
+                inputNeurons.add(n);
+            } else {
+                outputNeurons.add(n);
+            } 
+        }
+        for (int i = 0; i < size + 1; i++) {
+            axons = new ArrayList<>();
+            for (Neuron out : outputNeurons) {
+                for (Neuron in : inputNeurons) {
+                    Axon a = new Axon(in, out, (Math.random() * 2 - 1));
+                    axons.add(a);
+                }
+            }
+            genome = new LinkedHashMap<>();
+            for (Axon a : axons) {
+                List<String> values = new ArrayList<>();
+                values.add(a.getInput().getName());
+                values.add(a.getOutput().getName());
+                values.add(String.valueOf(a.getWeight()));
+                values.add("ENABLED");
+
+                List<String> newMut = new ArrayList<>();
+                newMut.add("original");
+                newMut.add(a.getInput().getName());
+                newMut.add(a.getOutput().getName());
+                if (mutations.containsValue(newMut)) {
+                    for (Integer m : mutations.keySet()) {
+                        if (mutations.get(m).equals(newMut)) {
+                            genome.put(m, values);
+                        }
+                    }
+                } else {
+                    int tempInnov = innov.getInv();
+                    genome.put(tempInnov, values);
+                    mutations.put(tempInnov, newMut);
+                    innov.incInv();
+                }
+                this.saveGenome(0, i, false);
+            }
+        }
+        this.saveMutations(0);
     }
 
     //Utility
@@ -299,6 +329,15 @@ public class NEAT {
         int i = keys.get(randomNum);
         return i;
     }
+    
+    public void reset(){
+        allNeurons = new ArrayList<>();
+        inputNeurons = new ArrayList<>();
+        outputNeurons = new ArrayList<>();
+        hiddenNeurons = new ArrayList<>();
+        axons = new ArrayList<>();
+        previousValues = new LinkedHashMap<>();
+    }
 
     //Save/loading
     public void saveGenome(int g, int o, boolean b) {
@@ -347,6 +386,10 @@ public class NEAT {
         } catch (IOException ex) {
             System.out.println("Error reading from file: " + ex);
         }
+        this.reset();
+        this.createNeurons();
+        this.createAxons();
+        this.loadMutations(g);
     }
 
     public void saveGenerationResults(int g) {
@@ -388,7 +431,9 @@ public class NEAT {
             w = new FileWriter(System.getProperty("user.dir")
                     + "/results/Generation_" + g + "/mutations.txt");
             for (Map.Entry<Integer, List<String>> m : mutations.entrySet()) {
-                w.write("\r\n" + m.getKey() + "," + m.getValue());
+                w.write("\r\n" + m.getKey() + "," + m.getValue().get(0)
+                        + "," + m.getValue().get(1) + "," + m.getValue().get(2)
+                        + ",");
             }
             w.close();
         } catch (IOException ex) {
