@@ -75,16 +75,18 @@ public class main {
 //       neat.saveGenome();
 
        neat.loadGenome(0,0);
+       neat.loadMutations(0);
        neat.createNeurons();
        neat.createAxons();
        
 //       neat.printPreviousValues();
 //       neat.printGenome();
-       neat.runNetwork(values,true);
+//       neat.runNetwork(values,true);
        
 //       neat.loadGenerationResults(0);
 //       neat.printGenerationresults();
-        neat.crossover(0, 0, 1, 75);
+//        neat.crossover(0, 0, 1, 75);
+//       neat.saveMutations(0);
        
 //       neat.runNetwork(values,true);
 //        neat.printPreviousValues();
@@ -99,12 +101,12 @@ public class main {
 //       neat.getHiddenNeurons().get(2).printValue();
 //       neat.getHiddenNeurons().get(3).printValue();
 //       neat.getHiddenNeurons().get(4).printValue();
-//        neat.addAxon();
+        neat.addAxon();
 //        neat.addNeuron();
 //       neat.changeWeights(10);
         
 //       neat.printAxons();
-       neat.saveGenome(0,6,false);
+       neat.saveGenome(0,0,false);
 //        neat.printHiddenNeurons();
 
 //       neat.getFitness();

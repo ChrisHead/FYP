@@ -20,6 +20,7 @@ public class NEAT {
 
     private Map<Integer, List<String>> genome;
     private Map<Integer, Integer> results;
+    private Map<Integer, List<String>> mutations;
     private Map<Neuron, Double> previousValues;
     private Network net;
     private Entity e;
@@ -45,6 +46,7 @@ public class NEAT {
         hiddenNeurons = new ArrayList<>();
         axons = new ArrayList<>();
         results = new LinkedHashMap<>();
+        mutations = new LinkedHashMap<>();
         previousValues = new LinkedHashMap<>();
         innov = new Innovation();
     }
@@ -208,7 +210,13 @@ public class NEAT {
     }
 
     public void printGenerationresults() {
-        for (Map.Entry<Integer, Integer> m : results.entrySet()) {
+        for (Map.Entry<Integer, Integer> r : results.entrySet()) {
+            System.out.println(r.getKey() + ", " + r.getValue());
+        }
+    }
+
+    public void printMutations() {
+        for (Map.Entry<Integer, List<String>> m : mutations.entrySet()) {
             System.out.println(m.getKey() + ", " + m.getValue());
         }
     }
@@ -374,6 +382,42 @@ public class NEAT {
         }
     }
 
+    public void saveMutations(int g) {
+        Writer w;
+        try {
+            w = new FileWriter(System.getProperty("user.dir")
+                    + "/results/Generation_" + g + "/mutations.txt");
+            for (Map.Entry<Integer, List<String>> m : mutations.entrySet()) {
+                w.write("\r\n" + m.getKey() + "," + m.getValue());
+            }
+            w.close();
+        } catch (IOException ex) {
+            System.out.println("Error writing to file: " + ex);
+        }
+    }
+
+    public void loadMutations(int g) {
+        mutations = new LinkedHashMap<>();
+        try (Scanner s = new Scanner(new FileReader(System.getProperty("user.dir")
+                + "/results/Generation_" + g + "/mutations.txt"))) {
+            s.delimiter();
+            s.useDelimiter(",");
+            List<String> values;
+            while (s.hasNext()) {
+                values = new ArrayList<>();
+                String key = s.next();
+                key = key.replaceAll("\\r\\n", "");
+                values.add(s.next());
+                values.add(s.next());
+                values.add(s.next());
+                mutations.put(Integer.parseInt(key), values);
+            }
+            s.close();
+        } catch (IOException ex) {
+            System.out.println("Error reading from file: " + ex);
+        }
+    }
+
     //Mutation Functions
     public void mutate() {
         //80% chance for changeWeights
@@ -442,7 +486,6 @@ public class NEAT {
 //        System.out.println(excess);
 //        System.out.println("D1: " + disjoint1);
 //        System.out.println("D2: " + disjoint2);
-
         //create new genome
         //matching
         Map<Integer, List<String>> newGenome = new LinkedHashMap<>();
@@ -508,7 +551,7 @@ public class NEAT {
             }
         }
         genome = new LinkedHashMap<>(newGenome);
-       return newGenome; 
+        return newGenome;
     }
 
     public void addNeuron() {
@@ -538,8 +581,23 @@ public class NEAT {
         inNew.add(n.getName());
         inNew.add("1.0");
         inNew.add("ENABLED");
-        genome.put(innov.getInv(), inNew);
-        innov.incInv();
+
+        List<String> newMut = new ArrayList<>();
+        newMut.add("addNeuron");
+        newMut.add(allNeurons.get(indexIn).getName());
+        newMut.add(n.getName());
+        if (mutations.containsValue(newMut)) {
+            for (Integer m : mutations.keySet()) {
+                if (mutations.get(m).equals(newMut)) {
+                    genome.put(m, inNew);
+                }
+            }
+        } else {
+            int tempInnov = innov.getInv();
+            genome.put(tempInnov, inNew);
+            mutations.put(tempInnov, newMut);
+            innov.incInv();
+        }
 
         //add original axon between new and old output, add to genome
         int indexOut = 0;
@@ -555,8 +613,24 @@ public class NEAT {
         newOut.add(allNeurons.get(indexOut).getName());
         newOut.add(original.get(2));
         newOut.add("ENABLED");
-        genome.put(innov.getInv(), newOut);
-        innov.incInv();
+
+        newMut = new ArrayList<>();
+        newMut.add("addNeuron");
+        newMut.add(n.getName());
+        newMut.add(allNeurons.get(indexOut).getName());
+        System.out.println(newMut);
+        if (mutations.containsValue(newMut)) {
+            for (Integer m : mutations.keySet()) {
+                if (mutations.get(m).equals(newMut)) {
+                    genome.put(m, newOut);
+                }
+            }
+        } else {
+            int tempInnov = innov.getInv();
+            genome.put(tempInnov, newOut);
+            mutations.put(tempInnov, newMut);
+            innov.incInv();
+        }
 
         //remove original axon from axons
         int oldAxon = 0;
@@ -618,8 +692,23 @@ public class NEAT {
             temp.add(availableOutputs.get(outRand).getName());
             temp.add(String.valueOf(weight));
             temp.add("ENABLED");
-            genome.put(innov.getInv(), temp);
-            innov.incInv();
+
+            List<String> newMut = new ArrayList<>();
+            newMut.add("addAxon");
+            newMut.add(available.get(availRand).getName());
+            newMut.add(availableOutputs.get(outRand).getName());
+            if (mutations.containsValue(newMut)) {
+                for (Integer m : mutations.keySet()) {
+                    if (mutations.get(m).equals(newMut)) {
+                        genome.put(m, temp);
+                    }
+                }
+            } else {
+                int tempInnov = innov.getInv();
+                genome.put(tempInnov, temp);
+                mutations.put(tempInnov, newMut);
+                innov.incInv();
+            }
         }
     }
 
