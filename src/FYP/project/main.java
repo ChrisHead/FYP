@@ -74,14 +74,18 @@ public class main {
 //       neat.saveGenome();
 
        neat.loadGenome(0,0);
+       neat.loadGenerationResults(0);
+//       neat.printGenerationresults();
+       neat.orderResults();
+       
 //       neat.loadMutations(0);
 //       neat.createNeurons();
 //       neat.createAxons();
        
 //       neat.printPreviousValues();
 //       neat.printGenome();
-       neat.runNetwork(values,true);
-       
+//       neat.runNetwork(values,true);
+       neat.printGenerationresults();
 //       neat.loadGenerationResults(0);
 //       neat.printGenerationresults();
 //        neat.crossover(0, 0, 1, 75);

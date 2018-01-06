@@ -11,7 +11,10 @@ import java.util.LinkedHashMap;
 import java.util.Scanner;
 import java.util.Stack;
 import java.io.File;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.stream.Collectors;
 
 /**
  * @author Chris
@@ -173,12 +176,21 @@ public class NEAT {
         }
     }
 
-    //Needs to be finished
-    public void getFitness() {
-        //Get organism fitness result
-        //Can use while loop counter
-        int fitness = 0;
-        results.put(organism, fitness);
+    public void setFitness(int o, int f) {
+        results.put(o, f);
+    }
+    
+    public int getFitness(int o) {
+        int fitness = results.get(o);
+        return fitness;
+    }
+    
+    public void orderResults() {
+        Map<Integer, Integer> orderedResults = results.entrySet().stream()
+                .sorted(Map.Entry.comparingByValue(Comparator.naturalOrder()))
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+        results = new LinkedHashMap<>(orderedResults);
     }
 
     public void createStartingGeneration(int size) {
@@ -194,7 +206,7 @@ public class NEAT {
                 outputNeurons.add(n);
             } 
         }
-        for (int i = 0; i < size + 1; i++) {
+        for (int i = 0; i < size; i++) {
             axons = new ArrayList<>();
             for (Neuron out : outputNeurons) {
                 for (Neuron in : inputNeurons) {
@@ -467,7 +479,7 @@ public class NEAT {
     public void mutate() {
         //80% chance for changeWeights
     }
-
+    
     public Map<Integer, List<String>> crossover(int generation, int organsim1, int organsim2, int enableChance) {
         this.loadGenome(generation, organsim1);
         Map<Integer, List<String>> genome1 = new LinkedHashMap<>(genome);
@@ -527,10 +539,6 @@ public class NEAT {
             }
         }
 
-//        System.out.println(matching);
-//        System.out.println(excess);
-//        System.out.println("D1: " + disjoint1);
-//        System.out.println("D2: " + disjoint2);
         //create new genome
         //matching
         Map<Integer, List<String>> newGenome = new LinkedHashMap<>();
