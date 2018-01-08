@@ -144,11 +144,13 @@ public class Entity {
             o = (o - 1) % 4;
         }
         energy -= eLossOnTurn;
+        moves++;
     }
 
     public void turnRight() {
         o = (o + 1) % 4;
         energy -= eLossOnTurn;
+        moves++;
     }
 
     public void coneUp() {
@@ -236,6 +238,10 @@ public class Entity {
     public int getMoves() {
         return moves;
     }
+    
+    public void setMoves(int m){
+        moves = m;
+    }
 
     public int getEnergy() {
         return energy;
@@ -283,6 +289,7 @@ public class Entity {
             inventory = true;
         }
         energy -= eLossOnAction;
+        moves++;
     }
 
     public void drop(Tile t) {
@@ -293,6 +300,7 @@ public class Entity {
             this.farm(t);
         }
         energy -= eLossOnAction;
+        moves++;
     }
 
     public int getInventory() {
@@ -324,6 +332,7 @@ public class Entity {
             energy += eGainOnEat;
         }
         energy -= eLossOnAction;
+        moves++;
     }
 
 //    public Layer createInputs() {
@@ -487,6 +496,45 @@ public class Entity {
 //                break;
 //        }
 //    }
+    
+    public void actionWin(Window win, Tile t, boolean b, List<Double> d) {
+        int max = 0;
+        for (int a = 0; a < 6; a++) {
+            if (d.get(a) > d.get(max)) {
+                max = a;
+            }
+        }
+        if (b) {
+            System.out.println("Action: " + max);
+        }
+
+        switch (max) {
+            case 0:
+                this.move();
+                win.reload();
+                break;
+            case 1:
+                this.turnLeft();
+                win.reload();
+                break;
+            case 2:
+                this.turnRight();
+                win.reload();
+                break;
+            case 3:
+                this.eat(t);
+                win.reload();
+                break;
+            case 4:
+                this.pickUp(t);
+                win.reload();
+                break;
+            case 5:
+                this.drop(t);
+                win.reload();
+                break;
+        }
+    }
 //
 //    public void action(Tile t, boolean b) {
 //        double[] outputs = new double[6];

@@ -9,9 +9,11 @@ import java.util.Arrays;
 public class Tile {
 
     private final World test;
+    private int farmed;
 
     public Tile(World m) {
         test = m;
+        farmed = 0;
     }
 
     public void plantTile(int x, int y) {
@@ -44,6 +46,15 @@ public class Tile {
                 test.getMatrix()[y + 1][x + 1] = 1;
             }
         }
+        farmed++;
+    }
+
+    public int getFarmed() {
+        return farmed;
+    }
+
+    public void setFarmed(int i) {
+        farmed = i;
     }
 
     public void emptyTile(int x, int y) {
@@ -59,7 +70,6 @@ public class Tile {
     }
 
     public void emptyAll() {
-
         int a = 0;
         for (int[] array : test.getMatrix()) {
             for (int i = 0; i < array.length; i++) {
@@ -68,9 +78,8 @@ public class Tile {
             a++;
         }
     }
-    
-    public void foodAll() {
 
+    public void foodAll() {
         int a = 0;
         for (int[] array : test.getMatrix()) {
             for (int i = 0; i < array.length; i++) {
@@ -79,9 +88,8 @@ public class Tile {
             a++;
         }
     }
-    
-    public void farmAll() {
 
+    public void farmAll() {
         int a = 0;
         for (int[] array : test.getMatrix()) {
             for (int i = 0; i < array.length; i++) {

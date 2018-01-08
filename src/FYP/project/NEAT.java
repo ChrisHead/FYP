@@ -166,11 +166,19 @@ public class NEAT {
             previousValues.put(n, n.getValue());
         }
         if (b) {
-            this.returnRunValues();
+            this.printRunValues();
         }
     }
 
-    public void returnRunValues() {
+    public List<Double> returnRunValues(){
+        List<Double> tempResults = new ArrayList<>();
+        for (Neuron o : outputNeurons) {
+            tempResults.add(o.getValue());
+        }
+        return tempResults;
+    }
+    
+    public void printRunValues() {
         for (Neuron o : outputNeurons) {
             o.printValue();
         }
@@ -178,6 +186,7 @@ public class NEAT {
 
     public void setFitness(int o, int f) {
         results.put(o, f);
+        this.saveGenerationResults(generation);
     }
     
     public int getFitness(int o) {
@@ -186,11 +195,13 @@ public class NEAT {
     }
     
     public void orderResults() {
+        this.loadGenerationResults(generation);
         Map<Integer, Integer> orderedResults = results.entrySet().stream()
-                .sorted(Map.Entry.comparingByValue(Comparator.naturalOrder()))
+                .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue, LinkedHashMap::new));
+                        (oldResult, newResult) -> oldResult, LinkedHashMap::new));
         results = new LinkedHashMap<>(orderedResults);
+        this.saveOrderedResults(generation);
     }
 
     public void createStartingGeneration(int size) {
@@ -238,7 +249,7 @@ public class NEAT {
                     mutations.put(tempInnov, newMut);
                     innov.incInv();
                 }
-                this.saveGenome(0, i, false);
+                this.saveGenome(0, i, true);
             }
         }
         this.saveMutations(0);
@@ -329,10 +340,14 @@ public class NEAT {
     }
 
     private int getNextHiddenName() {
-        String lastName = hiddenNeurons.get(hiddenNeurons.size() - 1).getName();
-        int hiddenNum = Integer.parseInt(lastName.substring(1));
-        hiddenNum++;
-        return hiddenNum;
+        if (!hiddenNeurons.isEmpty()) {
+            String lastName = hiddenNeurons.get(hiddenNeurons.size() - 1).getName();
+            int hiddenNum = Integer.parseInt(lastName.substring(1));
+            hiddenNum++;
+            return hiddenNum;
+        } else {
+            return 1;
+        }
     }
 
     public int getRandomGenomeEntry() {
@@ -350,6 +365,18 @@ public class NEAT {
         axons = new ArrayList<>();
         previousValues = new LinkedHashMap<>();
     }
+    
+    public Integer getGeneration() {
+        return generation;
+    }
+    
+    public void setGeneration(int g) {
+        generation = g;
+    }
+    
+    public Integer getOrganism() {
+        return organism;
+    }
 
     //Save/loading
     public void saveGenome(int g, int o, boolean b) {
@@ -359,9 +386,9 @@ public class NEAT {
                 File folder = new File(System.getProperty("user.dir")
                         + "/results/Generation_" + g);
                 if (folder.mkdir()) {
-                    System.out.println("Directory Created");
+//                    System.out.println("Directory Created");
                 } else {
-                    System.out.println("Directory Not Created");
+//                    System.out.println("Directory Not Created");
                 }
             }
             w = new FileWriter(System.getProperty("user.dir")
@@ -398,10 +425,11 @@ public class NEAT {
         } catch (IOException ex) {
             System.out.println("Error reading from file: " + ex);
         }
+        generation = g;
         this.reset();
         this.createNeurons();
         this.createAxons();
-        this.loadMutations(g);
+//        this.loadMutations(g);
     }
 
     public void saveGenerationResults(int g) {
@@ -410,7 +438,21 @@ public class NEAT {
             w = new FileWriter(System.getProperty("user.dir")
                     + "/results/Generation_" + g + "/results.txt");
             for (Map.Entry<Integer, Integer> r : results.entrySet()) {
-                w.write("\r\n" + r.getKey() + "," + r.getValue());
+                w.write("\r\n" + r.getKey() + "," + r.getValue() + ",");
+            }
+            w.close();
+        } catch (IOException ex) {
+            System.out.println("Error writing to file: " + ex);
+        }
+    }
+    
+    public void saveOrderedResults(int g) {
+        Writer w;
+        try {
+            w = new FileWriter(System.getProperty("user.dir")
+                    + "/results/Generation_" + g + "/orderedResults.txt");
+            for (Map.Entry<Integer, Integer> r : results.entrySet()) {
+                w.write("\r\n" + r.getKey() + "," + r.getValue() + ",");
             }
             w.close();
         } catch (IOException ex) {
@@ -476,8 +518,51 @@ public class NEAT {
     }
 
     //Mutation Functions
-    public void mutate() {
-        //80% chance for changeWeights
+    
+    public void fakeResults() {
+        for (int i = 0; i < 100; i++) {
+            int chance = ThreadLocalRandom.current().nextInt(0, 100);
+            results.put(i, chance);
+        }
+        this.saveGenerationResults(generation);
+    }
+    
+    public void mutate(int top) {
+        System.out.println("Mutating Generation: " + generation);
+        mutations.clear();
+        this.orderResults();
+        List<Integer> tempResults = new ArrayList<>(results.keySet());
+        for (int i = 0; i < top; i++) {
+            this.loadGenome(generation, tempResults.get(i));
+            this.saveGenome(generation + 1, i, true);
+        }
+        for (int i = 0; i < top; i++) {
+            int weightChance = ThreadLocalRandom.current().nextInt(0, top - 1);
+            this.loadGenome(generation, tempResults.get(weightChance));
+            this.changeWeights(10);
+            this.saveGenome(generation + 1, i+top, true);
+        }
+        for (int i = 0; i < top; i++) {
+            int addChance = ThreadLocalRandom.current().nextInt(0, top - 1);
+            this.loadGenome(generation, tempResults.get(addChance));
+            int chance = ThreadLocalRandom.current().nextInt(0, 100);
+            if (chance < 50) {
+                this.addNeuron();
+            } else {
+                this.addAxon();
+            }
+            this.saveGenome(generation + 1, i+top*2, true);
+        }
+        for (int i = 0; i < top; i++) {
+//            this.loadGenome(generation, tempResults.get(i));
+            int firstChance = ThreadLocalRandom.current().nextInt(0, top - 1);
+            int secondChance = ThreadLocalRandom.current().nextInt(0, top - 1);
+            this.crossover(generation, firstChance, secondChance, 75);
+            this.saveGenome(generation + 1, i+top*3, true);
+        }
+        this.saveMutations(generation + 1);
+        generation++;
+        this.fakeResults();
     }
     
     public Map<Integer, List<String>> crossover(int generation, int organsim1, int organsim2, int enableChance) {
@@ -671,7 +756,6 @@ public class NEAT {
         newMut.add("addNeuron");
         newMut.add(n.getName());
         newMut.add(allNeurons.get(indexOut).getName());
-        System.out.println(newMut);
         if (mutations.containsValue(newMut)) {
             for (Integer m : mutations.keySet()) {
                 if (mutations.get(m).equals(newMut)) {

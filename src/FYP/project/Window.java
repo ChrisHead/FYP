@@ -19,7 +19,7 @@ public class Window extends JFrame {
     private Entity e;
     private final JPanel p = new JPanel(new FlowLayout());
 
-    public void createWindow(World m, int si, Entity en) {
+    public void createWindow(World m, int si, Entity en, boolean visible) {
         mat = m;
         s = si;
         e = en;
@@ -28,9 +28,9 @@ public class Window extends JFrame {
         add(scroll);
         setTitle("Test");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);
+//        setLocationRelativeTo(null);
         pack();
-        setVisible(true);
+        setVisible(visible);
     }
 
     public void addGrid() {
@@ -50,6 +50,11 @@ public class Window extends JFrame {
     public void reload() {
         this.addGrid();
         this.repaint();
+    }
+    
+    public void destroy() {
+        this.setVisible(false);
+        this.dispose();
     }
 }
 

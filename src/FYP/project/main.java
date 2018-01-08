@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 /**
  *
@@ -14,87 +15,191 @@ import java.util.Scanner;
 public class main {
 
     public static void main(String[] args) {
-        
-       List<String> inputs = new ArrayList<>();
-       List<String> outputs = new ArrayList<>();
-       List<Double> values = new ArrayList<>();
-       
-//       inputs.add("inv");
-//       inputs.add("sensor1");
-//       inputs.add("sensor2");
-//       inputs.add("sensor3");
-//       inputs.add("sensor4");
-//       inputs.add("sensor5");
-//       inputs.add("sensor6");
-//       inputs.add("sensor7");
-//       inputs.add("sensor8");
-//       inputs.add("sensor9");
-//       inputs.add("sensor10");
-//       inputs.add("sensor11");
-//       inputs.add("sensor12");
-//       inputs.add("sensor13");
-//       inputs.add("sensor14");
-//       inputs.add("sensor15");
-//       inputs.add("sensor16");
-//       inputs.add("sensor17");
-//       inputs.add("sensor18");
-//       inputs.add("sensor19");
-//       inputs.add("sensor20");
-//       inputs.add("sensor21");
-//       inputs.add("sensor22");
-//       inputs.add("sensor23");
-//       inputs.add("sensor24");
-//       inputs.add("sensor25");
+
+        List<String> inputs = new ArrayList<>();
+        List<String> outputs = new ArrayList<>();
+        List<Double> values = new ArrayList<>();
+
+        inputs.add("inv");
+        inputs.add("sensor1");
+        inputs.add("sensor2");
+        inputs.add("sensor3");
+        inputs.add("sensor4");
+        inputs.add("sensor5");
+        inputs.add("sensor6");
+        inputs.add("sensor7");
+        inputs.add("sensor8");
+        inputs.add("sensor9");
+        inputs.add("sensor10");
+        inputs.add("sensor11");
+        inputs.add("sensor12");
+        inputs.add("sensor13");
+        inputs.add("sensor14");
+        inputs.add("sensor15");
+        inputs.add("sensor16");
+        inputs.add("sensor17");
+        inputs.add("sensor18");
+        inputs.add("sensor19");
+        inputs.add("sensor20");
+        inputs.add("sensor21");
+        inputs.add("sensor22");
+        inputs.add("sensor23");
+        inputs.add("sensor24");
+        inputs.add("sensor25");
+        inputs.add("sensor26");
+        inputs.add("sensor27");
 //       
-//       outputs.add("move");
-//       outputs.add("turnLeft");
-//       outputs.add("turnRight");
-//       outputs.add("eat");
-//       outputs.add("pickUp");
-//       outputs.add("drop");
+        outputs.add("move");
+        outputs.add("turnLeft");
+        outputs.add("turnRight");
+        outputs.add("eat");
+        outputs.add("pickUp");
+        outputs.add("drop");
 
-         inputs.add("i1");
-         inputs.add("i2");
-         inputs.add("i3");
-         
-         outputs.add("o1");
-         outputs.add("o2");
-         outputs.add("o3");
-         
-         values.add(4.0);
-         values.add(9.0);
-         values.add(3.0);
-         
-         
+//         inputs.add("i1");
+//         inputs.add("i2");
+//         inputs.add("i3");
+//         
+//         outputs.add("o1");
+//         outputs.add("o2");
+//         outputs.add("o3");
+//         
+//         values.add(4.0);
+//         values.add(9.0);
+//         values.add(3.0);
+//
+//        NEAT neat = new NEAT(inputs, outputs);
+//        World w = new World(26);
+////        w.saveWorld();
+//        w.loadWorld();
+//        Entity e = new Entity(w);
+//        Window win = new Window();
+//        Tile t = new Tile(w);
+//        e.setPosition(13, 13, 0);
+//        win.createWindow(w, 30, e, true);
+//        e.setEnergy(500);
+//        e.setEGainOnEat(250);
+//        neat.loadGenome(38, 2);
+//        int x = 0;
+//        while (e.getEnergy() > 0) {
+//            values = new ArrayList<>();
+//            e.coneSensor();
+//            values.add((double) e.getInventory());
+//            for (int i : e.getSensor()) {
+//                values.add((double) i);
+//            }
+//            neat.runNetwork(values, false);
+//            e.actionWin(win, t, false, neat.returnRunValues());
+//            System.out.println("Energy: " + e.getEnergy());
+//            try {
+//                Thread.sleep(50);
+//            } catch (InterruptedException ex) {
+//                Thread.currentThread().interrupt();
+//            }
+//            x++;
+//        }
+//        System.out.println(x);
+//
+//
+//       neat.fakeResults();
+//       for (int i = 0; i < 100; i++) {
+//           neat.mutate(25);
+//       }
+//       neat.loadGenome(100,96);
+//       neat.printOutputNeurons();
+//
+//
+//        //RUNNING METHOD
+        NEAT neat = new NEAT(inputs, outputs);
+        neat.createStartingGeneration(1000);
+        World w = new World(26);
+        w.loadWorld();
+        Window win = new Window();
+        Entity e = new Entity(w);
+        win.createWindow(w, 30, e, false);
+        Tile t = new Tile(w);
+        e.setEGainOnEat(250);
 
-//       World w = new World(50);     
-//       Entity e = new Entity(w); 
-       NEAT neat = new NEAT(inputs, outputs); 
-//       neat.createStartingGeneration(10);
-//       neat.saveGenome();
+        int generationLimit = 100;
+        int populationLimit = 1000;
+        int maxEnergy = 500;
+        int a = 0;
+        while (a < generationLimit) {
+//        while (t.getFarmed() < 2) {
+            System.out.println("Generation: " + a);
+            int b = 0;
+            while (b < populationLimit) {
+                System.out.println("Running Generation: " + a + " Organism: " + b);
+                e.setEnergy(maxEnergy);
+                e.setMoves(0);
+                w.loadWorld();
+                t.foodAll();
+                e.setPosition(13, 13, 0);
+                e.setEnergy(maxEnergy);
+                neat.loadGenome(a, b);
+                while (e.getEnergy() > 0) {
+                    values = new ArrayList<>();
+                    e.coneSensor();
+                    values.add((double) e.getInventory());
+                    for (int i : e.getSensor()) {
+                        values.add((double) i);
+                    }
+                    neat.runNetwork(values, false);
+                    e.actionWin(win, t, false, neat.returnRunValues());
+                }
+                neat.setFitness(b, e.getMoves());
+//                win.destroy();
+                b++;
+            }
+            neat.mutate(250);
+//            System.out.println("Farmed: " + t.getFarmed());
+//            t.setFarmed(0);
+            a++;
+        }
+        System.out.println("DONE");
 
-       neat.loadGenome(0,0);
-       neat.loadGenerationResults(0);
+//
+//
+//
+//
+//
+//
+//
+////
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//       neat.loadGenerationResults(0);
+//       neat.orderResults();
 //       neat.printGenerationresults();
-       neat.orderResults();
-       
+//       neat.mutate(3);
 //       neat.loadMutations(0);
 //       neat.createNeurons();
 //       neat.createAxons();
-       
 //       neat.printPreviousValues();
 //       neat.printGenome();
 //       neat.runNetwork(values,true);
-       neat.printGenerationresults();
+//       neat.printGenerationresults();
 //       neat.loadGenerationResults(0);
 //       neat.printGenerationresults();
 //        neat.crossover(0, 0, 1, 75);
 //       neat.saveMutations(0);
-       
 //       neat.runNetwork(values,true);
 //        neat.printPreviousValues();
 //       neat.printStartingValues();
-       
 //       neat.printHiddenNeurons();
 //        neat.printInputNeurons();
 //        neat.printOutputNeurons();
@@ -107,15 +212,12 @@ public class main {
 //        neat.addAxon();
 //        neat.addNeuron();
 //       neat.changeWeights(10);
-        
 //       neat.printAxons();
 //       neat.saveGenome(0,0,false);
 //        neat.printHiddenNeurons();
-
 //       neat.getFitness();
 //       neat.saveGenerationResults(0);
 //       neat.printGenome();
-        
 //        World m = new World(50);
 //        Window win = new Window();
 //        Tile t = new Tile(w);
@@ -213,7 +315,6 @@ public class main {
 //        }
 //        System.out.println(x);
 //        System.out.println("DONE");
-
 //        
 //        
 //        Layer test = new Layer(3);
