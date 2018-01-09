@@ -19,6 +19,7 @@ public class Entity {
     private int eLossOnTurn;
     private int eGainOnEat;
     private int eLossOnAction;
+    private int foodEaten;
 
     private final int[] xOffset;
     private final int[] xReverseOffset;
@@ -36,6 +37,7 @@ public class Entity {
         mat = m;
         moves = 0;
         energy = 100;
+        foodEaten = 0;
         inventory = false;
         eLossOnMove = 1;
         eLossOnTurn = 1;
@@ -282,6 +284,14 @@ public class Entity {
     public void setELossOnAction(int e) {
         eLossOnAction = e;
     }
+    
+    public int getFoodEaten(){
+        return foodEaten;
+    }
+    
+    public void setFoodEaten(int f) {
+        foodEaten = 0;
+    }
 
     public void pickUp(Tile t) {
         if (mat.getMatrix()[y][x] == 1 && inventory == false) {
@@ -330,6 +340,7 @@ public class Entity {
         if (mat.getMatrix()[y][x] == 1) {
             t.emptyTile(this.getX(), this.getY());
             energy += eGainOnEat;
+            foodEaten++;
         }
         energy -= eLossOnAction;
         moves++;

@@ -555,8 +555,8 @@ public class NEAT {
         }
         for (int i = 0; i < top; i++) {
 //            this.loadGenome(generation, tempResults.get(i));
-            int firstChance = ThreadLocalRandom.current().nextInt(0, top - 1);
-            int secondChance = ThreadLocalRandom.current().nextInt(0, top - 1);
+            int firstChance = ThreadLocalRandom.current().nextInt(0, 25);
+            int secondChance = ThreadLocalRandom.current().nextInt(0, 25);
             this.crossover(generation, firstChance, secondChance, 75);
             this.saveGenome(generation + 1, i+top*3, true);
         }

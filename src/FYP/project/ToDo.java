@@ -9,13 +9,26 @@ public class ToDo {
 }
 
 //Primary
+//Add speciation
+//Define external fitness class
+//Improve mutation function
+//Add remove node/connection mutators
+//Add parallelization
+//Modify weight change to only change one weight using normal distribution
+//Allow inputs to be output nodes on 'add Neuron' + allow self-recurrance
+//Change innovation record to be global
+//Fuction to delete old organism files for space
+//Chnage farm to add food randomly distributed across grid + add delay timer
+//
+//
+//Secondary
 //TODO Make pest class
 //TODO Add multithreading to pests
 //TODO Merge Tile class into World
 //TODO Add tick counter to world, make entities act on ticks
-//Input/Output neuron restrictions
+//TODO Input/Output neuron restrictions
 //
-//Secondary
+//Misc
 //Use Atl+ins to generate code
 //TODO Add analytics tracking to classes
 //TODO Reorder Entity methods
@@ -27,56 +40,3 @@ public class ToDo {
 //TODO Add controls to window
 //TODO Go over method encapsulation for main use
 //TODO Switch chained if's to switch case in window
-
-
-//Neuron[] n = new Neuron[20];
-//        for (int i = 0; i < 11; i++) {
-//            n[i] = new Neuron(); 
-//        }
-//        n[3].setValue(1.2);
-//        System.out.println(n[3].returnValue());
-
-
-
-
-
-
-
-
-
-
-
-/*
-        // Tile value retrieval from sensors
-        Entity e = new Entity(m);
-        e.setPosition(10, 10, 0);
-        e.coneSensor();
-        System.out.println(e.getSensor());
-        for (ArrayList<Integer> array : e.getSensor()){
-            int x = array.get(0);
-            int y = array.get(1);
-            System.out.println("X: " + x + " Y: " + y + " V: " + m.getMatrix()[y][x]);
-        }
-
-          int sY = y - sensorSize;
-//        int sX = x - sensorSize;
-//        int sS = sensorSize;
-//        sensor = new LinkedHashSet<>();
-//        ArrayList<Integer> temp;
-//
-//        while (sY <= y) {
-//            while (sX <= (x + sS)) {
-//                if (this.inBounds(sX, sY)) {
-//                    temp = new ArrayList<>();
-//                    temp.add(sX);
-//                    temp.add(sY);
-//                    sensor.add(temp);
-//                }
-//                sX++;
-//            }
-//            sY++;
-//            sS--;
-//            sX = x - sS;
-//        }
-
-*/
