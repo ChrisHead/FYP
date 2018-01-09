@@ -9,7 +9,9 @@ public class ToDo {
 }
 
 //Primary
+//Change genome to be an object - modify NEAT to cope
 //Add speciation
+//Add condition to take random sample from results /if/from when fitness = 0
 //Define external fitness class
 //Improve mutation function
 //Add remove node/connection mutators

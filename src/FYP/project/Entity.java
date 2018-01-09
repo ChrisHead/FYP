@@ -240,8 +240,8 @@ public class Entity {
     public int getMoves() {
         return moves;
     }
-    
-    public void setMoves(int m){
+
+    public void setMoves(int m) {
         moves = m;
     }
 
@@ -249,8 +249,12 @@ public class Entity {
         return energy;
     }
 
-    public void setEnergy(int e) {
-        energy = e;
+    public void setEnergy(int e, int m) {
+        if (e > m) {
+            energy = m;
+        } else {
+            energy = e;
+        }
     }
 
     public int getELossOnMove() {
@@ -284,11 +288,11 @@ public class Entity {
     public void setELossOnAction(int e) {
         eLossOnAction = e;
     }
-    
-    public int getFoodEaten(){
+
+    public int getFoodEaten() {
         return foodEaten;
     }
-    
+
     public void setFoodEaten(int f) {
         foodEaten = 0;
     }
@@ -339,10 +343,10 @@ public class Entity {
     public void eat(Tile t) {
         if (mat.getMatrix()[y][x] == 1) {
             t.emptyTile(this.getX(), this.getY());
-            energy += eGainOnEat;
+            this.setEnergy(energy + eGainOnEat, 1000);
             foodEaten++;
         }
-        energy -= eLossOnAction;
+        this.setEnergy(energy - eLossOnAction, 1000);
         moves++;
     }
 
@@ -404,11 +408,9 @@ public class Entity {
 //        input = new Layer(in);
 //        return input;
 //    }
-
 //    public Layer getInput() {
 //        return input;
 //    }
-
 //    public Layer createOutputs() {
 //        out = new ArrayList<>();
 //
@@ -428,11 +430,9 @@ public class Entity {
 //        output = new Layer(out);
 //        return output;
 //    }
-
 //    public Layer getOutput() {
 //        return output;
 //    }
-
 //    public void updateInputValues() {
 //        this.coneSensor();
 //        in.get(0).setValue(this.getInventory());
@@ -462,7 +462,6 @@ public class Entity {
 //        in.get(24).setValue(this.getSensor()[23]);
 //        in.get(25).setValue(this.getSensor()[24]);
 //    }
-
 //    public void actionWin(Window win, Tile t, boolean b) {
 //        double[] outputs = new double[6];
 //        int i = 0;
@@ -507,7 +506,6 @@ public class Entity {
 //                break;
 //        }
 //    }
-    
     public void actionWin(Window win, Tile t, boolean b, List<Double> d) {
         int max = 0;
         for (int a = 0; a < 6; a++) {
@@ -543,6 +541,45 @@ public class Entity {
             case 5:
                 this.drop(t);
                 win.reload();
+                break;
+        }
+    }
+
+    public void actionNoWin(Window win, Tile t, boolean b, List<Double> d) {
+        int max = 0;
+        for (int a = 0; a < 6; a++) {
+            if (d.get(a) > d.get(max)) {
+                max = a;
+            }
+        }
+        if (b) {
+            System.out.println("Action: " + max);
+        }
+
+        switch (max) {
+            case 0:
+                this.move();
+//                win.reload();
+                break;
+            case 1:
+                this.turnLeft();
+//                win.reload();
+                break;
+            case 2:
+                this.turnRight();
+//                win.reload();
+                break;
+            case 3:
+                this.eat(t);
+//                win.reload();
+                break;
+            case 4:
+                this.pickUp(t);
+//                win.reload();
+                break;
+            case 5:
+                this.drop(t);
+//                win.reload();
                 break;
         }
     }

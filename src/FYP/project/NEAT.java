@@ -11,7 +11,6 @@ import java.util.LinkedHashMap;
 import java.util.Scanner;
 import java.util.Stack;
 import java.io.File;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
@@ -431,7 +430,31 @@ public class NEAT {
         this.createAxons();
 //        this.loadMutations(g);
     }
-
+    
+    public Map<Integer, List<String>> loadGenome1(int g, int o) {
+        Map<Integer, List<String>> qqqq = new LinkedHashMap<>();
+        try (Scanner s = new Scanner(new FileReader(System.getProperty("user.dir")
+                + "/results/Generation_" + g + "/Organism_" + o + ".txt"))) {
+            s.delimiter();
+            s.useDelimiter(",");
+            List<String> values;
+            while (s.hasNext()) {
+                values = new ArrayList<>();
+                String key = s.next();
+                key = key.replaceAll("\\r\\n", "");
+                values.add(s.next());
+                values.add(s.next());
+                values.add(s.next());
+                values.add(s.next());
+                qqqq.put(Integer.parseInt(key), values);
+            }
+            s.close();
+        } catch (IOException ex) {
+            System.out.println("Error reading from file: " + ex);
+        }
+        return qqqq;
+    }
+    
     public void saveGenerationResults(int g) {
         Writer w;
         try {
@@ -536,40 +559,49 @@ public class NEAT {
             this.loadGenome(generation, tempResults.get(i));
             this.saveGenome(generation + 1, i, true);
         }
-        for (int i = 0; i < top; i++) {
-            int weightChance = ThreadLocalRandom.current().nextInt(0, top - 1);
-            this.loadGenome(generation, tempResults.get(weightChance));
+        for (int i = 0; i < 750; i++) {
+//            int weightChance = ThreadLocalRandom.current().nextInt(0, top - 1);
+            this.loadGenome(generation, tempResults.get(i%250));
             this.changeWeights(10);
-            this.saveGenome(generation + 1, i+top, true);
-        }
-        for (int i = 0; i < top; i++) {
-            int addChance = ThreadLocalRandom.current().nextInt(0, top - 1);
-            this.loadGenome(generation, tempResults.get(addChance));
+//            this.saveGenome(generation + 1, i+top, true);
+//            int addChance = ThreadLocalRandom.current().nextInt(0, top - 1);
+//            this.loadGenome(generation, tempResults.get(addChance));
             int chance = ThreadLocalRandom.current().nextInt(0, 100);
             if (chance < 50) {
                 this.addNeuron();
             } else {
                 this.addAxon();
             }
-            this.saveGenome(generation + 1, i+top*2, true);
+//            this.saveGenome(generation + 1, i+top*2, true);
+             int firstChance = ThreadLocalRandom.current().nextInt(0, 25);
+            this.crossover(generation, firstChance, i%250, 75);
+            this.saveGenome(generation + 1, i + top, true);
         }
-        for (int i = 0; i < top; i++) {
-//            this.loadGenome(generation, tempResults.get(i));
-            int firstChance = ThreadLocalRandom.current().nextInt(0, 25);
-            int secondChance = ThreadLocalRandom.current().nextInt(0, 25);
-            this.crossover(generation, firstChance, secondChance, 75);
-            this.saveGenome(generation + 1, i+top*3, true);
-        }
+//        for (int i = 0; i < top; i++) {
+//            int addChance = ThreadLocalRandom.current().nextInt(0, top - 1);
+//            this.loadGenome(generation, tempResults.get(addChance));
+//            int chance = ThreadLocalRandom.current().nextInt(0, 100);
+//            if (chance < 50) {
+//                this.addNeuron();
+//            } else {
+//                this.addAxon();
+//            }
+//            this.saveGenome(generation + 1, i+top*2, true);
+//        }
+//        for (int i = 0; i < top; i++) {
+////            this.loadGenome(generation, tempResults.get(i));
+//            int firstChance = ThreadLocalRandom.current().nextInt(0, 25);
+//            int secondChance = ThreadLocalRandom.current().nextInt(0, 25);
+//            this.crossover(generation, firstChance, secondChance, 75);
+//            this.saveGenome(generation + 1, i+top*3, true);
+//        }
         this.saveMutations(generation + 1);
         generation++;
         this.fakeResults();
     }
     
     public Map<Integer, List<String>> crossover(int generation, int organsim1, int organsim2, int enableChance) {
-        this.loadGenome(generation, organsim1);
-        Map<Integer, List<String>> genome1 = new LinkedHashMap<>(genome);
-        this.loadGenome(generation, organsim2);
-        Map<Integer, List<String>> genome2 = new LinkedHashMap<>(genome);
+        Map<Integer, List<String>> genome1 = this.loadGenome1(generation, organsim1);
         this.loadGenerationResults(generation);
 
         int genome1Result = results.get(organsim1);
@@ -590,16 +622,16 @@ public class NEAT {
         List<Integer> excess = new ArrayList<>();
 
         List<Integer> g1KeySet = new ArrayList<>(genome1.keySet());
-        List<Integer> g2KeySet = new ArrayList<>(genome2.keySet());
+        List<Integer> g2KeySet = new ArrayList<>(genome.keySet());
 
         //matching
         for (int i : genome1.keySet()) {
-            if (genome2.keySet().contains(i)) {
+            if (genome.keySet().contains(i)) {
                 matching.add(i);
             }
         }
         //excess
-        if (genome1.keySet().size() > genome2.keySet().size()) {
+        if (genome1.keySet().size() > genome.keySet().size()) {
             for (int i : g1KeySet) {
                 if (i > g2KeySet.get(g2KeySet.size() - 1)) {
                     excess.add(i);
@@ -632,10 +664,10 @@ public class NEAT {
             if (rand > 50) {
                 newGenome.put(i, genome1.get(i));
             } else {
-                newGenome.put(i, genome2.get(i));
+                newGenome.put(i, genome.get(i));
             }
             if (!(genome1.get(i).get(3).equals("ENABLED")
-                    && genome2.get(i).get(3).equals("ENABLED"))) {
+                    && genome.get(i).get(3).equals("ENABLED"))) {
                 int eChance = ThreadLocalRandom.current().nextInt(0, 100);
                 List<String> temp = new ArrayList<>(newGenome.get(i));
                 if (eChance > enableChance) {
@@ -658,33 +690,33 @@ public class NEAT {
             for (int i : disjoint2) {
                 int rand = ThreadLocalRandom.current().nextInt(0, 100);
                 if (rand > 50) {
-                    newGenome.put(i, genome2.get(i));
+                    newGenome.put(i, genome.get(i));
                 }
             }
             for (int i : excess) {
                 int rand = ThreadLocalRandom.current().nextInt(0, 100);
-                if (rand > 50 && (genome1.keySet().size() > genome2.keySet().size())) {
+                if (rand > 50 && (genome1.keySet().size() > genome.keySet().size())) {
                     newGenome.put(i, genome1.get(i));
                 } else if (rand > 50) {
-                    newGenome.put(i, genome2.get(i));
+                    newGenome.put(i, genome.get(i));
                 }
             }
         } else if (fittest.equals("genome1")) {
             for (int i : disjoint1) {
                 newGenome.put(i, genome1.get(i));
             }
-            if (genome1.keySet().size() > genome2.keySet().size()) {
+            if (genome1.keySet().size() > genome.keySet().size()) {
                 for (int i : excess) {
                     newGenome.put(i, genome1.get(i));
                 }
             }
         } else {
             for (int i : disjoint2) {
-                newGenome.put(i, genome2.get(i));
+                newGenome.put(i, genome.get(i));
             }
-            if (genome2.keySet().size() > genome1.keySet().size()) {
+            if (genome.keySet().size() > genome1.keySet().size()) {
                 for (int i : excess) {
-                    newGenome.put(i, genome2.get(i));
+                    newGenome.put(i, genome.get(i));
                 }
             }
         }
@@ -791,7 +823,12 @@ public class NEAT {
         List<Neuron> hidOut = new ArrayList<>();
         hidOut.addAll(hiddenNeurons);
         hidOut.addAll(outputNeurons);
-        for (Neuron all : allNeurons) {
+        
+        List<Neuron> inHid  = new ArrayList<>();
+        inHid.addAll(inputNeurons);
+        inHid.addAll(hiddenNeurons);
+        
+        for (Neuron all : inHid) {
             existingOutputs = new ArrayList<>();
             existingOutputs.add(all);
             for (Axon a : axons) {
@@ -805,6 +842,8 @@ public class NEAT {
         }
         if (available.isEmpty()) {
             System.out.println("No Available Connections");
+            //Investigative Change
+            this.addNeuron();
         } else {
             int availRand = ThreadLocalRandom.current().nextInt(0, available.size());
             List<Neuron> availableOutputs = new ArrayList<>();
@@ -852,6 +891,8 @@ public class NEAT {
     public void changeWeights(int r) {
         double value = ThreadLocalRandom.current().nextDouble(-1, 1);
         for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
+            //Investigative change
+            if(Math.random() < 0.9) continue;
             int uniform = ThreadLocalRandom.current().nextInt(0, 100);
             if (uniform > r) {
                 m.getValue().set(2, Double.toString(Double.parseDouble(m.getValue().get(2)) + value));
