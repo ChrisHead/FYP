@@ -1,17 +1,7 @@
 package FYP.project;
 
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.Writer;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.LinkedHashMap;
-import java.util.Scanner;
-import java.util.Stack;
-import java.io.File;
-import java.util.Comparator;
+import java.io.*;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
 
@@ -22,10 +12,10 @@ public class NEAT {
 
     private Map<Integer, List<String>> genome;
     private Map<Integer, Integer> results;
+    private Map<Integer, Double> adjustResults;
+    private Map<Integer, Double> adjustSize;
     private Map<Integer, List<String>> mutations;
     private Map<Neuron, Double> previousValues;
-    private Network net;
-    private Entity e;
     private int generation;
     private int organism;
     private final List<String> idsOfInputs;
@@ -36,6 +26,10 @@ public class NEAT {
     private List<Neuron> hiddenNeurons;
     private List<Axon> axons;
     private Innovation innov;
+    private List<Species> species;
+    private int genomeNum;
+    private int currentGenomeNum;
+    private int speciesNum;
 
     public NEAT(List<String> i, List<String> o) {
         generation = 0;
@@ -48,9 +42,16 @@ public class NEAT {
         hiddenNeurons = new ArrayList<>();
         axons = new ArrayList<>();
         results = new LinkedHashMap<>();
+        adjustResults = new LinkedHashMap<>();
+        adjustSize = new LinkedHashMap<>();
         mutations = new LinkedHashMap<>();
         previousValues = new LinkedHashMap<>();
         innov = new Innovation();
+        innov.save();
+        species = new ArrayList<>();
+        genomeNum = 0;
+        currentGenomeNum = 0;
+        speciesNum = 0;
     }
 
     //Network Creation
@@ -169,14 +170,14 @@ public class NEAT {
         }
     }
 
-    public List<Double> returnRunValues(){
+    public List<Double> returnRunValues() {
         List<Double> tempResults = new ArrayList<>();
         for (Neuron o : outputNeurons) {
             tempResults.add(o.getValue());
         }
         return tempResults;
     }
-    
+
     public void printRunValues() {
         for (Neuron o : outputNeurons) {
             o.printValue();
@@ -187,12 +188,17 @@ public class NEAT {
         results.put(o, f);
         this.saveGenerationResults(generation);
     }
-    
+
+    public Double getAdjustFitness(int o, Species s) {
+        double val = results.get(o);
+        return (val / s.getSpecies().size());
+    }
+
     public int getFitness(int o) {
         int fitness = results.get(o);
         return fitness;
     }
-    
+
     public void orderResults() {
         this.loadGenerationResults(generation);
         Map<Integer, Integer> orderedResults = results.entrySet().stream()
@@ -201,6 +207,10 @@ public class NEAT {
                         (oldResult, newResult) -> oldResult, LinkedHashMap::new));
         results = new LinkedHashMap<>(orderedResults);
         this.saveOrderedResults(generation);
+    }
+
+    public Map<Integer, Integer> getResults() {
+        return results;
     }
 
     public void createStartingGeneration(int size) {
@@ -214,7 +224,7 @@ public class NEAT {
                 inputNeurons.add(n);
             } else {
                 outputNeurons.add(n);
-            } 
+            }
         }
         for (int i = 0; i < size; i++) {
             axons = new ArrayList<>();
@@ -248,10 +258,11 @@ public class NEAT {
                     mutations.put(tempInnov, newMut);
                     innov.incInv();
                 }
-                this.saveGenome(0, i, true);
             }
+            this.saveGenome(0, i, true, true);
         }
         this.saveMutations(0);
+        this.saveSpecies(generation);
     }
 
     //Utility
@@ -355,8 +366,8 @@ public class NEAT {
         int i = keys.get(randomNum);
         return i;
     }
-    
-    public void reset(){
+
+    public void reset() {
         allNeurons = new ArrayList<>();
         inputNeurons = new ArrayList<>();
         outputNeurons = new ArrayList<>();
@@ -364,26 +375,26 @@ public class NEAT {
         axons = new ArrayList<>();
         previousValues = new LinkedHashMap<>();
     }
-    
+
     public Integer getGeneration() {
         return generation;
     }
-    
+
     public void setGeneration(int g) {
         generation = g;
     }
-    
+
     public Integer getOrganism() {
         return organism;
     }
 
     //Save/loading
-    public void saveGenome(int g, int o, boolean b) {
+    public void saveGenome(int g, int o, boolean b, boolean inc) {
         Writer w;
         try {
             if (b) {
                 File folder = new File(System.getProperty("user.dir")
-                        + "/results/Generation_" + g);
+                        + "/results/generation_" + g);
                 if (folder.mkdir()) {
 //                    System.out.println("Directory Created");
                 } else {
@@ -391,7 +402,13 @@ public class NEAT {
                 }
             }
             w = new FileWriter(System.getProperty("user.dir")
-                    + "/results/Generation_" + g + "/Organism_" + o + ".txt");
+                    + "/results/generation_" + g + "/organism_" + o + ".txt");
+            if (inc) {
+                w.write("\r\n" + genomeNum + ",");
+                genomeNum++;
+            } else {
+                w.write("\r\n" + currentGenomeNum + ",");
+            }
             for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
                 w.write("\r\n" + m.getKey() + "," + m.getValue().get(0)
                         + "," + m.getValue().get(1) + "," + m.getValue().get(2)
@@ -406,10 +423,14 @@ public class NEAT {
     public void loadGenome(int g, int o) {
         genome = new LinkedHashMap<>();
         try (Scanner s = new Scanner(new FileReader(System.getProperty("user.dir")
-                + "/results/Generation_" + g + "/Organism_" + o + ".txt"))) {
+                + "/results/generation_" + g + "/organism_" + o + ".txt"))) {
             s.delimiter();
             s.useDelimiter(",");
             List<String> values;
+            String temp = s.next();
+            temp = temp.replaceAll("\\r\\n", "");
+            currentGenomeNum = Integer.parseInt(temp);
+//            System.out.println("C: " + currentGenomeNum);
             while (s.hasNext()) {
                 values = new ArrayList<>();
                 String key = s.next();
@@ -425,19 +446,21 @@ public class NEAT {
             System.out.println("Error reading from file: " + ex);
         }
         generation = g;
+        organism = o;
         this.reset();
         this.createNeurons();
         this.createAxons();
 //        this.loadMutations(g);
     }
-    
+
     public Map<Integer, List<String>> loadGenome1(int g, int o) {
         Map<Integer, List<String>> qqqq = new LinkedHashMap<>();
         try (Scanner s = new Scanner(new FileReader(System.getProperty("user.dir")
-                + "/results/Generation_" + g + "/Organism_" + o + ".txt"))) {
+                + "/results/generation_" + g + "/organism_" + o + ".txt"))) {
             s.delimiter();
             s.useDelimiter(",");
             List<String> values;
+            s.next();
             while (s.hasNext()) {
                 values = new ArrayList<>();
                 String key = s.next();
@@ -454,12 +477,12 @@ public class NEAT {
         }
         return qqqq;
     }
-    
+
     public void saveGenerationResults(int g) {
         Writer w;
         try {
             w = new FileWriter(System.getProperty("user.dir")
-                    + "/results/Generation_" + g + "/results.txt");
+                    + "/results/generation_" + g + "/results.txt");
             for (Map.Entry<Integer, Integer> r : results.entrySet()) {
                 w.write("\r\n" + r.getKey() + "," + r.getValue() + ",");
             }
@@ -468,12 +491,12 @@ public class NEAT {
             System.out.println("Error writing to file: " + ex);
         }
     }
-    
+
     public void saveOrderedResults(int g) {
         Writer w;
         try {
             w = new FileWriter(System.getProperty("user.dir")
-                    + "/results/Generation_" + g + "/orderedResults.txt");
+                    + "/results/generation_" + g + "/orderedResults.txt");
             for (Map.Entry<Integer, Integer> r : results.entrySet()) {
                 w.write("\r\n" + r.getKey() + "," + r.getValue() + ",");
             }
@@ -486,7 +509,7 @@ public class NEAT {
     public void loadGenerationResults(int g) {
         results = new LinkedHashMap<>();
         try (Scanner s = new Scanner(new FileReader(System.getProperty("user.dir")
-                + "/results/Generation_" + g + "/results.txt"))) {
+                + "/results/generation_" + g + "/results.txt"))) {
             s.delimiter();
             s.useDelimiter(",");
             int result;
@@ -506,7 +529,7 @@ public class NEAT {
         Writer w;
         try {
             w = new FileWriter(System.getProperty("user.dir")
-                    + "/results/Generation_" + g + "/mutations.txt");
+                    + "/results/generation_" + g + "/mutations.txt");
             for (Map.Entry<Integer, List<String>> m : mutations.entrySet()) {
                 w.write("\r\n" + m.getKey() + "," + m.getValue().get(0)
                         + "," + m.getValue().get(1) + "," + m.getValue().get(2)
@@ -521,7 +544,7 @@ public class NEAT {
     public void loadMutations(int g) {
         mutations = new LinkedHashMap<>();
         try (Scanner s = new Scanner(new FileReader(System.getProperty("user.dir")
-                + "/results/Generation_" + g + "/mutations.txt"))) {
+                + "/results/generation_" + g + "/mutations.txt"))) {
             s.delimiter();
             s.useDelimiter(",");
             List<String> values;
@@ -540,68 +563,187 @@ public class NEAT {
         }
     }
 
+    public void saveSpecies(int g) {
+//        Writer w;
+//        try {
+//            w = new FileWriter(System.getProperty("user.dir")
+//                    + "/results/generation_" + g + "/species.txt");
+//            for (List<Integer> s : species) {
+//                w.write("\r\n" + s + ":");
+//            }
+//            w.close();
+//        } catch (IOException ex) {
+//            System.out.println("Error writing to file: " + ex);
+//        }
+    }
+
+    public void loadSpecies(int g) {
+//        species = new ArrayList<>();
+//        try (Scanner s = new Scanner(new FileReader(System.getProperty("user.dir")
+//                + "/results/generation_" + g + "/species.txt"))) {
+//            s.delimiter();
+//            s.useDelimiter(":");
+//            List<String> values;
+//            values = new ArrayList<>();
+//            while (s.hasNext()) {
+//                String key = s.next();
+//                key = key.replaceAll("\\r\\n", "");
+//                key = key.replaceAll("\\[", "");
+//                key = key.replaceAll("\\]", "");
+//                values.add(key);
+//            }
+//            species = new ArrayList<>();
+//            for (String a : values) {
+//                String b = a.replaceAll("\\s", "");
+//                List<String> c = Arrays.asList(b.split("\\,"));
+//                List<Integer> temp = new ArrayList<>();
+//                for (String d : c) {
+//                    temp.add(Integer.parseInt(d));
+//                }
+//                species.add(temp);
+//            }
+////            System.out.println(species);
+//            s.close();
+//        } catch (IOException ex) {
+//            System.out.println("Error reading from file: " + ex);
+//        }
+    }
+
     //Mutation Functions
-    
     public void fakeResults() {
         for (int i = 0; i < 100; i++) {
-            int chance = ThreadLocalRandom.current().nextInt(0, 100);
+            int chance = ThreadLocalRandom.current().nextInt(0, 101);
             results.put(i, chance);
         }
         this.saveGenerationResults(generation);
     }
-    
-    public void mutate(int top) {
-        System.out.println("Mutating Generation: " + generation);
+
+    public void mutate(int popSize, double enableChance,
+            double eliteThresh, double champThresh,
+            double crossMate, double addNeuron, double addConnection,
+            double weightChangeChance, double weightRandomChance) {
+
+//        this.loadGenerationResults(22);
+//        for (Species s : species) {
+//            System.out.println(s.orderSpecies(this));
+//            System.out.println(s.trimSpecies(eliteThresh, s.orderSpecies(this)));
+//        }
         mutations.clear();
         this.orderResults();
-        List<Integer> tempResults = new ArrayList<>(results.keySet());
-        for (int i = 0; i < top; i++) {
-            this.loadGenome(generation, tempResults.get(i));
-            this.saveGenome(generation + 1, i, true);
-        }
-        for (int i = 0; i < 750; i++) {
-//            int weightChance = ThreadLocalRandom.current().nextInt(0, top - 1);
-            this.loadGenome(generation, tempResults.get(i%250));
-            this.changeWeights(10);
-//            this.saveGenome(generation + 1, i+top, true);
-//            int addChance = ThreadLocalRandom.current().nextInt(0, top - 1);
-//            this.loadGenome(generation, tempResults.get(addChance));
-            int chance = ThreadLocalRandom.current().nextInt(0, 100);
-            if (chance < 50) {
-                this.addNeuron();
+
+        int o = 0;
+        Map<Integer, List<String>> temp = new LinkedHashMap<>();
+
+        this.specAdjustAllSizes(popSize, champThresh);
+
+//        System.out.println("Species" + species);
+        for (Species s : species) {
+            double newSize = adjustSize.get(s.getId());
+            System.out.println("nS: " + newSize);
+            double count = 0;
+
+            List<Integer> ordered = s.orderSpecies(this);
+            List<Integer> trimmed = s.trimSpecies(eliteThresh, ordered);
+
+            System.out.println("Trim: " + trimmed);
+
+            if (newSize >= trimmed.size()) {
+                s.clearSpecies();
+                for (Integer i : trimmed) {
+                    this.loadGenome(generation, i);
+                    this.saveGenome(generation + 1, o, true, false);
+                    o++;
+                    count++;
+                    s.addtoSpec(i, currentGenomeNum);
+                }
             } else {
-                this.addAxon();
+                s.clearSpecies();
+                for (int i = 0; i < newSize; i++) {
+                    this.loadGenome(generation, trimmed.get(i));
+                    this.saveGenome(generation + 1, o, true, false);
+                    o++;
+                    count++;
+                    s.addtoSpec(i, currentGenomeNum);
+                }
             }
-//            this.saveGenome(generation + 1, i+top*2, true);
-             int firstChance = ThreadLocalRandom.current().nextInt(0, 25);
-            this.crossover(generation, firstChance, i%250, 75);
-            this.saveGenome(generation + 1, i + top, true);
-        }
-//        for (int i = 0; i < top; i++) {
-//            int addChance = ThreadLocalRandom.current().nextInt(0, top - 1);
-//            this.loadGenome(generation, tempResults.get(addChance));
-//            int chance = ThreadLocalRandom.current().nextInt(0, 100);
-//            if (chance < 50) {
-//                this.addNeuron();
-//            } else {
-//                this.addAxon();
+
+            System.out.println("Count: " + count);
+//            count = count + trimmed.size();
+//            System.out.println(count);
+//            System.out.println(trimmed);
+//            if (list.size() >= champThresh) {
+//                this.loadGenome(generation, trimmed.get(0));
+//                this.saveGenome(generation + 1, o, true);
+//                o++;
+//                count++;
 //            }
-//            this.saveGenome(generation + 1, i+top*2, true);
-//        }
-//        for (int i = 0; i < top; i++) {
-////            this.loadGenome(generation, tempResults.get(i));
-//            int firstChance = ThreadLocalRandom.current().nextInt(0, 25);
-//            int secondChance = ThreadLocalRandom.current().nextInt(0, 25);
-//            this.crossover(generation, firstChance, secondChance, 75);
-//            this.saveGenome(generation + 1, i+top*3, true);
-//        }
+            while (count < newSize) {
+                double value = ThreadLocalRandom.current().nextDouble(0, 101);
+                if (value <= crossMate) {
+                    int rand1 = ThreadLocalRandom.current().nextInt(0, trimmed.size());
+                    int rand2 = ThreadLocalRandom.current().nextInt(0, trimmed.size());
+                    temp = new LinkedHashMap<>(this.crossover(generation, trimmed.get(rand1), trimmed.get(rand2), enableChance));
+                    double mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
+                    if (mutChance <= weightChangeChance) {
+                        this.changeWeights(temp, weightRandomChance);
+                    }
+                    mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
+                    if (mutChance <= addNeuron) {
+                        this.addNeuron();
+                    }
+                    mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
+                    if (mutChance <= addConnection) {
+                        this.addAxon();
+                    }
+                    this.saveGenome(generation + 1, o, true, true);
+                    o++;
+                    count++;
+                } else {
+                    int rand1 = ThreadLocalRandom.current().nextInt(0, trimmed.size());
+//                    System.out.println("Rand1: " + rand1);
+                    int randSpec = ThreadLocalRandom.current().nextInt(0, species.size());
+//                    System.out.println("randSpec: " + randSpec);
+                    List<Integer> trimmedTemp = species.get(randSpec).trimSpecies(eliteThresh, species.get(randSpec).orderSpecies(this));
+                    if (!trimmedTemp.isEmpty()) {
+                        int rand2 = ThreadLocalRandom.current().nextInt(0, trimmedTemp.size());
+//                    System.out.println("Rand2: " + rand2);
+//                    System.out.println(trimmed.get(rand1));
+//                    System.out.println(trimmed.get(rand2));
+                        temp = new LinkedHashMap<>(this.crossover(generation, trimmed.get(rand1), trimmedTemp.get(rand2), enableChance));
+                        genome = temp;
+                        double mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
+                        if (mutChance <= weightChangeChance) {
+                            this.changeWeights(temp, weightRandomChance);
+                        }
+                        mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
+                        if (mutChance <= addNeuron) {
+                            this.addNeuron();
+                        }
+                        mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
+                        if (mutChance <= addConnection) {
+                            this.addAxon();
+                        }
+                        this.saveGenome(generation + 1, o, true, true);
+                        o++;
+                        count++;
+                    }
+                }
+            }
+            System.out.println("C: " + count);
+        }
+
+        System.out.println("");
+        this.printSpecies();
+
+        adjustSize = new LinkedHashMap<>();
         this.saveMutations(generation + 1);
         generation++;
-        this.fakeResults();
+        this.tidySpecies();
     }
-    
-    public Map<Integer, List<String>> crossover(int generation, int organsim1, int organsim2, int enableChance) {
+
+    public Map<Integer, List<String>> crossover(int generation, int organsim1, int organsim2, double enableChance) {
         Map<Integer, List<String>> genome1 = this.loadGenome1(generation, organsim1);
+        Map<Integer, List<String>> genome2 = this.loadGenome1(generation, organsim2);
         this.loadGenerationResults(generation);
 
         int genome1Result = results.get(organsim1);
@@ -622,16 +764,16 @@ public class NEAT {
         List<Integer> excess = new ArrayList<>();
 
         List<Integer> g1KeySet = new ArrayList<>(genome1.keySet());
-        List<Integer> g2KeySet = new ArrayList<>(genome.keySet());
+        List<Integer> g2KeySet = new ArrayList<>(genome2.keySet());
 
         //matching
-        for (int i : genome1.keySet()) {
-            if (genome.keySet().contains(i)) {
+        for (int i : g2KeySet) {
+            if (g1KeySet.contains(i)) {
                 matching.add(i);
             }
         }
         //excess
-        if (genome1.keySet().size() > genome.keySet().size()) {
+        if (g1KeySet.size() > g2KeySet.size()) {
             for (int i : g1KeySet) {
                 if (i > g2KeySet.get(g2KeySet.size() - 1)) {
                     excess.add(i);
@@ -660,15 +802,15 @@ public class NEAT {
         //matching
         Map<Integer, List<String>> newGenome = new LinkedHashMap<>();
         for (int i : matching) {
-            int rand = ThreadLocalRandom.current().nextInt(0, 100);
+            int rand = ThreadLocalRandom.current().nextInt(0, 101);
             if (rand > 50) {
                 newGenome.put(i, genome1.get(i));
             } else {
-                newGenome.put(i, genome.get(i));
+                newGenome.put(i, genome2.get(i));
             }
             if (!(genome1.get(i).get(3).equals("ENABLED")
-                    && genome.get(i).get(3).equals("ENABLED"))) {
-                int eChance = ThreadLocalRandom.current().nextInt(0, 100);
+                    && genome2.get(i).get(3).equals("ENABLED"))) {
+                double eChance = ThreadLocalRandom.current().nextDouble(0, 101);
                 List<String> temp = new ArrayList<>(newGenome.get(i));
                 if (eChance > enableChance) {
                     temp.set(3, "ENABLED");
@@ -682,45 +824,45 @@ public class NEAT {
         //disjoint and excess
         if (fittest.equals("equal")) {
             for (int i : disjoint1) {
-                int rand = ThreadLocalRandom.current().nextInt(0, 100);
+                int rand = ThreadLocalRandom.current().nextInt(0, 101);
                 if (rand > 50) {
                     newGenome.put(i, genome1.get(i));
                 }
             }
             for (int i : disjoint2) {
-                int rand = ThreadLocalRandom.current().nextInt(0, 100);
+                int rand = ThreadLocalRandom.current().nextInt(0, 101);
                 if (rand > 50) {
-                    newGenome.put(i, genome.get(i));
+                    newGenome.put(i, genome2.get(i));
                 }
             }
             for (int i : excess) {
-                int rand = ThreadLocalRandom.current().nextInt(0, 100);
-                if (rand > 50 && (genome1.keySet().size() > genome.keySet().size())) {
+                int rand = ThreadLocalRandom.current().nextInt(0, 101);
+                if (rand > 50 && (g1KeySet.size() > g2KeySet.size())) {
                     newGenome.put(i, genome1.get(i));
                 } else if (rand > 50) {
-                    newGenome.put(i, genome.get(i));
+                    newGenome.put(i, genome2.get(i));
                 }
             }
         } else if (fittest.equals("genome1")) {
             for (int i : disjoint1) {
                 newGenome.put(i, genome1.get(i));
             }
-            if (genome1.keySet().size() > genome.keySet().size()) {
+            if (g1KeySet.size() > g2KeySet.size()) {
                 for (int i : excess) {
                     newGenome.put(i, genome1.get(i));
                 }
             }
         } else {
             for (int i : disjoint2) {
-                newGenome.put(i, genome.get(i));
+                newGenome.put(i, genome2.get(i));
             }
-            if (genome.keySet().size() > genome1.keySet().size()) {
+            if (g2KeySet.size() > g1KeySet.size()) {
                 for (int i : excess) {
-                    newGenome.put(i, genome.get(i));
+                    newGenome.put(i, genome2.get(i));
                 }
             }
         }
-        genome = new LinkedHashMap<>(newGenome);
+//        genome = new LinkedHashMap<>(newGenome);
         return newGenome;
     }
 
@@ -823,11 +965,11 @@ public class NEAT {
         List<Neuron> hidOut = new ArrayList<>();
         hidOut.addAll(hiddenNeurons);
         hidOut.addAll(outputNeurons);
-        
-        List<Neuron> inHid  = new ArrayList<>();
+
+        List<Neuron> inHid = new ArrayList<>();
         inHid.addAll(inputNeurons);
         inHid.addAll(hiddenNeurons);
-        
+
         for (Neuron all : inHid) {
             existingOutputs = new ArrayList<>();
             existingOutputs.add(all);
@@ -888,17 +1030,296 @@ public class NEAT {
         }
     }
 
-    public void changeWeights(int r) {
-        double value = ThreadLocalRandom.current().nextDouble(-1, 1);
-        for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
-            //Investigative change
-            if(Math.random() < 0.9) continue;
-            int uniform = ThreadLocalRandom.current().nextInt(0, 100);
-            if (uniform > r) {
+    public void changeWeights(Map<Integer, List<String>> offspring, double randomChance) {
+        double value = ThreadLocalRandom.current().nextDouble(-1, 1.00000000000001);
+        for (Map.Entry<Integer, List<String>> m : offspring.entrySet()) {
+            double uniform = ThreadLocalRandom.current().nextDouble(0, 101);
+            if (uniform > randomChance) {
                 m.getValue().set(2, Double.toString(Double.parseDouble(m.getValue().get(2)) + value));
             } else {
                 m.getValue().set(2, Double.toString(Math.random() * 2 - 1));
             }
         }
     }
+
+    //Speciation
+    //Function to return values from two networks
+    public Double specCal(int generation, Species s, double c1, double c2, double c3) {
+
+        //get random organism from species
+        int rand = s.getRandomSpecies();
+        Map<Integer, List<String>> genome1 = this.loadGenome1(generation, rand);
+
+        List<Integer> matching = new ArrayList<>();
+        List<Integer> excess = new ArrayList<>();
+        List<Integer> disjoint1 = new ArrayList<>();
+        List<Integer> disjoint2 = new ArrayList<>();
+
+        List<Integer> g1KeySet = new ArrayList<>(genome1.keySet());
+        List<Integer> g2KeySet = new ArrayList<>(genome.keySet());
+
+        //Matching
+        for (int i : genome1.keySet()) {
+            if (genome.keySet().contains(i)) {
+                matching.add(i);
+            }
+        }
+
+        //Excess
+        if (genome1.keySet().size() > genome.keySet().size()) {
+            for (int i : g1KeySet) {
+                if (i > g2KeySet.get(g2KeySet.size() - 1)) {
+                    excess.add(i);
+                }
+            }
+        } else {
+            for (int i : g2KeySet) {
+                if (i > g1KeySet.get(g1KeySet.size() - 1)) {
+                    excess.add(i);
+                }
+            }
+        }
+
+        //Disjoint
+        for (int i : g1KeySet) {
+            if (!matching.contains(i) && !excess.contains(i)) {
+                disjoint1.add(i);
+            }
+        }
+        for (int i : g2KeySet) {
+            if (!matching.contains(i) && !excess.contains(i)) {
+                disjoint2.add(i);
+            }
+        }
+
+        //Distance calculation
+        double W = 0.0;
+        for (int i : matching) {
+            W += Math.abs(Double.parseDouble(genome1.get(i).get(2)) - Double.parseDouble(genome.get(i).get(2)));
+        }
+        W /= matching.size();
+
+        int N;
+        if (g1KeySet.size() < 20 && g2KeySet.size() < 20) {
+            N = 1;
+        } else if (g1KeySet.size() >= g2KeySet.size()) {
+            N = g1KeySet.size();
+        } else {
+            N = g2KeySet.size();
+        }
+
+        double dist = ((c1 * excess.size()) / N)
+                + ((c2 * (disjoint1.size() + disjoint2.size())) / N)
+                + (c3 * W);
+
+//        System.out.println("Matching: " + matching);
+//        System.out.println("Excess: " + excess);
+//        System.out.println("Dis1: " + disjoint1);
+//        System.out.println("Dis2: " + disjoint2);
+//        System.out.println(dist);
+        return dist;
+    }
+
+    //Add to species/Create new species
+    public void addToSpecies(int generation, double c1, double c2, double c3, double threshold, int repNum) {
+        boolean added = false;
+//        System.out.println("T: " + currentGenomeNum);
+
+        //get list of all species realNums, check if not present
+        List<Integer> temp = new ArrayList<>();
+        for (Species s : species) {
+            for (Integer i : s.getReal()) {
+                temp.add(i);
+            }
+        }
+
+        if (temp.contains(currentGenomeNum)) {
+            added = true;
+        } else {
+            for (Species s : species) {
+                double dist = this.specCal(generation, s, c1, c2, c3);
+                if (dist < threshold) {
+                    s.addtoSpec(organism, currentGenomeNum);
+                    added = true;
+                    break;
+                }
+            }
+        }
+
+        if (!added) {
+            Species a = new Species(speciesNum, repNum);
+            a.addtoSpec(organism, currentGenomeNum);
+            species.add(a);
+            speciesNum++;
+        }
+    }
+    //Fix to work on non 0 generation
+
+    public void speciate(int generation, int popSize, double c1, double c2, double c3, double threshold, int repNum) {
+        this.loadGenerationResults(generation);
+        int x = 0;
+        while (x < popSize) {
+            this.loadGenome(generation, x);
+            this.addToSpecies(generation, c1, c2, c3, threshold, repNum);
+            x++;
+        }
+//        this.saveSpecies(generation);
+//        this.printSpecies();
+    }
+
+    public double popMean(int popSize) {
+        adjustResults = new LinkedHashMap<>();
+        for (Species s : species) {
+            for (Integer i : s.getSpecies()) {
+                adjustResults.put(i, this.getAdjustFitness(i, s));
+            }
+        }
+        double temp = 0;
+        for (Integer i : adjustResults.keySet()) {
+            temp += adjustResults.get(i);
+        }
+        return temp / popSize;
+    }
+
+    public void specAdjustAllSizes(int popSize, double champThresh) {
+
+        adjustSize = new LinkedHashMap<>();
+        for (Species s : species) {
+            adjustSize.put(s.getId(), s.specAdjustSize(this, popSize, champThresh));
+        }
+        System.out.println("Adjusted: " + adjustSize);
+
+        //readjust sizes to match pop count
+        Map<Integer, Double> temp = new LinkedHashMap<>(adjustSize);
+        for (Integer i : temp.keySet()) {
+            temp.put(i, temp.get(i) % 1);
+        }
+
+        for (Integer i : adjustSize.keySet()) {
+            adjustSize.put(i, Math.floor(adjustSize.get(i)));
+        }
+        System.out.println("Rounded: " + adjustSize);
+
+        double pop = 0;
+        for (Integer i : adjustSize.keySet()) {
+            pop += adjustSize.get(i);
+        }
+
+        int diff = popSize - (int) pop;
+        System.out.println("Current Size: " + pop);
+        System.out.println("Difference: " + diff);
+
+        if (diff != 0) {
+//        System.out.println(temp);
+            Map<Integer, Double> orderedFrac = temp.entrySet().stream()
+                    .sorted(Map.Entry.comparingByValue(Comparator.naturalOrder()))
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
+                            (oldResult, newResult) -> oldResult, LinkedHashMap::new));
+            temp = new LinkedHashMap<>(orderedFrac);
+            for (Integer i : temp.keySet()) {
+                if (temp.get(i) == 0.0) {
+                    orderedFrac.remove(i);
+                }
+            }
+
+            System.out.println("Sorted Fractionals: " + orderedFrac);
+            List<Integer> k = new ArrayList<>();
+            for (Integer i : orderedFrac.keySet()) {
+                k.add(i);
+            }
+            System.out.println("Sorted Keys: " + k);
+
+            if (!k.isEmpty()) {
+                if ((Math.abs(diff) >= k.size())) {
+                    int counter = (int) Math.floor(Math.abs(diff) / k.size());
+                    while (counter > 0) {
+                        if (diff > 0) {
+                            for (int i = 0; i < k.size(); i++) {
+                                int x = k.get(k.size() - 1 - i);
+                                adjustSize.put(x, adjustSize.get(x) + 1);
+                            }
+                        } else {
+                            for (int i = 0; i < k.size(); i++) {
+                                int x = k.get(i);
+                                adjustSize.put(x, adjustSize.get(x) - 1);
+                            }
+                        }
+                        counter--;
+                    }
+                    if (diff > 0) {
+                        diff -= (int) Math.floor(Math.abs(diff) / k.size()) * k.size();
+                    } else {
+                        diff += (int) Math.floor(Math.abs(diff) / k.size()) * k.size();
+                    }
+                }
+                System.out.println("NewDiff: " + diff);
+                if (diff > 0) {
+                    for (int i = 0; i < Math.abs(diff); i++) {
+                        int x = k.get(k.size() - 1 - i);
+                        adjustSize.put(x, adjustSize.get(x) + 1);
+                    }
+                } else {
+                    for (int i = 0; i < Math.abs(diff); i++) {
+                        int x = k.get(i);
+                        adjustSize.put(x, adjustSize.get(x) - 1);
+                    }
+                }
+            }
+        } else {
+            if (diff > 0) {
+                while (diff > 0) {
+                    for (Integer i : adjustSize.keySet()) {
+                         adjustSize.put(i, adjustSize.get(i) + 1);
+                         diff--;
+                         if (!(diff > 0)) {
+                             break;
+                         }
+                    }
+                }
+            } else {
+                 while (diff < 0) {
+                    for (Integer i : adjustSize.keySet()) {
+                         adjustSize.put(i, adjustSize.get(i) - 1);
+                         diff++;
+                         if (!(diff < 0)) {
+                             break;
+                         }
+                    }
+                }
+            }
+        }
+
+        System.out.println("ReAdjusted: " + adjustSize);
+        System.out.println("");
+    }
+
+    public void printSpecies() {
+        System.out.println("Species: " + species.size());
+//        System.out.println(species);
+        for (Species s : species) {
+            System.out.println("Size: " + s.getSpecies().size());
+//            System.out.println("Spec: " + s.getSpecies());
+            System.out.println("Real: " + s.getReal());
+            System.out.println("");
+        }
+//        for(Species s : species) {
+//            System.out.println(s.getSpecies().size());
+//        }
+    }
+
+    public void tidySpecies() {
+        List<Species> temp = new ArrayList<>();
+        for (Species s : species) {
+            if (s.getSpecies().isEmpty()) {
+                temp.add(s);
+            }
+        }
+        for (Species s : temp) {
+            species.remove(s);
+        }
+    }
+    
+//    public Integer returnMaxFitness() {
+//        
+//    }
 }

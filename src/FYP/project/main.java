@@ -8,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.lang.Runtime;
+import java.util.concurrent.ThreadLocalRandom;
 
 /**
  *
@@ -70,41 +71,41 @@ public class main {
 //         values.add(9.0);
 //         values.add(3.0);
 //
-        NEAT neat = new NEAT(inputs, outputs);
-        World w = new World(26);
-//        w.saveWorld();
-        w.loadWorld();
-        Entity e = new Entity(w);
-        Window win = new Window();
-        Tile t = new Tile(w);
-        e.setPosition(13, 13, 0);
-        win.createWindow(w, 30, e, true);
-        e.setEnergy(250, 1000);
-        e.setEGainOnEat(10);
-        e.setELossOnAction(1);
-        neat.loadGenome(499, 0);
-//        t.foodAll();
-        int x = 0;
-        while (e.getEnergy() > 0) {
-            values = new ArrayList<>();
-            e.coneSensor();
-            values.add((double) e.getEnergy() / 100);
-            values.add((double) e.getInventory());
-            for (int i : e.getSensor()) {
-                values.add((double) i);
-            }
-            neat.runNetwork(values, false);
-            e.actionWin(win, t, false, neat.returnRunValues());
-            System.out.println("Energy: " + e.getEnergy());
-            try {
-                Thread.sleep(30);
-            } catch (InterruptedException ex) {
-                Thread.currentThread().interrupt();
-            }
-            x++;
-        }
-        System.out.println(e.getFoodEaten());
-//
+//        NEAT neat = new NEAT(inputs, outputs);
+//        World w = new World(26);
+////        w.saveWorld();
+//        w.loadWorld();
+//        Entity e = new Entity(w);
+//        Window win = new Window();
+//        Tile t = new Tile(w);
+//        e.setPosition(13, 13, 0);
+//        win.createWindow(w, 30, e, true);
+//        e.setEnergy(250, 1000);
+//        e.setEGainOnEat(10);
+//        e.setELossOnAction(1);
+//        neat.loadGenome(999, 0);
+////        t.foodAll();
+//        int x = 0;
+//        while (e.getEnergy() > 0) {
+//            values = new ArrayList<>();
+//            e.coneSensor();
+//            values.add((double) e.getEnergy() / 100);
+//            values.add((double) e.getInventory());
+//            for (int i : e.getSensor()) {
+//                values.add((double) i);
+//            }
+//            neat.runNetwork(values, false);
+//            e.actionWin(win, t, false, neat.returnRunValues());
+//            System.out.println("Energy: " + e.getEnergy());
+//            try {
+//                Thread.sleep(10);
+//            } catch (InterruptedException ex) {
+//                Thread.currentThread().interrupt();
+//            }
+//            x++;
+//        }
+//        System.out.println(e.getFoodEaten());
+//          
 //
 //       neat.fakeResults();
 //       for (int i = 0; i < 100; i++) {
@@ -115,56 +116,108 @@ public class main {
 //
 //System.out.println(Runtime.getRuntime().availableProcessors());
 //
-//        //RUNNING METHOD
 //        NEAT neat = new NEAT(inputs, outputs);
-////        neat.createStartingGeneration(1000);
-//        World w = new World(26);
-//        w.loadWorld();
-//        Window win = new Window();
-//        Entity e = new Entity(w);
-//        win.createWindow(w, 30, e, false);
-//        Tile t = new Tile(w);
-//        e.setEGainOnEat(10);
-//
+////        neat.loadGenome(22, 0);
+////        neat.loadGenome(22, 1);
+//////        neat.specCal(3,1,1,1,1);
+//          int popSize = 100;
+//          neat.speciate(22, popSize, 1, 1, 3, 2.2);
+//            neat.printSpecies();
+//          neat.mutate(popSize, 50, 40, 3, 1, 0.5, 0.3, 80, 90);
+//            neat.printSpecies();
+//          neat.speciate(22, popSize, 1, 1, 3, 2.2);
+//            neat.printSpecies();
+////          neat.specAdjustAllSizes(popSize);
+//          List<Integer> test = new ArrayList<>();
+//          test.add(0);
+//          test.add(1);
+//          test.add(3);
+//          test.add(7);
+//          neat.orderSpecies(test);
+//          neat.trimSpecies(40, neat.orderSpecies(test));
+//          neat.saveSpecies(1);
+//          neat.loadSpecies(1);
+//        neat.createStartingGeneration(10);
 //        int generationLimit = 500;
-//        int populationLimit = 1000;
-//        int startingEnergy = 250;
-//        int maxEnergy = 1000;
-//        int a = 499;
+//        int populationLimit = 10;
+//        int a = 0;
 //        while (a < generationLimit) {
-////        while (t.getFarmed() < 2) {
 //            System.out.println("Generation: " + a);
 //            int b = 0;
 //            while (b < populationLimit) {
-////                System.out.println("Running Generation: " + a + " Organism: " + b);
-//                e.setMoves(0);
-//                e.setFoodEaten(0);
-//                w.loadWorld();
-////                t.foodAll();
-//                e.setPosition(13, 13, 0);
-//                e.setEnergy(startingEnergy, maxEnergy);
 //                neat.loadGenome(a, b);
-//                while (e.getEnergy() > 0) {
-//                    values = new ArrayList<>();
-//                    e.coneSensor();
-//                    values.add((double) e.getEnergy() / 100);
-//                    values.add((double) e.getInventory());
-//                    for (int i : e.getSensor()) {
-//                        values.add((double) i);
-//                    }
-//                    neat.runNetwork(values, false);
-//                    e.actionWin(win, t, false, neat.returnRunValues());
-//                }
-//                neat.setFitness(b, e.getFoodEaten());
-////                win.destroy();
+//                values = new ArrayList<>();
+//                values.add(Math.random() * 2 - 1);
+//                values.add(Math.random() * 2 - 1);
+//                values.add(Math.random() * 2 - 1);
+//                neat.runNetwork(values, false);
+//                neat.setFitness(b, ThreadLocalRandom.current().nextInt(0, 100));
 //                b++;
 //            }
-//            neat.mutate(250);
-////            System.out.println("Farmed: " + t.getFarmed());
-////            t.setFarmed(0);
+//            neat.mutate(2);
 //            a++;
 //        }
 //        System.out.println("DONE");
+//        System.exit(0);
+
+
+        //RUNNING METHOD
+        NEAT neat = new NEAT(inputs, outputs);
+        World w = new World(26);
+        w.loadWorld();
+        Window win = new Window();
+        Entity e = new Entity(w);
+        win.createWindow(w, 30, e, false);
+        Tile t = new Tile(w);
+        e.setEGainOnEat(10);
+        
+        int generationLimit = 500;
+        int populationLimit = 100;
+        
+        int startingEnergy = 250;
+        int maxEnergy = 1000;
+        neat.createStartingGeneration(populationLimit);
+        int a = 0;
+        while (a < generationLimit) {
+//        while (t.getFarmed() < 2) {
+            System.out.println("Generation: " + a);
+            int b = 0;
+            while (b < populationLimit) {
+//                System.out.println("Running Generation: " + a + " Organism: " + b);
+                e.setMoves(0);
+                e.setFoodEaten(0);
+                w.loadWorld();
+                t.foodAll();
+                e.setPosition(13, 13, 0);
+                e.setEnergy(startingEnergy, maxEnergy);
+                neat.loadGenome(a, b);
+                while (e.getEnergy() > 0) {
+                    values = new ArrayList<>();
+                    e.coneSensor();
+                    values.add((double) e.getEnergy() / 100);
+                    values.add((double) e.getInventory());
+                    for (int i : e.getSensor()) {
+                        values.add((double) i);
+                    }
+                    neat.runNetwork(values, false);
+                    e.actionNoWin(win, t, false, neat.returnRunValues());
+                }
+//                  neat.saveGenome(a, b, true);
+                  neat.setFitness(b, e.getFoodEaten());
+//                win.destroy();
+                b++;
+            }
+//              System.out.println("Mutating Generation: " + a);
+            neat.speciate(a, populationLimit, 2, 2, 3, 2, 50);
+            neat.printSpecies();
+            neat.mutate(populationLimit, 50, 40, 3, 1, 50, 50, 80, 90);
+            System.out.println("");
+//            System.out.println("Farmed: " + t.getFarmed());
+//            t.setFarmed(0);
+            a++;
+        }
+        System.out.println("DONE");
+        System.exit(0);
 
 //
 //
