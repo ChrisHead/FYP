@@ -30,6 +30,8 @@ public class NEAT {
     private int genomeNum;
     private int currentGenomeNum;
     private int speciesNum;
+    private List<List<List<String>>> specResults;
+    private List<Integer> noOfSpecs;
 
     public NEAT(List<String> i, List<String> o) {
         generation = 0;
@@ -52,6 +54,8 @@ public class NEAT {
         genomeNum = 0;
         currentGenomeNum = 0;
         speciesNum = 0;
+        noOfSpecs = new ArrayList<>();
+        specResults = new ArrayList<>();
     }
 
     //Network Creation
@@ -79,7 +83,6 @@ public class NEAT {
         for (Neuron n : allNeurons) {
             previousValues.put(n, n.getValue());
         }
-
     }
 
     public void createAxons() {
@@ -92,11 +95,13 @@ public class NEAT {
                 for (Neuron n : allNeurons) {
                     if (n.getName().equals(m.getValue().get(0))) {
                         input = n;
+                        input.setActType(Integer.parseInt(m.getValue().get(4)));
                     }
                 }
                 for (Neuron n : allNeurons) {
                     if (n.getName().equals(m.getValue().get(1))) {
                         output = n;
+                        output.setActType(Integer.parseInt(m.getValue().get(5)));
                     }
                 }
                 Axon a = new Axon(input, output, Double.parseDouble(m.getValue().get(2)));
@@ -186,7 +191,8 @@ public class NEAT {
 
     public void setFitness(int o, int f) {
         results.put(o, f);
-        this.saveGenerationResults(generation);
+//        System.out.println("O:" + o + ", F: " + f);
+//        this.saveGenerationResults(generation);
     }
 
     public Double getAdjustFitness(int o, Species s) {
@@ -200,7 +206,7 @@ public class NEAT {
     }
 
     public void orderResults() {
-        this.loadGenerationResults(generation);
+//        this.loadGenerationResults(generation);
         Map<Integer, Integer> orderedResults = results.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
@@ -241,6 +247,8 @@ public class NEAT {
                 values.add(a.getOutput().getName());
                 values.add(String.valueOf(a.getWeight()));
                 values.add("ENABLED");
+                values.add(Integer.toString(a.getInput().getActType()));
+                values.add(Integer.toString(a.getOutput().getActType()));
 
                 List<String> newMut = new ArrayList<>();
                 newMut.add("original");
@@ -410,9 +418,13 @@ public class NEAT {
                 w.write("\r\n" + currentGenomeNum + ",");
             }
             for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
-                w.write("\r\n" + m.getKey() + "," + m.getValue().get(0)
-                        + "," + m.getValue().get(1) + "," + m.getValue().get(2)
-                        + "," + m.getValue().get(3) + ",");
+                w.write("\r\n" + m.getKey()
+                        + "," + m.getValue().get(0)
+                        + "," + m.getValue().get(1)
+                        + "," + m.getValue().get(2)
+                        + "," + m.getValue().get(3)
+                        + "," + m.getValue().get(4)
+                        + "," + m.getValue().get(5) + ",");
             }
             w.close();
         } catch (IOException ex) {
@@ -435,6 +447,8 @@ public class NEAT {
                 values = new ArrayList<>();
                 String key = s.next();
                 key = key.replaceAll("\\r\\n", "");
+                values.add(s.next());
+                values.add(s.next());
                 values.add(s.next());
                 values.add(s.next());
                 values.add(s.next());
@@ -465,6 +479,8 @@ public class NEAT {
                 values = new ArrayList<>();
                 String key = s.next();
                 key = key.replaceAll("\\r\\n", "");
+                values.add(s.next());
+                values.add(s.next());
                 values.add(s.next());
                 values.add(s.next());
                 values.add(s.next());
@@ -523,6 +539,23 @@ public class NEAT {
         } catch (IOException ex) {
             System.out.println("Error reading from file: " + ex);
         }
+    }
+
+    public String loadMaxResult(int g) {
+        String result = "";
+        try (Scanner s = new Scanner(new FileReader(System.getProperty("user.dir")
+                + "/results/generation_" + g + "/orderedResults.txt"))) {
+            s.delimiter();
+            s.useDelimiter(",");
+            String key = s.next();
+            key = s.next();
+            key = key.replaceAll("\\r\\n", "");
+            result = key;
+            s.close();
+        } catch (IOException ex) {
+            System.out.println("Error reading from file: " + ex);
+        }
+        return result;
     }
 
     public void saveMutations(int g) {
@@ -610,24 +643,12 @@ public class NEAT {
     }
 
     //Mutation Functions
-    public void fakeResults() {
-        for (int i = 0; i < 100; i++) {
-            int chance = ThreadLocalRandom.current().nextInt(0, 101);
-            results.put(i, chance);
-        }
-        this.saveGenerationResults(generation);
-    }
-
     public void mutate(int popSize, double enableChance,
             double eliteThresh, double champThresh,
             double crossMate, double addNeuron, double addConnection,
             double weightChangeChance, double weightRandomChance) {
 
-//        this.loadGenerationResults(22);
-//        for (Species s : species) {
-//            System.out.println(s.orderSpecies(this));
-//            System.out.println(s.trimSpecies(eliteThresh, s.orderSpecies(this)));
-//        }
+        this.saveGenerationResults(generation);
         mutations.clear();
         this.orderResults();
 
@@ -639,14 +660,26 @@ public class NEAT {
 //        System.out.println("Species" + species);
         for (Species s : species) {
             double newSize = adjustSize.get(s.getId());
-            System.out.println("nS: " + newSize);
+//            System.out.println("nS: " + newSize);
             double count = 0;
 
             List<Integer> ordered = s.orderSpecies(this);
             List<Integer> trimmed = s.trimSpecies(eliteThresh, ordered);
 
-            System.out.println("Trim: " + trimmed);
+//            System.out.println("Trim: " + trimmed);
 
+            //Save Champion if species hasn't been exterminated, and above
+            //champThresh size
+//            if (newSize > 0 && s.getSpecies().size() > champThresh) {
+//                s.clearSpecies();
+//                this.loadGenome(generation, trimmed.get(0));
+//                this.saveGenome(generation + 1, o, true, false);
+//                o++;
+//                count++;
+//                s.addtoSpec(0, currentGenomeNum);
+//            }
+
+            //Save All Elite
             if (newSize >= trimmed.size()) {
                 s.clearSpecies();
                 for (Integer i : trimmed) {
@@ -666,23 +699,14 @@ public class NEAT {
                     s.addtoSpec(i, currentGenomeNum);
                 }
             }
-
-            System.out.println("Count: " + count);
-//            count = count + trimmed.size();
-//            System.out.println(count);
-//            System.out.println(trimmed);
-//            if (list.size() >= champThresh) {
-//                this.loadGenome(generation, trimmed.get(0));
-//                this.saveGenome(generation + 1, o, true);
-//                o++;
-//                count++;
-//            }
+            
             while (count < newSize) {
                 double value = ThreadLocalRandom.current().nextDouble(0, 101);
-                if (value <= crossMate) {
+                if (value >= crossMate) {
                     int rand1 = ThreadLocalRandom.current().nextInt(0, trimmed.size());
                     int rand2 = ThreadLocalRandom.current().nextInt(0, trimmed.size());
                     temp = new LinkedHashMap<>(this.crossover(generation, trimmed.get(rand1), trimmed.get(rand2), enableChance));
+                    genome = temp;
                     double mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
                     if (mutChance <= weightChangeChance) {
                         this.changeWeights(temp, weightRandomChance);
@@ -733,8 +757,9 @@ public class NEAT {
         }
 
         System.out.println("");
-        this.printSpecies();
+//        this.printSpecies();
 
+        results = new LinkedHashMap<>();
         adjustSize = new LinkedHashMap<>();
         this.saveMutations(generation + 1);
         generation++;
@@ -744,7 +769,7 @@ public class NEAT {
     public Map<Integer, List<String>> crossover(int generation, int organsim1, int organsim2, double enableChance) {
         Map<Integer, List<String>> genome1 = this.loadGenome1(generation, organsim1);
         Map<Integer, List<String>> genome2 = this.loadGenome1(generation, organsim2);
-        this.loadGenerationResults(generation);
+//        this.loadGenerationResults(generation);
 
         int genome1Result = results.get(organsim1);
         int genome2Result = results.get(organsim2);
@@ -893,6 +918,8 @@ public class NEAT {
         inNew.add(n.getName());
         inNew.add("1.0");
         inNew.add("ENABLED");
+        inNew.add(Integer.toString(allNeurons.get(indexIn).getActType()));
+        inNew.add(Integer.toString(n.getActType()));
 
         List<String> newMut = new ArrayList<>();
         newMut.add("addNeuron");
@@ -925,6 +952,8 @@ public class NEAT {
         newOut.add(allNeurons.get(indexOut).getName());
         newOut.add(original.get(2));
         newOut.add("ENABLED");
+        newOut.add(Integer.toString(allNeurons.get(indexOut).getActType()));
+        newOut.add(Integer.toString(n.getActType()));
 
         newMut = new ArrayList<>();
         newMut.add("addNeuron");
@@ -954,7 +983,7 @@ public class NEAT {
 
         //disable original axon
         List<String> disabled = new ArrayList<>(original);
-        disabled.add(3, "DISABLED");
+        disabled.set(3, "DISABLED");
         genome.put(genomeKey, disabled);
 
     }
@@ -1010,6 +1039,8 @@ public class NEAT {
             temp.add(availableOutputs.get(outRand).getName());
             temp.add(String.valueOf(weight));
             temp.add("ENABLED");
+            temp.add(Integer.toString(available.get(availRand).getActType()));
+            temp.add(Integer.toString(availableOutputs.get(outRand).getActType()));
 
             List<String> newMut = new ArrayList<>();
             newMut.add("addAxon");
@@ -1040,6 +1071,21 @@ public class NEAT {
                 m.getValue().set(2, Double.toString(Math.random() * 2 - 1));
             }
         }
+    }
+
+    public void removeAxon() {
+        //remove axon from axons and genome
+        //check all neurons, if not input or ourtput, remove
+    }
+
+    public void removeNeuron() {
+        //remove neuron from all/in/out/hid and genome
+        //remove all connected axons
+    }
+    
+    public void changeActivation() {
+        //change act value of neuron
+        //change value recorded in genome
     }
 
     //Speciation
@@ -1156,15 +1202,14 @@ public class NEAT {
     //Fix to work on non 0 generation
 
     public void speciate(int generation, int popSize, double c1, double c2, double c3, double threshold, int repNum) {
-        this.loadGenerationResults(generation);
+//        this.loadGenerationResults(generation);
         int x = 0;
         while (x < popSize) {
             this.loadGenome(generation, x);
             this.addToSpecies(generation, c1, c2, c3, threshold, repNum);
             x++;
         }
-//        this.saveSpecies(generation);
-//        this.printSpecies();
+        noOfSpecs.add(species.size());
     }
 
     public double popMean(int popSize) {
@@ -1269,21 +1314,21 @@ public class NEAT {
             if (diff > 0) {
                 while (diff > 0) {
                     for (Integer i : adjustSize.keySet()) {
-                         adjustSize.put(i, adjustSize.get(i) + 1);
-                         diff--;
-                         if (!(diff > 0)) {
-                             break;
-                         }
+                        adjustSize.put(i, adjustSize.get(i) + 1);
+                        diff--;
+                        if (!(diff > 0)) {
+                            break;
+                        }
                     }
                 }
             } else {
-                 while (diff < 0) {
+                while (diff < 0) {
                     for (Integer i : adjustSize.keySet()) {
-                         adjustSize.put(i, adjustSize.get(i) - 1);
-                         diff++;
-                         if (!(diff < 0)) {
-                             break;
-                         }
+                        adjustSize.put(i, adjustSize.get(i) - 1);
+                        diff++;
+                        if (!(diff < 0)) {
+                            break;
+                        }
                     }
                 }
             }
@@ -1318,8 +1363,91 @@ public class NEAT {
             species.remove(s);
         }
     }
-    
-//    public Integer returnMaxFitness() {
-//        
-//    }
+
+    public void recordSpecies() {
+        Writer w;
+        try {
+            w = new FileWriter(System.getProperty("user.dir")
+                    + "/noOfSpecs.csv");
+            for (int i = 0; i < noOfSpecs.size(); i++) {
+                w.write(noOfSpecs.get(i) + "," + "\r\n");
+            }
+            w.close();
+        } catch (IOException ex) {
+            System.out.println("Error writing to file: " + ex);
+        }
+    }
+
+    public void graphMaxfitness(int genSize) {
+        List<List<String>> max = new ArrayList<>();
+        for (int i = 0; i < genSize; i++) {
+            List<String> temp = new ArrayList<>();
+            this.loadGenerationResults(i);
+            temp.add(this.loadMaxResult(i));
+            max.add(temp);
+        }
+        Writer w;
+        try {
+            w = new FileWriter(System.getProperty("user.dir")
+                    + "/maxResults.csv");
+            for (List<String> s : max) {
+                w.write(s.get(0) + "," + "\r\n");
+            }
+            w.close();
+        } catch (IOException ex) {
+            System.out.println("Error writing to file: " + ex);
+        }
+    }
+
+    public void addToGraphSpecResults() {
+        List<List<String>> vals = new ArrayList<>();
+        for (Species s : species) {
+            List<String> temp = new ArrayList<>();
+            temp.add(Integer.toString(s.getId()));
+            temp.add(Double.toString(s.getMaxFitness()));
+            vals.add(temp);
+        }
+        specResults.add(vals);
+    }
+
+    public void graphSpeciesResults(int popSize) {
+//        System.out.println(speciesNum);
+//        for (List<List<String>> s : specResults) {
+//            System.out.println(s);
+//        }
+        Writer w;
+        try {
+            w = new FileWriter(System.getProperty("user.dir")
+                    + "/specResults.csv");
+            String vals = "";
+            for (int i = 0; i < speciesNum; i++) {
+                vals += "Species_" + i + ",";
+            }
+            vals += "\r\n";
+            w.write(vals);
+            for (List<List<String>> s : specResults) {
+                vals = "";
+                for (int i = 0; i < speciesNum; i++) {
+                    List<String> temp = new ArrayList<>();
+                    for (List<String> l : s) {
+                        temp.add(l.get(0));
+                    }
+                    if (temp.contains(Integer.toString(i))) {
+                        for (List<String> a : s) {
+                            if (a.get(0).equals(Integer.toString(i))) {
+                                vals += a.get(1) + ",";
+                            }
+                        }
+                    } else {
+                        vals += "0" + ",";
+                    }
+                }
+                vals += "\r\n";
+                w.write(vals);
+            }
+            w.close();
+        } catch (IOException ex) {
+            System.out.println("Error writing to file: " + ex);
+        }
+    }
 }

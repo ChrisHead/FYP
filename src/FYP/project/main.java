@@ -1,14 +1,6 @@
 package FYP.project;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Arrays;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-import java.util.Scanner;
-import java.util.stream.Collectors;
-import java.lang.Runtime;
-import java.util.concurrent.ThreadLocalRandom;
+import java.util.*;
 
 /**
  *
@@ -59,107 +51,43 @@ public class main {
         outputs.add("pickUp");
         outputs.add("drop");
 
-//         inputs.add("i1");
-//         inputs.add("i2");
-//         inputs.add("i3");
-//         
-//         outputs.add("o1");
-//         outputs.add("o2");
-//         outputs.add("o3");
-//         
-//         values.add(4.0);
-//         values.add(9.0);
-//         values.add(3.0);
-//
+        //TESTING METHOD
 //        NEAT neat = new NEAT(inputs, outputs);
 //        World w = new World(26);
-////        w.saveWorld();
 //        w.loadWorld();
-//        Entity e = new Entity(w);
 //        Window win = new Window();
+//        Entity e = new Entity(w);
+//        win.createWindow(w, 30, e, false);
 //        Tile t = new Tile(w);
-//        e.setPosition(13, 13, 0);
-//        win.createWindow(w, 30, e, true);
-//        e.setEnergy(250, 1000);
 //        e.setEGainOnEat(10);
-//        e.setELossOnAction(1);
-//        neat.loadGenome(999, 0);
-////        t.foodAll();
-//        int x = 0;
+//        int startingEnergy = 250;
+//        int maxEnergy = 1000;
+//        e.setMoves(0);
+//        e.setFoodEaten(0);
+//        e.setInventory(false);
+//        t.foodAll();
+//        e.setPosition(13, 13, 0);
+//        e.setEnergy(startingEnergy, maxEnergy);
+//        neat.loadGenome(480, 49);
 //        while (e.getEnergy() > 0) {
 //            values = new ArrayList<>();
 //            e.coneSensor();
-//            values.add((double) e.getEnergy() / 100);
+//            values.add((double) (e.getEnergy() - 1) / (maxEnergy - 1));
 //            values.add((double) e.getInventory());
 //            for (int i : e.getSensor()) {
 //                values.add((double) i);
 //            }
 //            neat.runNetwork(values, false);
 //            e.actionWin(win, t, false, neat.returnRunValues());
-//            System.out.println("Energy: " + e.getEnergy());
+////            System.out.println("Energy: " + e.getEnergy());
 //            try {
 //                Thread.sleep(10);
 //            } catch (InterruptedException ex) {
 //                Thread.currentThread().interrupt();
 //            }
-//            x++;
 //        }
 //        System.out.println(e.getFoodEaten());
-//          
-//
-//       neat.fakeResults();
-//       for (int i = 0; i < 100; i++) {
-//           neat.mutate(25);
-//       }
-//       neat.loadGenome(100,96);
-//       neat.printOutputNeurons();
-//
-//System.out.println(Runtime.getRuntime().availableProcessors());
-//
-//        NEAT neat = new NEAT(inputs, outputs);
-////        neat.loadGenome(22, 0);
-////        neat.loadGenome(22, 1);
-//////        neat.specCal(3,1,1,1,1);
-//          int popSize = 100;
-//          neat.speciate(22, popSize, 1, 1, 3, 2.2);
-//            neat.printSpecies();
-//          neat.mutate(popSize, 50, 40, 3, 1, 0.5, 0.3, 80, 90);
-//            neat.printSpecies();
-//          neat.speciate(22, popSize, 1, 1, 3, 2.2);
-//            neat.printSpecies();
-////          neat.specAdjustAllSizes(popSize);
-//          List<Integer> test = new ArrayList<>();
-//          test.add(0);
-//          test.add(1);
-//          test.add(3);
-//          test.add(7);
-//          neat.orderSpecies(test);
-//          neat.trimSpecies(40, neat.orderSpecies(test));
-//          neat.saveSpecies(1);
-//          neat.loadSpecies(1);
-//        neat.createStartingGeneration(10);
-//        int generationLimit = 500;
-//        int populationLimit = 10;
-//        int a = 0;
-//        while (a < generationLimit) {
-//            System.out.println("Generation: " + a);
-//            int b = 0;
-//            while (b < populationLimit) {
-//                neat.loadGenome(a, b);
-//                values = new ArrayList<>();
-//                values.add(Math.random() * 2 - 1);
-//                values.add(Math.random() * 2 - 1);
-//                values.add(Math.random() * 2 - 1);
-//                neat.runNetwork(values, false);
-//                neat.setFitness(b, ThreadLocalRandom.current().nextInt(0, 100));
-//                b++;
-//            }
-//            neat.mutate(2);
-//            a++;
-//        }
 //        System.out.println("DONE");
-//        System.exit(0);
-
 
         //RUNNING METHOD
         NEAT neat = new NEAT(inputs, outputs);
@@ -170,10 +98,10 @@ public class main {
         win.createWindow(w, 30, e, false);
         Tile t = new Tile(w);
         e.setEGainOnEat(10);
-        
-        int generationLimit = 500;
+
         int populationLimit = 100;
-        
+        int generationLimit = 500;
+
         int startingEnergy = 250;
         int maxEnergy = 1000;
         neat.createStartingGeneration(populationLimit);
@@ -183,9 +111,9 @@ public class main {
             System.out.println("Generation: " + a);
             int b = 0;
             while (b < populationLimit) {
-//                System.out.println("Running Generation: " + a + " Organism: " + b);
                 e.setMoves(0);
                 e.setFoodEaten(0);
+                e.setInventory(false);
                 w.loadWorld();
                 t.foodAll();
                 e.setPosition(13, 13, 0);
@@ -194,7 +122,7 @@ public class main {
                 while (e.getEnergy() > 0) {
                     values = new ArrayList<>();
                     e.coneSensor();
-                    values.add((double) e.getEnergy() / 100);
+                    values.add((double) e.getEnergy() / 1000);
                     values.add((double) e.getInventory());
                     for (int i : e.getSensor()) {
                         values.add((double) i);
@@ -202,373 +130,23 @@ public class main {
                     neat.runNetwork(values, false);
                     e.actionNoWin(win, t, false, neat.returnRunValues());
                 }
-//                  neat.saveGenome(a, b, true);
-                  neat.setFitness(b, e.getFoodEaten());
-//                win.destroy();
+                neat.setFitness(b, e.getFoodEaten());
+//                System.out.println("O: " + b + ", Food Eaten: " + e.getFoodEaten());
                 b++;
             }
-//              System.out.println("Mutating Generation: " + a);
-            neat.speciate(a, populationLimit, 2, 2, 3, 2, 50);
+            neat.speciate(a, populationLimit, 1, 1, 3, 2.3, 500);
+            neat.addToGraphSpecResults();
             neat.printSpecies();
-            neat.mutate(populationLimit, 50, 40, 3, 1, 50, 50, 80, 90);
+            neat.mutate(populationLimit, 50, 40, 5, 50, 50, 50, 80, 90);
             System.out.println("");
 //            System.out.println("Farmed: " + t.getFarmed());
 //            t.setFarmed(0);
             a++;
         }
+        neat.recordSpecies();
+        neat.graphMaxfitness(generationLimit);
+        neat.graphSpeciesResults(populationLimit);
         System.out.println("DONE");
         System.exit(0);
-
-//
-//
-//
-//
-//
-//
-//
-////
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//       neat.loadGenerationResults(0);
-//       neat.orderResults();
-//       neat.printGenerationresults();
-//       neat.mutate(3);
-//       neat.loadMutations(0);
-//       neat.createNeurons();
-//       neat.createAxons();
-//       neat.printPreviousValues();
-//       neat.printGenome();
-//       neat.runNetwork(values,true);
-//       neat.printGenerationresults();
-//       neat.loadGenerationResults(0);
-//       neat.printGenerationresults();
-//        neat.crossover(0, 0, 1, 75);
-//       neat.saveMutations(0);
-//       neat.runNetwork(values,true);
-//        neat.printPreviousValues();
-//       neat.printStartingValues();
-//       neat.printHiddenNeurons();
-//        neat.printInputNeurons();
-//        neat.printOutputNeurons();
-//       System.out.println(neat.getHiddenNeurons().get(1).getInputs().get(1).getInput().getName());
-//       neat.getHiddenNeurons().get(0).printValue();
-//       neat.getHiddenNeurons().get(1).printValue();
-//       neat.getHiddenNeurons().get(2).printValue();
-//       neat.getHiddenNeurons().get(3).printValue();
-//       neat.getHiddenNeurons().get(4).printValue();
-//        neat.addAxon();
-//        neat.addNeuron();
-//       neat.changeWeights(10);
-//       neat.printAxons();
-//       neat.saveGenome(0,0,false);
-//        neat.printHiddenNeurons();
-//       neat.getFitness();
-//       neat.saveGenerationResults(0);
-//       neat.printGenome();
-//        World m = new World(50);
-//        Window win = new Window();
-//        Tile t = new Tile(w);
-////        Entity e = new Entity(m);
-//        e.setPosition(24, 24, 0);
-//        win.createWindow(w, 10, e);
-//        
-//        e.coneSensor();
-//        for (int i : e.getSensor()) {
-//            System.out.println(i);
-//        }
-////      
-//        List<Neuron> n;
-//        List<Layer> h = new ArrayList<>();
-//        Neuron h1 = new Neuron("h1");
-//        Neuron h2 = new Neuron("h2");
-//        Neuron h3 = new Neuron("h3");
-//        Neuron h4 = new Neuron("h4");
-//        Neuron h5 = new Neuron("h5");
-//        Neuron h6 = new Neuron("h6");
-//        Neuron h7 = new Neuron("h7");
-//        Neuron h8 = new Neuron("h8");
-//        Neuron h9 = new Neuron("h9");
-//        Neuron h10 = new Neuron("h10");
-//        Neuron h11 = new Neuron("h11");
-//        Neuron h12 = new Neuron("h12");
-//        Neuron h13 = new Neuron("h13");
-//        Neuron h14 = new Neuron("h14");
-//        Neuron h15 = new Neuron("h15");
-//        n = new ArrayList<>();
-//        n.add(h1);
-//        n.add(h2);
-//        n.add(h3);
-//        n.add(h4);
-//        n.add(h5);
-//        n.add(h6);
-//        n.add(h7);
-//        n.add(h8);
-//        n.add(h9);
-//        n.add(h10);
-//        n.add(h11);
-//        n.add(h12);
-//        n.add(h13);
-//        n.add(h14);
-//        n.add(h15);
-//        Layer hl1 = new Layer(n);
-////
-//        Neuron h16 = new Neuron("h16");
-//        Neuron h17 = new Neuron("h17");
-//        Neuron h18 = new Neuron("h18");
-//        Neuron h19 = new Neuron("h19");
-//        Neuron h20 = new Neuron("h20");
-//        Neuron h21 = new Neuron("h21");
-//        Neuron h22 = new Neuron("h22");
-//        Neuron h23 = new Neuron("h23");
-//        Neuron h24 = new Neuron("h24");
-//        Neuron h25 = new Neuron("h25");
-//        n = new ArrayList<>();
-//        n.add(h16);
-//        n.add(h17);
-//        n.add(h18);
-//        n.add(h19);
-//        n.add(h20);
-//        n.add(h21);
-//        n.add(h22);
-//        n.add(h23);
-//        n.add(h24);
-//        n.add(h25);
-//        Layer hl2 = new Layer(n);
-////
-//        h.add(hl1);
-//        h.add(hl2);
-//        Network network = new Network(e.createInputs(), h, e.createOutputs());
-//        network.fullyConnect();
-//
-//        e.setEnergy(1000);
-////       
-//        int x = 0;
-//        while (e.getEnergy() > 0) {
-//            e.updateInputValues();
-//            hl1.LayerZeroInputs();
-//            hl2.LayerZeroInputs();
-//            e.getOutput().LayerZeroInputs();
-//            network.fullyConnect();
-//            network.runNetwork(false, true);
-//            e.actionWin(win, t, false);
-//            System.out.println("Energy: " + e.getEnergy());
-//            System.out.println();
-//            try {
-//                Thread.sleep(50);
-//            } catch (InterruptedException ex) {
-//                Thread.currentThread().interrupt();
-//            }
-//            x++;
-//        }
-//        System.out.println(x);
-//        System.out.println("DONE");
-//        
-//        
-//        Layer test = new Layer(3);
-//        List<Neuron> n = new ArrayList<>();
-//        List<Layer> h = new ArrayList<>();
-//        Neuron one = new Neuron();
-//        Neuron two = new Neuron();
-//        Neuron three = new Neuron();
-//        n.add(one);
-//        n.add(two);
-//        n.add(three);
-//        Layer input = new Layer(n);
-//
-//        Neuron four = new Neuron();
-//        Neuron five = new Neuron();
-//        Neuron seven = new Neuron();
-//        n = new ArrayList<>();
-//        n.add(four);
-//        n.add(five);
-//        n.add(seven);
-//        Layer h1 = new Layer(n);
-//
-//        Neuron six = new Neuron();
-//        Neuron eight = new Neuron();
-//        n = new ArrayList<>();
-//        n.add(six);
-//        n.add(eight);
-//        Layer h2 = new Layer(n);
-//
-//        h.add(h1);
-//        h.add(h2);
-//
-//        Neuron nine = new Neuron();
-//        n = new ArrayList<>();
-//        n.add(nine);
-//        Layer output = new Layer(n);
-//
-//        Network network = new Network(input, h, output);
-//
-//        one.setValue(1);
-//        two.setValue(2);
-//        three.setValue(3);
-//        Axon aOne = new Axon(one, four, Math.random());
-//        Axon aTwo = new Axon(one, five, Math.random());
-//        Axon aNine = new Axon(one, seven, Math.random());
-//        Axon aThree = new Axon(two, four, Math.random());
-//        Axon aFour = new Axon(two, five, Math.random());
-//        Axon aTen = new Axon(two, seven, Math.random());
-//        Axon aFive = new Axon(three, four, Math.random());
-//        Axon aSix = new Axon(three, five, Math.random());
-//        Axon aEleven = new Axon(three, seven, Math.random());
-//        Axon aSeven = new Axon(four, six, Math.random());
-//        Axon aTwelve = new Axon(four, eight, Math.random());
-//        Axon aEight = new Axon(five, six, Math.random());
-//        Axon aThirteen = new Axon(five, eight, Math.random());
-//        Axon aSixteen = new Axon(seven, six, Math.random());
-//        Axon aSeventeen = new Axon(seven, eight, Math.random());
-//        Axon aFourteen = new Axon(six, nine, Math.random());
-//        Axon aFithteen = new Axon(eight, nine, Math.random());
-//
-//
-//        Axon aOne = new Axon(one, four, 10.0);
-//        Axon aTwo = new Axon(one, five, 5.0);
-//        Axon aNine = new Axon(one, seven, 3.0);
-//        Axon aThree = new Axon(two, four, 10.0);
-//        Axon aFour = new Axon(two, five, 5.0);
-//        Axon aTen = new Axon(two, seven, 3.0);
-//        Axon aFive = new Axon(three, four, 10.0);
-//        Axon aSix = new Axon(three, five, 5.0);
-//        Axon aEleven = new Axon(three, seven, 3.0);
-//        Axon aSeven = new Axon(four, six, 10.0);
-//        Axon aTwelve = new Axon(four, eight, 4.0);
-//        Axon aEight = new Axon(five, six, 5.0);
-//        Axon aThirteen = new Axon(five, eight, 4.0);
-//        Axon aSixteen = new Axon(seven, six, 4.0);
-//        Axon aSeventeen = new Axon(seven, eight, 4.0);
-//        Axon aFourteen = new Axon(six, nine, 8.0);
-//        Axon aFithteen = new Axon(eight, nine, 8.0);
-//
-//        network.fullyConnect();
-//        network.noHiddenConnect();
-//        network.runNetwork();
-//        
-//        Neuron[] n = new Neuron[20];
-//        for (int i = 0; i < 11; i++) {
-//            n[i] = new Neuron(); 
-//        }
-//        n[3].setValue(1.2);
-//        System.out.println(n[3].returnValue());
-//
-//
-//
-//        
-//        Innovation i = new Innovation();
-//        i.setInv(100);
-//        i.save();
-//        System.out.println(i.getInv());
-//        i = new Innovation();
-//        System.out.println(i.getInv());
-//        i.load();
-//        System.out.println(i.getInv());
-//       move.getInputs();
-//       h1.getInputs();
-//       System.out.println();
-//       h2.getInputs();
-//       network.printSize();
-//
-//
-//        Neuron one = new Neuron();
-//        Neuron two = new Neuron();
-//
-//        Axon test = new Axon(one, two, 1.0);
-//        System.out.println(test.getWeight());
-//        test = new Axon(one, two, 2.0);
-//        System.out.println(test.getWeight());
-//        
-        //NEEDED: Array of neuron names, no. of axon to be created 
-//        
-//        Axon[] n = new Axon[20];
-//        for (int i = 0; i < 11; i++) {
-//            n[i] = new Axon(one, two, 2.0); 
-//        }
-//        n[0].setWeight(1.0);
-//        System.out.println(n[0].getWeight());
-//        System.out.println(n[1].getWeight());
-//
-//
-//        World m = new World(30);
-//////        m.loadWorld();
-//////        m.saveWorld();
-//        Tile t = new Tile(m);
-////
-//        Window win = new Window();
-//        Entity e = new Entity(m);
-//        e.setPosition(5, 5, 0);
-//        win.createWindow(m, 20, e);
-////
-////
-//        t.farmAll();
-//        e.setEnergy(1000);
-//        e.setInventory(true);
-////
-//        int x = 0;
-//        while (e.getEnergy() > 0) {
-//            Random ran = new Random();
-//            int num = ran.nextInt(101);
-//            if (num < 1) {
-//                e.setInventory(true);
-//                e.turnLeft();
-//                e.move();
-//                e.farm(t);
-//                e.eat(t);
-//                win.reload();
-//            } else if (num < 15) {
-//                e.setInventory(true);
-//                e.turnRight();
-//                e.move();
-//                e.farm(t);
-//                e.eat(t);
-//                win.reload();
-//            } else {
-//                e.setInventory(true);
-//                e.move();
-//                e.farm(t);
-//                e.eat(t);
-//                win.reload();
-//            }
-//
-//            try {
-//                Thread.sleep(10);
-//            } catch (InterruptedException ex) {
-//                Thread.currentThread().interrupt();
-//            }
-//            x++;
-//        }
-//
-//        System.out.println(x);
-//        System.out.println(e.getEnergy());
-//        System.out.println("DONE");
-//        for (ArrayList<Integer> array : e.getSensor()){
-//            int x = array.get(0);
-//            int y = array.get(1);
-//            System.out.println("X: " + x + " Y: " + y + " V: " + m.getMatrix()[y][x]);
-//        }
-//
-//
-//        Scanner scanner = new Scanner(System.in);
-//        String command = scanner.nextLine();
-//        System.out.println(command);
-//        if (command.equals("test")) {
-//            e.showEntity(m);
-//            System.out.println("Add Component");
-//            win.repaint();
-//        }
     }
 }

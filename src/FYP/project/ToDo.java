@@ -18,6 +18,7 @@ public class ToDo {
 //Fuction to delete old organism files for space
 //Chnage farm to add food randomly distributed across grid + add delay timer
 //Change fitness values to be double
+//Fix champFresh functionality
 //
 //
 //Secondary

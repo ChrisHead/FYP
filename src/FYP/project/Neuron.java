@@ -14,6 +14,7 @@ public class Neuron {
     private final String id;
     private boolean isCalculated;
     private boolean recurrentValueAvailable;
+    private Integer actType;
 
     public Neuron() {
         inputs = new ArrayList<>();
@@ -21,36 +22,28 @@ public class Neuron {
         id = "temp";
         isCalculated = false;
         recurrentValueAvailable = true;
+        actType = 6;
     }
-    
+
     public Neuron(String s) {
         inputs = new ArrayList<>();
         value = 0.0;
         id = s;
         isCalculated = false;
         recurrentValueAvailable = true;
+        actType = 6;
     }
-    
-    public String getName(){
+
+    public String getName() {
         return id;
     }
-    
-    public void resetInputs(){
+
+    public void resetInputs() {
         inputs.clear();
     }
 
     public void setValue(double value) {
         this.value = value;
-    }
-
-    public double calculateValue() {
-        if (!inputs.isEmpty()) {
-            inputs.stream().forEach((a) -> {
-                value += (a.getWeight() * a.getInput().getValue());
-            });
-        }
-        isCalculated = true;
-        return value;
     }
 
     public void printValue() {
@@ -61,10 +54,95 @@ public class Neuron {
         return value;
     }
 
-    public double calculateSigValue() {
-        this.calculateValue();
-        value = 1 / (1 + Math.exp(-value*4.9));
+    public Integer getActType() {
+        return actType;
+    }
+
+    public void setActType(Integer actType) {
+        this.actType = actType;
+    }
+    
+    public double calculateValue() {
+        if (!inputs.isEmpty()) {
+            inputs.stream().forEach((a) -> {
+                value += (a.getWeight() * a.getInput().getValue());
+            });
+        }
+        isCalculated = true;
+        switch (actType) {
+            case 0:
+                break;
+            case 1:
+                value = this.calculateBinaryStepValue();
+                break;
+            case 2:
+                value = this.calculateSigValue();
+                break;
+            case 3:
+                value = this.calculateModifiedSigValue();
+                break;
+            case 4:
+                value = this.calculateTanhValue();
+                break;
+            case 5:
+                value = this.calculateArcTanValue();
+                break;
+            case 6:
+                value = this.calculateReLuValue();
+                break;
+            case 7:
+                value = this.calculateSoftPlusValue();
+                break;
+        }
         return value;
+    }
+
+    public double calculateBinaryStepValue() {
+        double val = value;
+        if (val >= 0) {
+            val = 1;
+        } else {
+            val = 0;
+        }
+        return val;
+    }
+
+    public double calculateSigValue() {
+        double val = value;
+        value = 1 / (1 + Math.exp(-value));
+        return value;
+    }
+
+    public double calculateModifiedSigValue() {
+        double val = value;
+        val = 1 / (1 + Math.exp(-val * 4.9));
+        return val;
+    }
+
+    public double calculateTanhValue() {
+        double val = value;
+        val = (2 / (1 + Math.exp(-val * 2))) - 1;
+        return val;
+    }
+
+    public double calculateArcTanValue() {
+        double val = value;
+        val = Math.atan(val);
+        return val;
+    }
+
+    public double calculateReLuValue() {
+        double val = value;
+        if (val < 0) {
+            val = 0;
+        }
+        return val;
+    }
+
+    public double calculateSoftPlusValue() {
+        double val = value;
+        val = Math.log(1 + Math.exp(val));
+        return val;
     }
 
     public void addInput(Axon axon) {
@@ -76,23 +154,23 @@ public class Neuron {
                 .forEach((a) -> System.out.println(a.getInput().getValue()
                 + ", " + a.getWeight()));
     }
-    
-    public List<Axon> getInputs(){
+
+    public List<Axon> getInputs() {
         return inputs;
     }
-    
-    public void setIsCalculated(boolean b){
+
+    public void setIsCalculated(boolean b) {
         isCalculated = b;
     }
-    
+
     public boolean isCalculated() {
         return isCalculated;
     }
-    
-    public boolean getRecurrentValueAvailable(){
+
+    public boolean getRecurrentValueAvailable() {
         return recurrentValueAvailable;
     }
-    
+
     public void setRecurrentValueAvailable(boolean b) {
         recurrentValueAvailable = b;
     }

@@ -164,7 +164,7 @@ public class Entity {
             if (this.inBounds(sX, sY)) {
                 sensorArray[i] = mat.getMatrix()[sY][sX];
             } else {
-                sensorArray[i] = -1;
+                sensorArray[i] = 0;
             }
         }
     }
@@ -178,7 +178,7 @@ public class Entity {
             if (this.inBounds(sX, sY)) {
                 sensorArray[i] = mat.getMatrix()[sY][sX];
             } else {
-                sensorArray[i] = -1;
+                sensorArray[i] = 0;
             }
         }
     }
@@ -192,7 +192,7 @@ public class Entity {
             if (this.inBounds(sX, sY)) {
                 sensorArray[i] = mat.getMatrix()[sY][sX];
             } else {
-                sensorArray[i] = -1;
+                sensorArray[i] = 0;
             }
         }
     }
@@ -206,7 +206,7 @@ public class Entity {
             if (this.inBounds(sX, sY)) {
                 sensorArray[i] = mat.getMatrix()[sY][sX];
             } else {
-                sensorArray[i] = -1;
+                sensorArray[i] = 0;
             }
         }
     }
@@ -298,7 +298,7 @@ public class Entity {
     }
 
     public void pickUp(Tile t) {
-        if (mat.getMatrix()[y][x] == 1 && inventory == false) {
+        if (mat.getMatrix()[y][x] == 2 && inventory == false) {
             t.emptyTile(this.getX(), this.getY());
             inventory = true;
         }
@@ -307,10 +307,10 @@ public class Entity {
     }
 
     public void drop(Tile t) {
-        if (mat.getMatrix()[y][x] == 0 && inventory == true) {
+        if (mat.getMatrix()[y][x] == 1 && inventory == true) {
             t.foodTile(this.getX(), this.getY());
             inventory = false;
-        } else if (mat.getMatrix()[y][x] == 2 && inventory == true) {
+        } else if (mat.getMatrix()[y][x] == 3 && inventory == true) {
             this.farm(t);
         }
         energy -= eLossOnAction;
@@ -334,14 +334,14 @@ public class Entity {
     }
 
     public void farm(Tile t) {
-        if (mat.getMatrix()[y][x] == 2 && inventory == true) {
+        if (mat.getMatrix()[y][x] == 3 && inventory == true) {
             t.plantTile(x, y);
             inventory = false;
         }
     }
 
     public void eat(Tile t) {
-        if (mat.getMatrix()[y][x] == 1) {
+        if (mat.getMatrix()[y][x] == 2) {
             t.emptyTile(this.getX(), this.getY());
             this.setEnergy(energy + eGainOnEat, 1000);
             foodEaten++;

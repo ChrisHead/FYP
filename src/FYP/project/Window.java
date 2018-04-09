@@ -82,9 +82,9 @@ class Grid extends JPanel {
         for (int[] array : gMat.getMatrix()) {
             int x = 10;
             for (int type : array) {
-                if (type == 0) {
+                if (type == 1) {
                     g.setColor(Color.GREEN);
-                } else if (type == 1) {
+                } else if (type == 2) {
                     g.setColor(Color.YELLOW);
                 } else {
                     g.setColor(Color.RED);

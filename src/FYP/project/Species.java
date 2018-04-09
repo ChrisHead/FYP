@@ -49,6 +49,10 @@ public class Species {
     public List<Integer> getReal() {
         return realNums;
     }
+    
+    public Double getMaxFitness() {
+        return maxFitness;
+    }
 
     public Integer getRandomSpecies() {
         int rand = ThreadLocalRandom.current().nextInt(0, species.size());
@@ -85,6 +89,8 @@ public class Species {
             fitSum += adjustResults.get(i);
         }
 
+        //change value of lastImproved to tack the number of generations since
+        //last max fitness improvment
         Map<Integer, Integer> fitness = new LinkedHashMap<>();
         for (Integer i : species) {
             fitness.put(i, n.getFitness(i));
@@ -113,11 +119,12 @@ public class Species {
         }
 
         if (lastImproved >= repMin) {
-            if (species.size() >= champThresh) {
-                newSize = 1;
-            } else {
-                newSize = 0;
-            }
+//            if (species.size() >= champThresh) {
+//                newSize = 1;
+//            } else {
+//                newSize = 0;
+//            }
+            newSize = 0;
         }
 
         generation++;
