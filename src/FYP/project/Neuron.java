@@ -22,7 +22,7 @@ public class Neuron {
         id = "temp";
         isCalculated = false;
         recurrentValueAvailable = true;
-        actType = 6;
+        actType = 3;
     }
 
     public Neuron(String s) {
@@ -31,7 +31,7 @@ public class Neuron {
         id = s;
         isCalculated = false;
         recurrentValueAvailable = true;
-        actType = 6;
+        actType = 3;
     }
 
     public String getName() {

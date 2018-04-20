@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 public class NEAT {
 
     private Map<Integer, List<String>> genome;
-    private Map<Integer, Integer> results;
+    private Map<Integer, Double> results;
     private Map<Integer, Double> adjustResults;
     private Map<Integer, Double> adjustSize;
     private Map<Integer, List<String>> mutations;
@@ -28,10 +28,11 @@ public class NEAT {
     private Innovation innov;
     private List<Species> species;
     private int genomeNum;
-    private int currentGenomeNum;
+    private int real_ID;
     private int speciesNum;
     private List<List<List<String>>> specResults;
     private List<Integer> noOfSpecs;
+    private Map<String, Integer> activations;
 
     public NEAT(List<String> i, List<String> o) {
         generation = 0;
@@ -52,10 +53,11 @@ public class NEAT {
         innov.save();
         species = new ArrayList<>();
         genomeNum = 0;
-        currentGenomeNum = 0;
+        real_ID = 0;
         speciesNum = 0;
         noOfSpecs = new ArrayList<>();
         specResults = new ArrayList<>();
+        activations = new LinkedHashMap<>();
     }
 
     //Network Creation
@@ -82,6 +84,11 @@ public class NEAT {
         }
         for (Neuron n : allNeurons) {
             previousValues.put(n, n.getValue());
+            if (activations.containsKey(n.getName())) {
+                n.setActType(activations.get(n.getName()));
+            } else {
+                activations.put(n.getName(), n.getActType());
+            }
         }
     }
 
@@ -95,13 +102,11 @@ public class NEAT {
                 for (Neuron n : allNeurons) {
                     if (n.getName().equals(m.getValue().get(0))) {
                         input = n;
-                        input.setActType(Integer.parseInt(m.getValue().get(4)));
                     }
                 }
                 for (Neuron n : allNeurons) {
                     if (n.getName().equals(m.getValue().get(1))) {
                         output = n;
-                        output.setActType(Integer.parseInt(m.getValue().get(5)));
                     }
                 }
                 Axon a = new Axon(input, output, Double.parseDouble(m.getValue().get(2)));
@@ -189,7 +194,7 @@ public class NEAT {
         }
     }
 
-    public void setFitness(int o, int f) {
+    public void setFitness(int o, double f) {
         results.put(o, f);
 //        System.out.println("O:" + o + ", F: " + f);
 //        this.saveGenerationResults(generation);
@@ -200,14 +205,14 @@ public class NEAT {
         return (val / s.getSpecies().size());
     }
 
-    public int getFitness(int o) {
-        int fitness = results.get(o);
+    public double getFitness(int o) {
+        double fitness = results.get(o);
         return fitness;
     }
 
     public void orderResults() {
 //        this.loadGenerationResults(generation);
-        Map<Integer, Integer> orderedResults = results.entrySet().stream()
+        Map<Integer, Double> orderedResults = results.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (oldResult, newResult) -> oldResult, LinkedHashMap::new));
@@ -215,7 +220,7 @@ public class NEAT {
         this.saveOrderedResults(generation);
     }
 
-    public Map<Integer, Integer> getResults() {
+    public Map<Integer, Double> getResults() {
         return results;
     }
 
@@ -247,8 +252,6 @@ public class NEAT {
                 values.add(a.getOutput().getName());
                 values.add(String.valueOf(a.getWeight()));
                 values.add("ENABLED");
-                values.add(Integer.toString(a.getInput().getActType()));
-                values.add(Integer.toString(a.getOutput().getActType()));
 
                 List<String> newMut = new ArrayList<>();
                 newMut.add("original");
@@ -281,7 +284,7 @@ public class NEAT {
     }
 
     public void printGenerationresults() {
-        for (Map.Entry<Integer, Integer> r : results.entrySet()) {
+        for (Map.Entry<Integer, Double> r : results.entrySet()) {
             System.out.println(r.getKey() + ", " + r.getValue());
         }
     }
@@ -395,6 +398,10 @@ public class NEAT {
     public Integer getOrganism() {
         return organism;
     }
+    
+    public Integer getReal() {
+        return real_ID;
+    }
 
     //Save/loading
     public void saveGenome(int g, int o, boolean b, boolean inc) {
@@ -415,16 +422,14 @@ public class NEAT {
                 w.write("\r\n" + genomeNum + ",");
                 genomeNum++;
             } else {
-                w.write("\r\n" + currentGenomeNum + ",");
+                w.write("\r\n" + real_ID + ",");
             }
             for (Map.Entry<Integer, List<String>> m : genome.entrySet()) {
                 w.write("\r\n" + m.getKey()
                         + "," + m.getValue().get(0)
                         + "," + m.getValue().get(1)
                         + "," + m.getValue().get(2)
-                        + "," + m.getValue().get(3)
-                        + "," + m.getValue().get(4)
-                        + "," + m.getValue().get(5) + ",");
+                        + "," + m.getValue().get(3) + ",");
             }
             w.close();
         } catch (IOException ex) {
@@ -441,14 +446,12 @@ public class NEAT {
             List<String> values;
             String temp = s.next();
             temp = temp.replaceAll("\\r\\n", "");
-            currentGenomeNum = Integer.parseInt(temp);
-//            System.out.println("C: " + currentGenomeNum);
+            real_ID = Integer.parseInt(temp);
+//            System.out.println("C: " + real_ID);
             while (s.hasNext()) {
                 values = new ArrayList<>();
                 String key = s.next();
                 key = key.replaceAll("\\r\\n", "");
-                values.add(s.next());
-                values.add(s.next());
                 values.add(s.next());
                 values.add(s.next());
                 values.add(s.next());
@@ -483,8 +486,6 @@ public class NEAT {
                 values.add(s.next());
                 values.add(s.next());
                 values.add(s.next());
-                values.add(s.next());
-                values.add(s.next());
                 qqqq.put(Integer.parseInt(key), values);
             }
             s.close();
@@ -499,7 +500,7 @@ public class NEAT {
         try {
             w = new FileWriter(System.getProperty("user.dir")
                     + "/results/generation_" + g + "/results.txt");
-            for (Map.Entry<Integer, Integer> r : results.entrySet()) {
+            for (Map.Entry<Integer, Double> r : results.entrySet()) {
                 w.write("\r\n" + r.getKey() + "," + r.getValue() + ",");
             }
             w.close();
@@ -513,7 +514,7 @@ public class NEAT {
         try {
             w = new FileWriter(System.getProperty("user.dir")
                     + "/results/generation_" + g + "/orderedResults.txt");
-            for (Map.Entry<Integer, Integer> r : results.entrySet()) {
+            for (Map.Entry<Integer, Double> r : results.entrySet()) {
                 w.write("\r\n" + r.getKey() + "," + r.getValue() + ",");
             }
             w.close();
@@ -528,11 +529,11 @@ public class NEAT {
                 + "/results/generation_" + g + "/results.txt"))) {
             s.delimiter();
             s.useDelimiter(",");
-            int result;
+            double result;
             while (s.hasNext()) {
                 String key = s.next();
                 key = key.replaceAll("\\r\\n", "");
-                result = Integer.parseInt(s.next());
+                result = Double.parseDouble(s.next());
                 results.put(Integer.parseInt(key), result);
             }
             s.close();
@@ -646,7 +647,8 @@ public class NEAT {
     public void mutate(int popSize, double enableChance,
             double eliteThresh, double champThresh,
             double crossMate, double addNeuron, double addConnection,
-            double weightChangeChance, double weightRandomChance) {
+            double weightChangeChance, double weightRandomChance,
+            double actChangeChance) {
 
         this.saveGenerationResults(generation);
         mutations.clear();
@@ -667,7 +669,6 @@ public class NEAT {
             List<Integer> trimmed = s.trimSpecies(eliteThresh, ordered);
 
 //            System.out.println("Trim: " + trimmed);
-
             //Save Champion if species hasn't been exterminated, and above
             //champThresh size
 //            if (newSize > 0 && s.getSpecies().size() > champThresh) {
@@ -676,33 +677,87 @@ public class NEAT {
 //                this.saveGenome(generation + 1, o, true, false);
 //                o++;
 //                count++;
-//                s.addtoSpec(0, currentGenomeNum);
+//                s.addtoSpec(0, real_ID);
 //            }
-
             //Save All Elite
-            if (newSize >= trimmed.size()) {
+//            if (newSize >= trimmed.size()) {
+//                s.clearSpecies();
+//                for (Integer i : trimmed) {
+//                    this.loadGenome(generation, i);
+//                    this.saveGenome(generation + 1, o, true, false);
+//                    o++;
+//                    count++;
+//                    s.addtoSpec(i, real_ID);
+//                }
+//            } else {
+//                s.clearSpecies();
+//                for (int i = 0; i < newSize; i++) {
+//                    this.loadGenome(generation, trimmed.get(i));
+//                    this.saveGenome(generation + 1, o, true, false);
+//                    o++;
+//                    count++;
+//                    s.addtoSpec(i, real_ID);
+//                }
+//            }
+            //Save Champion
+            if (s.getSpecies().size() >= champThresh && newSize >= 1) {
+                this.loadGenome(generation, trimmed.get(0));
                 s.clearSpecies();
-                for (Integer i : trimmed) {
-                    this.loadGenome(generation, i);
-                    this.saveGenome(generation + 1, o, true, false);
-                    o++;
-                    count++;
-                    s.addtoSpec(i, currentGenomeNum);
-                }
+                this.saveGenome(generation + 1, o, true, false);
+                o++;
+                count++;
+                s.addtoSpec(0, real_ID);
             } else {
                 s.clearSpecies();
-                for (int i = 0; i < newSize; i++) {
-                    this.loadGenome(generation, trimmed.get(i));
-                    this.saveGenome(generation + 1, o, true, false);
-                    o++;
-                    count++;
-                    s.addtoSpec(i, currentGenomeNum);
-                }
             }
-            
+
+            //elite no crossover
+//             if (newSize >= trimmed.size()) {
+//                s.clearSpecies();
+//                for (Integer i : trimmed) {
+//                    this.loadGenome(generation, i);
+//                    double mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
+//                    if (mutChance <= weightChangeChance) {
+//                        this.changeWeights(temp, weightRandomChance);
+//                    }
+//                    mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
+//                    if (mutChance <= addNeuron) {
+//                        this.addNeuron();
+//                    }
+//                    mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
+//                    if (mutChance <= addConnection) {
+//                        this.addAxon();
+//                    }
+//                    this.saveGenome(generation + 1, o, true, true);
+//                    o++;
+//                    count++;
+//                    s.addtoSpec(i, real_ID);
+//                }
+//            } else {
+//                s.clearSpecies();
+//                for (int i = 0; i < newSize; i++) {
+//                    this.loadGenome(generation, trimmed.get(i));
+//                    double mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
+//                    if (mutChance <= weightChangeChance) {
+//                        this.changeWeights(temp, weightRandomChance);
+//                    }
+//                    mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
+//                    if (mutChance <= addNeuron) {
+//                        this.addNeuron();
+//                    }
+//                    mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
+//                    if (mutChance <= addConnection) {
+//                        this.addAxon();
+//                    }
+//                    this.saveGenome(generation + 1, o, true, false);
+//                    o++;
+//                    count++;
+//                    s.addtoSpec(i, real_ID);
+//                }
+//            }
             while (count < newSize) {
                 double value = ThreadLocalRandom.current().nextDouble(0, 101);
-                if (value >= crossMate) {
+                if (value > crossMate) {
                     int rand1 = ThreadLocalRandom.current().nextInt(0, trimmed.size());
                     int rand2 = ThreadLocalRandom.current().nextInt(0, trimmed.size());
                     temp = new LinkedHashMap<>(this.crossover(generation, trimmed.get(rand1), trimmed.get(rand2), enableChance));
@@ -724,15 +779,10 @@ public class NEAT {
                     count++;
                 } else {
                     int rand1 = ThreadLocalRandom.current().nextInt(0, trimmed.size());
-//                    System.out.println("Rand1: " + rand1);
                     int randSpec = ThreadLocalRandom.current().nextInt(0, species.size());
-//                    System.out.println("randSpec: " + randSpec);
                     List<Integer> trimmedTemp = species.get(randSpec).trimSpecies(eliteThresh, species.get(randSpec).orderSpecies(this));
                     if (!trimmedTemp.isEmpty()) {
                         int rand2 = ThreadLocalRandom.current().nextInt(0, trimmedTemp.size());
-//                    System.out.println("Rand2: " + rand2);
-//                    System.out.println(trimmed.get(rand1));
-//                    System.out.println(trimmed.get(rand2));
                         temp = new LinkedHashMap<>(this.crossover(generation, trimmed.get(rand1), trimmedTemp.get(rand2), enableChance));
                         genome = temp;
                         double mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
@@ -747,13 +797,17 @@ public class NEAT {
                         if (mutChance <= addConnection) {
                             this.addAxon();
                         }
+                        this.changeActivation(actChangeChance);
+//                        }
                         this.saveGenome(generation + 1, o, true, true);
                         o++;
                         count++;
                     }
                 }
             }
-            System.out.println("C: " + count);
+            if (count != 0) {
+                System.out.println("C: " + count);
+            }
         }
 
         System.out.println("");
@@ -771,8 +825,8 @@ public class NEAT {
         Map<Integer, List<String>> genome2 = this.loadGenome1(generation, organsim2);
 //        this.loadGenerationResults(generation);
 
-        int genome1Result = results.get(organsim1);
-        int genome2Result = results.get(organsim2);
+        double genome1Result = results.get(organsim1);
+        double genome2Result = results.get(organsim2);
 
         String fittest;
         if (genome1Result == genome2Result) {
@@ -918,8 +972,6 @@ public class NEAT {
         inNew.add(n.getName());
         inNew.add("1.0");
         inNew.add("ENABLED");
-        inNew.add(Integer.toString(allNeurons.get(indexIn).getActType()));
-        inNew.add(Integer.toString(n.getActType()));
 
         List<String> newMut = new ArrayList<>();
         newMut.add("addNeuron");
@@ -952,8 +1004,6 @@ public class NEAT {
         newOut.add(allNeurons.get(indexOut).getName());
         newOut.add(original.get(2));
         newOut.add("ENABLED");
-        newOut.add(Integer.toString(allNeurons.get(indexOut).getActType()));
-        newOut.add(Integer.toString(n.getActType()));
 
         newMut = new ArrayList<>();
         newMut.add("addNeuron");
@@ -989,8 +1039,8 @@ public class NEAT {
     }
 
     public void addAxon() {
-        List<Neuron> existingOutputs;
-        List<Neuron> available = new ArrayList<>();
+        List<Neuron> currentOutputs;
+        List<Neuron> availableInput = new ArrayList<>();
         List<Neuron> hidOut = new ArrayList<>();
         hidOut.addAll(hiddenNeurons);
         hidOut.addAll(outputNeurons);
@@ -999,29 +1049,32 @@ public class NEAT {
         inHid.addAll(inputNeurons);
         inHid.addAll(hiddenNeurons);
 
+        //get available inputs
         for (Neuron all : inHid) {
-            existingOutputs = new ArrayList<>();
-            existingOutputs.add(all);
+            currentOutputs = new ArrayList<>();
+//            currentOutputs.add(all);
+//            for (Neuron n : inputNeurons) {
+//                currentOutputs.add(n);
+//            }
             for (Axon a : axons) {
                 if (a.getInput() == all) {
-                    existingOutputs.add(a.getOutput());
+                    currentOutputs.add(a.getOutput());
                 }
             }
-            if (!existingOutputs.containsAll(hidOut)) {
-                available.add(all);
+            if (!currentOutputs.containsAll(hidOut)) {
+                availableInput.add(all);
             }
         }
-        if (available.isEmpty()) {
-            System.out.println("No Available Connections");
-            //Investigative Change
-            this.addNeuron();
+        if (availableInput.isEmpty()) {
+            System.out.println("No Available Inputs");
         } else {
-            int availRand = ThreadLocalRandom.current().nextInt(0, available.size());
+            //get available outputs
+            int availRand = ThreadLocalRandom.current().nextInt(0, availableInput.size());
             List<Neuron> availableOutputs = new ArrayList<>();
             List<Neuron> outTemp = new ArrayList<>();
             for (Axon a : axons) {
-                if (a.getInput() == available.get(availRand)) {
-                    outTemp.add(a.getInput());
+                if (a.getInput() == availableInput.get(availRand)) {
+//                    outTemp.add(a.getInput());
                     outTemp.add(a.getOutput());
                 }
             }
@@ -1030,42 +1083,44 @@ public class NEAT {
                     availableOutputs.add(o);
                 }
             }
-            int outRand = ThreadLocalRandom.current().nextInt(0, availableOutputs.size());
-            double weight = (Math.random() * 2 - 1);
-            Axon a = new Axon(available.get(availRand), availableOutputs.get(outRand), weight);
-            axons.add(a);
-            List<String> temp = new ArrayList<>();
-            temp.add(available.get(availRand).getName());
-            temp.add(availableOutputs.get(outRand).getName());
-            temp.add(String.valueOf(weight));
-            temp.add("ENABLED");
-            temp.add(Integer.toString(available.get(availRand).getActType()));
-            temp.add(Integer.toString(availableOutputs.get(outRand).getActType()));
-
-            List<String> newMut = new ArrayList<>();
-            newMut.add("addAxon");
-            newMut.add(available.get(availRand).getName());
-            newMut.add(availableOutputs.get(outRand).getName());
-            if (mutations.containsValue(newMut)) {
-                for (Integer m : mutations.keySet()) {
-                    if (mutations.get(m).equals(newMut)) {
-                        genome.put(m, temp);
-                    }
-                }
+            if (availableOutputs.isEmpty()) {
+                System.out.println("No Available Outputs");
             } else {
-                int tempInnov = innov.getInv();
-                genome.put(tempInnov, temp);
-                mutations.put(tempInnov, newMut);
-                innov.incInv();
+                int outRand = ThreadLocalRandom.current().nextInt(0, availableOutputs.size());
+                double weight = (Math.random() * 2 - 1);
+                Axon a = new Axon(availableInput.get(availRand), availableOutputs.get(outRand), weight);
+                axons.add(a);
+                List<String> temp = new ArrayList<>();
+                temp.add(availableInput.get(availRand).getName());
+                temp.add(availableOutputs.get(outRand).getName());
+                temp.add(String.valueOf(weight));
+                temp.add("ENABLED");
+
+                List<String> newMut = new ArrayList<>();
+                newMut.add("addAxon");
+                newMut.add(availableInput.get(availRand).getName());
+                newMut.add(availableOutputs.get(outRand).getName());
+                if (mutations.containsValue(newMut)) {
+                    for (Integer m : mutations.keySet()) {
+                        if (mutations.get(m).equals(newMut)) {
+                            genome.put(m, temp);
+                        }
+                    }
+                } else {
+                    int tempInnov = innov.getInv();
+                    genome.put(tempInnov, temp);
+                    mutations.put(tempInnov, newMut);
+                    innov.incInv();
+                }
             }
         }
     }
 
     public void changeWeights(Map<Integer, List<String>> offspring, double randomChance) {
-        double value = ThreadLocalRandom.current().nextDouble(-1, 1.00000000000001);
         for (Map.Entry<Integer, List<String>> m : offspring.entrySet()) {
+            double value = ThreadLocalRandom.current().nextDouble(-1, 1.00000000000001);
             double uniform = ThreadLocalRandom.current().nextDouble(0, 101);
-            if (uniform > randomChance) {
+            if (uniform < randomChance) {
                 m.getValue().set(2, Double.toString(Double.parseDouble(m.getValue().get(2)) + value));
             } else {
                 m.getValue().set(2, Double.toString(Math.random() * 2 - 1));
@@ -1082,10 +1137,31 @@ public class NEAT {
         //remove neuron from all/in/out/hid and genome
         //remove all connected axons
     }
-    
-    public void changeActivation() {
+
+    public void saveActivations(int gen) {
+        //Map of neuron name to actType
+        // On neuron creation, check map
+        //if in map set actType of neuron to value
+        //else add neuron to Map with default value
+
+    }
+
+    public void changeActivation(double actChangeChance) {
         //change act value of neuron
-        //change value recorded in genome
+        for (Neuron n : allNeurons) {
+            int newAct = ThreadLocalRandom.current().nextInt(0, 8);
+            double value = ThreadLocalRandom.current().nextDouble(0, 101);
+            if (value < actChangeChance) {
+                n.setActType(newAct);
+                activations.put(n.getName(), n.getActType());
+            }
+        }
+    }
+
+    public void printActivations() {
+        for (String s : activations.keySet()) {
+            System.out.println("Neuron: " + s + ", actType: " + activations.get(s));
+        }
     }
 
     //Speciation
@@ -1169,7 +1245,7 @@ public class NEAT {
     //Add to species/Create new species
     public void addToSpecies(int generation, double c1, double c2, double c3, double threshold, int repNum) {
         boolean added = false;
-//        System.out.println("T: " + currentGenomeNum);
+//        System.out.println("T: " + real_ID);
 
         //get list of all species realNums, check if not present
         List<Integer> temp = new ArrayList<>();
@@ -1179,13 +1255,13 @@ public class NEAT {
             }
         }
 
-        if (temp.contains(currentGenomeNum)) {
+        if (temp.contains(real_ID)) {
             added = true;
         } else {
             for (Species s : species) {
                 double dist = this.specCal(generation, s, c1, c2, c3);
                 if (dist < threshold) {
-                    s.addtoSpec(organism, currentGenomeNum);
+                    s.addtoSpec(organism, real_ID);
                     added = true;
                     break;
                 }
@@ -1194,7 +1270,7 @@ public class NEAT {
 
         if (!added) {
             Species a = new Species(speciesNum, repNum);
-            a.addtoSpec(organism, currentGenomeNum);
+            a.addtoSpec(organism, real_ID);
             species.add(a);
             speciesNum++;
         }

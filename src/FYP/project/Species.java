@@ -91,7 +91,7 @@ public class Species {
 
         //change value of lastImproved to tack the number of generations since
         //last max fitness improvment
-        Map<Integer, Integer> fitness = new LinkedHashMap<>();
+        Map<Integer, Double> fitness = new LinkedHashMap<>();
         for (Integer i : species) {
             fitness.put(i, n.getFitness(i));
         }
@@ -118,7 +118,7 @@ public class Species {
             newSize = 0;
         }
 
-        if (lastImproved >= repMin) {
+        if (lastImproved > repMin) {
 //            if (species.size() >= champThresh) {
 //                newSize = 1;
 //            } else {
@@ -132,14 +132,14 @@ public class Species {
     }
 
     public List<Integer> orderSpecies(NEAT n) {
-        Map<Integer, Integer> temp = new LinkedHashMap<>();
-        Map<Integer, Integer> res = new LinkedHashMap<>(n.getResults());
+        Map<Integer, Double> temp = new LinkedHashMap<>();
+        Map<Integer, Double> res = new LinkedHashMap<>(n.getResults());
 
         for (Integer i : species) {
             temp.put(i, res.get(i));
         }
 
-        Map<Integer, Integer> orderedResults = temp.entrySet().stream()
+        Map<Integer, Double> orderedResults = temp.entrySet().stream()
                 .sorted(Map.Entry.comparingByValue(Comparator.reverseOrder()))
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue,
                         (oldResult, newResult) -> oldResult, LinkedHashMap::new));

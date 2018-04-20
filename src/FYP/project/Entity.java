@@ -20,6 +20,7 @@ public class Entity {
     private int eGainOnEat;
     private int eLossOnAction;
     private int foodEaten;
+    private String lastMove;
 
     private final int[] xOffset;
     private final int[] xReverseOffset;
@@ -46,6 +47,7 @@ public class Entity {
         xOffset = new int[]{-4, -3, -2, -1, 0, 1, 2, 3, 4, -3, -2, -1, 0, 1, 2, 3, -2, -1, 0, 1, 2, -1, 0, 1, -1, 0, 1};
         xReverseOffset = new int[]{4, 3, 2, 1, 0, -1, -2, -3, -4, 3, 2, 1, 0, -1, -2, -3, 2, 1, 0, -1, -2, 1, 0, -1, 1, 0, -1};
         yOffset = new int[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0};
+        lastMove = "";
     }
 
     public void setLocation(int a, int b) {
@@ -350,162 +352,6 @@ public class Entity {
         moves++;
     }
 
-//    public Layer createInputs() {
-//        in = new ArrayList<>();
-//
-//        Neuron inv = new Neuron("inv");
-//        Neuron sensor1 = new Neuron("sensor1");
-//        Neuron sensor2 = new Neuron("sensor2");
-//        Neuron sensor3 = new Neuron("sensor3");
-//        Neuron sensor4 = new Neuron("sensor4");
-//        Neuron sensor5 = new Neuron("sensor5");
-//        Neuron sensor6 = new Neuron("sensor6");
-//        Neuron sensor7 = new Neuron("sensor7");
-//        Neuron sensor8 = new Neuron("sensor8");
-//        Neuron sensor9 = new Neuron("sensor9");
-//        Neuron sensor10 = new Neuron("sensor10");
-//        Neuron sensor11 = new Neuron("sensor11");
-//        Neuron sensor12 = new Neuron("sensor12");
-//        Neuron sensor13 = new Neuron("sensor13");
-//        Neuron sensor14 = new Neuron("sensor14");
-//        Neuron sensor15 = new Neuron("sensor15");
-//        Neuron sensor16 = new Neuron("sensor16");
-//        Neuron sensor17 = new Neuron("sensor17");
-//        Neuron sensor18 = new Neuron("sensor18");
-//        Neuron sensor19 = new Neuron("sensor19");
-//        Neuron sensor20 = new Neuron("sensor20");
-//        Neuron sensor21 = new Neuron("sensor21");
-//        Neuron sensor22 = new Neuron("sensor22");
-//        Neuron sensor23 = new Neuron("sensor23");
-//        Neuron sensor24 = new Neuron("sensor24");
-//        Neuron sensor25 = new Neuron("sensor25");
-//        in.add(inv);
-//        in.add(sensor1);
-//        in.add(sensor2);
-//        in.add(sensor3);
-//        in.add(sensor4);
-//        in.add(sensor5);
-//        in.add(sensor6);
-//        in.add(sensor7);
-//        in.add(sensor8);
-//        in.add(sensor9);
-//        in.add(sensor10);
-//        in.add(sensor11);
-//        in.add(sensor12);
-//        in.add(sensor13);
-//        in.add(sensor14);
-//        in.add(sensor15);
-//        in.add(sensor16);
-//        in.add(sensor17);
-//        in.add(sensor18);
-//        in.add(sensor19);
-//        in.add(sensor20);
-//        in.add(sensor21);
-//        in.add(sensor22);
-//        in.add(sensor23);
-//        in.add(sensor24);
-//        in.add(sensor25);
-//        input = new Layer(in);
-//        return input;
-//    }
-//    public Layer getInput() {
-//        return input;
-//    }
-//    public Layer createOutputs() {
-//        out = new ArrayList<>();
-//
-//        Neuron move = new Neuron("move");
-//        Neuron turnLeft = new Neuron("turnLeft");
-//        Neuron turnRight = new Neuron("turnRight");
-//        Neuron eat = new Neuron("eat");
-//        Neuron pickUp = new Neuron("pickUp");
-//        Neuron drop = new Neuron("drop");
-//        out = new ArrayList<>();
-//        out.add(move);
-//        out.add(turnLeft);
-//        out.add(turnRight);
-//        out.add(eat);
-//        out.add(pickUp);
-//        out.add(drop);
-//        output = new Layer(out);
-//        return output;
-//    }
-//    public Layer getOutput() {
-//        return output;
-//    }
-//    public void updateInputValues() {
-//        this.coneSensor();
-//        in.get(0).setValue(this.getInventory());
-//        in.get(1).setValue(this.getSensor()[0]);
-//        in.get(2).setValue(this.getSensor()[1]);
-//        in.get(3).setValue(this.getSensor()[2]);
-//        in.get(4).setValue(this.getSensor()[3]);
-//        in.get(5).setValue(this.getSensor()[4]);
-//        in.get(6).setValue(this.getSensor()[5]);
-//        in.get(7).setValue(this.getSensor()[6]);
-//        in.get(8).setValue(this.getSensor()[7]);
-//        in.get(9).setValue(this.getSensor()[8]);
-//        in.get(10).setValue(this.getSensor()[8]);
-//        in.get(11).setValue(this.getSensor()[10]);
-//        in.get(12).setValue(this.getSensor()[11]);
-//        in.get(13).setValue(this.getSensor()[12]);
-//        in.get(14).setValue(this.getSensor()[13]);
-//        in.get(15).setValue(this.getSensor()[14]);
-//        in.get(16).setValue(this.getSensor()[15]);
-//        in.get(17).setValue(this.getSensor()[16]);
-//        in.get(18).setValue(this.getSensor()[17]);
-//        in.get(19).setValue(this.getSensor()[18]);
-//        in.get(20).setValue(this.getSensor()[19]);
-//        in.get(21).setValue(this.getSensor()[20]);
-//        in.get(22).setValue(this.getSensor()[21]);
-//        in.get(23).setValue(this.getSensor()[22]);
-//        in.get(24).setValue(this.getSensor()[23]);
-//        in.get(25).setValue(this.getSensor()[24]);
-//    }
-//    public void actionWin(Window win, Tile t, boolean b) {
-//        double[] outputs = new double[6];
-//        int i = 0;
-//        for (Neuron nOut : this.getOutput().getNeurons()) {
-//            outputs[i] = nOut.returnValue();
-//            i++;
-//        }
-//        int max = 0;
-//        for (int a = 0; a < 6; a++) {
-//            if (outputs[a] > outputs[max]) {
-//                max = a;
-//            }
-//        }
-//        if (b) {
-//            System.out.println("Action: " + max);
-//        }
-//
-//        switch (max) {
-//            case 0:
-//                this.move();
-//                win.reload();
-//                break;
-//            case 1:
-//                this.turnLeft();
-//                win.reload();
-//                break;
-//            case 2:
-//                this.turnRight();
-//                win.reload();
-//                break;
-//            case 3:
-//                this.eat(t);
-//                win.reload();
-//                break;
-//            case 4:
-//                this.pickUp(t);
-//                win.reload();
-//                break;
-//            case 5:
-//                this.drop(t);
-//                win.reload();
-//                break;
-//        }
-//    }
     public void actionWin(Window win, Tile t, boolean b, List<Double> d) {
         int max = 0;
         for (int a = 0; a < 6; a++) {
@@ -520,32 +366,39 @@ public class Entity {
         switch (max) {
             case 0:
                 this.move();
+                lastMove = "move";
                 win.reload();
                 break;
             case 1:
                 this.turnLeft();
+                lastMove = "turnLeft";
                 win.reload();
                 break;
             case 2:
                 this.turnRight();
+                lastMove = "turnright";
                 win.reload();
                 break;
             case 3:
                 this.eat(t);
+                lastMove = "eat";
                 win.reload();
                 break;
             case 4:
                 this.pickUp(t);
+                lastMove = "pickUp";
                 win.reload();
                 break;
             case 5:
                 this.drop(t);
+                lastMove = "drop";
                 win.reload();
                 break;
         }
     }
 
     public void actionNoWin(Window win, Tile t, boolean b, List<Double> d) {
+//        System.out.println("NoAction");
         int max = 0;
         for (int a = 0; a < 6; a++) {
             if (d.get(a) > d.get(max)) {
@@ -559,67 +412,33 @@ public class Entity {
         switch (max) {
             case 0:
                 this.move();
-//                win.reload();
+                lastMove = "move";
                 break;
             case 1:
                 this.turnLeft();
-//                win.reload();
+                lastMove = "turnLeft";
                 break;
             case 2:
                 this.turnRight();
-//                win.reload();
+                lastMove = "turnRight";
                 break;
             case 3:
                 this.eat(t);
-//                win.reload();
+                lastMove = "eat";
                 break;
             case 4:
                 this.pickUp(t);
-//                win.reload();
+                lastMove = "pickUp";
                 break;
             case 5:
                 this.drop(t);
-//                win.reload();
+                lastMove = "drop";
                 break;
         }
+//        System.out.println(lastMove);
     }
-//
-//    public void action(Tile t, boolean b) {
-//        double[] outputs = new double[6];
-//        int i = 0;
-//        for (Neuron nOut : this.getOutput().getNeurons()) {
-//            outputs[i] = nOut.returnValue();
-//            i++;
-//        }
-//        int max = 0;
-//        for (int a = 0; a < 6; a++) {
-//            if (outputs[a] > outputs[max]) {
-//                max = a;
-//            }
-//        }
-//        if (b) {
-//        System.out.println("Action: " + max);
-//        }
-//
-//        switch (max) {
-//            case 0:
-//                this.move();
-//                break;
-//            case 1:
-//                this.turnLeft();
-//                break;
-//            case 2:
-//                this.turnRight();
-//                break;
-//            case 3:
-//                this.eat(t);
-//                break;
-//            case 4:
-//                this.pickUp(t);
-//                break;
-//            case 5:
-//                this.drop(t);
-//                break;
-//        }
-//    }
+    
+    public String getLastMove() {
+        return lastMove;
+    }
 }

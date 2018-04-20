@@ -43,6 +43,7 @@ public class main {
         inputs.add("sensor25");
         inputs.add("sensor26");
         inputs.add("sensor27");
+//        inputs.add("bias");
 //       
         outputs.add("move");
         outputs.add("turnLeft");
@@ -51,6 +52,12 @@ public class main {
         outputs.add("pickUp");
         outputs.add("drop");
 
+        //XOR Test
+//        inputs.add("input_1");
+//        inputs.add("input_2");
+////        inputs.add("bias");
+//
+//        outputs.add("output");
         //TESTING METHOD
 //        NEAT neat = new NEAT(inputs, outputs);
 //        World w = new World(26);
@@ -59,36 +66,38 @@ public class main {
 //        Entity e = new Entity(w);
 //        win.createWindow(w, 30, e, false);
 //        Tile t = new Tile(w);
-//        e.setEGainOnEat(10);
-//        int startingEnergy = 250;
-//        int maxEnergy = 1000;
+//        e.setEGainOnEat(5);
+//        int startingEnergy = 100;
+//        int maxEnergy = 100;
 //        e.setMoves(0);
 //        e.setFoodEaten(0);
 //        e.setInventory(false);
 //        t.foodAll();
 //        e.setPosition(13, 13, 0);
 //        e.setEnergy(startingEnergy, maxEnergy);
-//        neat.loadGenome(480, 49);
+//        neat.loadGenome(99, 0);
 //        while (e.getEnergy() > 0) {
 //            values = new ArrayList<>();
-//            e.coneSensor();
-//            values.add((double) (e.getEnergy() - 1) / (maxEnergy - 1));
-//            values.add((double) e.getInventory());
-//            for (int i : e.getSensor()) {
-//                values.add((double) i);
-//            }
+//                   values = new ArrayList<>();
+//                   e.coneSensor();
+//                   values.add((double)(e.getEnergy() - 1) / (maxEnergy - 1));
+//                   values.add((double) e.getInventory());
+//                   int[] sens = e.getSensor();
+//                   for (int i : sens) {
+//                       values.add((double)i / 3);
+//                   }
+////                   values.add(1.0);
 //            neat.runNetwork(values, false);
 //            e.actionWin(win, t, false, neat.returnRunValues());
 ////            System.out.println("Energy: " + e.getEnergy());
 //            try {
-//                Thread.sleep(10);
+//                Thread.sleep(50);
 //            } catch (InterruptedException ex) {
 //                Thread.currentThread().interrupt();
 //            }
 //        }
 //        System.out.println(e.getFoodEaten());
 //        System.out.println("DONE");
-
         //RUNNING METHOD
         NEAT neat = new NEAT(inputs, outputs);
         World w = new World(26);
@@ -97,13 +106,20 @@ public class main {
         Entity e = new Entity(w);
         win.createWindow(w, 30, e, false);
         Tile t = new Tile(w);
-        e.setEGainOnEat(10);
+        Suggestion s = new Suggestion();
+        boolean useSuggestions = true;
+        int suggestLimit = 10;
+        double suggestMaxVal = 0.1;
+        double suggestTrimTop = 20;
+        double suggestTrimBottom = 20;
+        boolean suggestTrimKeepBottom = false;
 
-        int populationLimit = 100;
-        int generationLimit = 500;
+        int populationLimit = 50;
+        int generationLimit = 100;
 
-        int startingEnergy = 250;
-        int maxEnergy = 1000;
+        e.setEGainOnEat(5);
+        int startingEnergy = 100;
+        int maxEnergy = 100;
         neat.createStartingGeneration(populationLimit);
         int a = 0;
         while (a < generationLimit) {
@@ -122,23 +138,73 @@ public class main {
                 while (e.getEnergy() > 0) {
                     values = new ArrayList<>();
                     e.coneSensor();
-                    values.add((double) e.getEnergy() / 1000);
+                    values.add((double) (e.getEnergy() - 1) / (maxEnergy - 1));
                     values.add((double) e.getInventory());
-                    for (int i : e.getSensor()) {
-                        values.add((double) i);
+                    int[] sens = e.getSensor();
+                    for (int i : sens) {
+                        values.add((double) i / 3);
                     }
+//                    values.add(1.0);
                     neat.runNetwork(values, false);
-                    e.actionNoWin(win, t, false, neat.returnRunValues());
+
+                    List<Double> vals = new ArrayList<>(neat.returnRunValues());
+//                    System.out.println(vals);
+                    values.remove(0);
+                    if (useSuggestions && neat.getGeneration() > suggestLimit) {
+                        Map<String, Double> x = new LinkedHashMap<>(s.getSuggestions(values, suggestLimit, suggestMaxVal, neat.getGeneration()));
+//                        System.out.println("vals: " + vals);
+//                        System.out.println(x);
+//                        if(x.isEmpty()) {
+//                            System.out.println("X Empty");
+//                        }
+                        if (!x.isEmpty()) {
+                            for (String st : x.keySet()) {
+                                switch (st) {
+                                    case "move":
+                                        vals.set(0, vals.get(0) + x.get(st));
+                                        break;
+                                    case "turnLeft":
+                                        vals.set(1, vals.get(1) + x.get(st));
+                                        break;
+                                    case "turnRight":
+                                        vals.set(2, vals.get(2) + x.get(st));
+                                        break;
+                                    case "eat":
+                                        vals.set(3, vals.get(3) + x.get(st));
+                                        break;
+                                    case "pickUp":
+                                        vals.set(4, vals.get(4) + x.get(st));
+                                        break;
+                                    case "drop":
+                                        vals.set(5, vals.get(5) + x.get(st));
+                                        break;
+                                }
+                            }
+                            e.actionNoWin(win, t, false, vals);
+                        } else {
+                            e.actionNoWin(win, t, false, vals);
+                        }
+                    } else {
+                        e.actionNoWin(win, t, false, vals);
+                    }
+                    if (useSuggestions) {
+                        s.addMove(neat.getReal(), values, e.getLastMove());
+                    }
+//                    System.out.println("O: " + neat.getOrganism() + " Energy: " + e.getEnergy());
                 }
                 neat.setFitness(b, e.getFoodEaten());
+                if (useSuggestions) {
+                    s.addFitness(neat.getReal(), e.getFoodEaten());
+                }
 //                System.out.println("O: " + b + ", Food Eaten: " + e.getFoodEaten());
                 b++;
             }
-            neat.speciate(a, populationLimit, 1, 1, 3, 2.3, 500);
+            neat.speciate(a, populationLimit, 1, 1, 3.0, 4.0, 15);
             neat.addToGraphSpecResults();
             neat.printSpecies();
-            neat.mutate(populationLimit, 50, 40, 5, 50, 50, 50, 80, 90);
+            neat.mutate(populationLimit, 50, 40, 5, 0.1, 0.15, 0.25, 80, 90, 0);
             System.out.println("");
+            s.trimSuggestions(suggestTrimTop, suggestTrimBottom, suggestTrimKeepBottom);
 //            System.out.println("Farmed: " + t.getFarmed());
 //            t.setFarmed(0);
             a++;
@@ -148,5 +214,106 @@ public class main {
         neat.graphSpeciesResults(populationLimit);
         System.out.println("DONE");
         System.exit(0);
+//    }
+        //XOR Test
+//        NEAT neat = new NEAT(inputs, outputs);
+//        int populationLimit = 200;
+////        int generationLimit = 100;
+//        neat.createStartingGeneration(populationLimit);
+//        int a = 0;
+//        boolean cont = true;
+//        while (cont) {
+//            System.out.println("Generation: " + a);
+//            int b = 0;
+//            while (b < populationLimit) {
+//                neat.loadGenome(a, b);
+//                values = new ArrayList<>();
+//                values.add(0.0);
+//                values.add(0.0);
+////                values.add(1.0);
+//                neat.runNetwork(values, false);
+//                double output1 = Math.abs(0 - neat.returnRunValues().get(0));
+//
+//                neat.loadGenome(a, b);
+//                values = new ArrayList<>();
+//                values.add(1.0);
+//                values.add(0.0);
+////                values.add(1.0);
+//                neat.runNetwork(values, false);
+//                double output2 = Math.abs(1 - neat.returnRunValues().get(0));
+//
+//                neat.loadGenome(a, b);
+//                values = new ArrayList<>();
+//                values.add(0.0);
+//                values.add(1.0);
+////                values.add(1.0);
+//                neat.runNetwork(values, false);
+//                double output3 = Math.abs(1 - neat.returnRunValues().get(0));
+//
+//                neat.loadGenome(a, b);
+//                values = new ArrayList<>();
+//                values.add(1.0);
+//                values.add(1.0);
+////                values.add(1.0);
+//                neat.runNetwork(values, false);
+//                double output4 = Math.abs(0 - neat.returnRunValues().get(0));
+//
+//                double summed = output1 + output2 + output3 + output4;
+//                double fitness = 0;
+//                if ((4 - summed) > 0) {
+//                    fitness = Math.pow(4 - summed, 2);
+//                }
+//
+//                neat.setFitness(b, fitness);
+//                if (fitness > 9) {
+//                    cont = false;
+//                }
+//                b++;
+//            }
+//            neat.speciate(a, populationLimit, 1, 1, 0.4, 3.0, 15);
+//            neat.addToGraphSpecResults();
+//            neat.printSpecies();
+//            neat.mutate(populationLimit, 50, 40, 5, 0.1, 0.15, 0.25, 80, 90, 0);
+//            System.out.println("");
+//            a++;
+//        }
+//        neat.recordSpecies();
+//        neat.graphMaxfitness(a);
+//        neat.graphSpeciesResults(populationLimit);
+//        System.out.println("DONE");
+//        System.exit(0);
+//    
+        //XOR Testing
+//        NEAT neat = new NEAT(inputs, outputs);
+//        neat.loadGenome(53, 197);
+//        values = new ArrayList<>();
+//        values.add(0.0);
+//        values.add(0.0);
+////        values.add(1.0);
+//        neat.runNetwork(values, false);
+//        System.out.println(neat.returnRunValues());
+//        System.out.println("");
+//        values = new ArrayList<>();
+//        values.add(1.0);
+//        values.add(1.0);
+////        values.add(1.0);
+//        neat.runNetwork(values, false);
+//        System.out.println(neat.returnRunValues());
+//        System.out.println("");
+//        values = new ArrayList<>();
+//        values.add(1.0);
+//        values.add(0.0);
+////        values.add(1.0);
+//        neat.runNetwork(values, false);
+//        System.out.println(neat.returnRunValues());
+//        System.out.println("");
+//        values = new ArrayList<>();
+//        values.add(0.0);
+//        values.add(1.0);
+////        values.add(1.0);
+//        neat.runNetwork(values, false);
+//        System.out.println(neat.returnRunValues());
+//        System.out.println("");
+//        System.out.println("DONE");
     }
 }
