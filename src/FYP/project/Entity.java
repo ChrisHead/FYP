@@ -27,11 +27,6 @@ public class Entity {
     private final int[] yOffset;
     private int[] sensorArray;
 
-    private List<Neuron> in;
-    private List<Neuron> out;
-    private Layer input;
-    private Layer output;
-
     private final World mat;
 
     public Entity(World m) {
@@ -44,9 +39,12 @@ public class Entity {
         eLossOnTurn = 1;
         eLossOnAction = 1;
         eGainOnEat = 10;
-        xOffset = new int[]{-4, -3, -2, -1, 0, 1, 2, 3, 4, -3, -2, -1, 0, 1, 2, 3, -2, -1, 0, 1, 2, -1, 0, 1, -1, 0, 1};
-        xReverseOffset = new int[]{4, 3, 2, 1, 0, -1, -2, -3, -4, 3, 2, 1, 0, -1, -2, -3, 2, 1, 0, -1, -2, 1, 0, -1, 1, 0, -1};
-        yOffset = new int[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 2, 2, 2, 2, 2, 1, 1, 1, 0, 0, 0};
+        xOffset = new int[]{-4, -3, -2, -1, 0, 1, 2, 3, 4, -3, -2, -1, 0, 1, 2, 
+            3, -2, -1, 0, 1, 2, -1, 0, 1, -1, 0, 1};
+        xReverseOffset = new int[]{4, 3, 2, 1, 0, -1, -2, -3, -4, 3, 2, 1, 0, 
+            -1, -2, -3, 2, 1, 0, -1, -2, 1, 0, -1, 1, 0, -1};
+        yOffset = new int[]{4, 4, 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 3, 3, 3, 2, 
+            2, 2, 2, 2, 1, 1, 1, 0, 0, 0};
         lastMove = "";
     }
 

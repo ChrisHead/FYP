@@ -66,6 +66,7 @@ class Grid extends JPanel {
     private final int eX;
     private final int eY;
     private boolean inv;
+    private static final Color BROWN = new Color(102,51,0);
 
     public Grid(World m, int s, Entity e) {
         size = s;
@@ -87,7 +88,7 @@ class Grid extends JPanel {
                 } else if (type == 2) {
                     g.setColor(Color.YELLOW);
                 } else {
-                    g.setColor(Color.RED);
+                    g.setColor(BROWN);
                 }
                 g.fillRect(x, y, size, size);
                 x += (size + 1);
@@ -97,9 +98,9 @@ class Grid extends JPanel {
         int a = 9 + eX * (size + 1);
         int b = 9 + eY * (size + 1);
         if (inv) {
-        g.setColor(Color.GRAY);
+        g.setColor(Color.WHITE);
         } else {
-        g.setColor(Color.BLUE);
+        g.setColor(Color.GRAY);
         }
         g.fillOval(a, b, size + 1, size + 1);
     }

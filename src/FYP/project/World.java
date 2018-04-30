@@ -12,20 +12,20 @@ public class World implements Serializable {
     private final int size;
     private int[][] matrix;
 
-    public World(int gridSize) {
+    public World(int gridSize, int farm, int food) {
         size = gridSize;
         matrix = new int[size][size];
-        this.createMatrix();
+        this.createMatrix(farm, food);
     }
 
-    public final void createMatrix() {
+    public final void createMatrix(int farm, int food) {
         for (int[] array : matrix) {
             for (int i = 0; i < array.length; i++) {
                 Random ran = new Random();
                 int num = ran.nextInt(101);
-                if (num > 95) {
+                if (num > farm) {
                     num = 3;
-                } else if (num > 65) {
+                } else if (num > food) {
                     num = 2;
                 } else {
                     num = 1;

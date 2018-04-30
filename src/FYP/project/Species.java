@@ -70,11 +70,7 @@ public class Species {
         species.remove(x);
     }
 
-    public void saveSpecies() {
-
-    }
-
-    public double specAdjustSize(NEAT n, int popSize, double champThresh) {
+       public double specAdjustSize(NEAT n, int popSize, double champThresh) {
         double newSize;
 
         //get adjusted fitness for species

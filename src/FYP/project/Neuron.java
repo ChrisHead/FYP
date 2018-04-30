@@ -25,13 +25,13 @@ public class Neuron {
         actType = 3;
     }
 
-    public Neuron(String s) {
+    public Neuron(String s, int aType) {
         inputs = new ArrayList<>();
         value = 0.0;
         id = s;
         isCalculated = false;
         recurrentValueAvailable = true;
-        actType = 3;
+        actType = aType;
     }
 
     public String getName() {

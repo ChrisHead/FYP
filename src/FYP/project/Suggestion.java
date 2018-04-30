@@ -164,12 +164,4 @@ public class Suggestion {
     public void printPreviousMovesSize() {
         System.out.println(previousMoves.size());
     }
-
-    public void saveSuggestions() {
-
-    }
-
-    public void loadSuggestions() {
-
-    }
 }

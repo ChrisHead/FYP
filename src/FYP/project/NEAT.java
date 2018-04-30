@@ -33,8 +33,9 @@ public class NEAT {
     private List<List<List<String>>> specResults;
     private List<Integer> noOfSpecs;
     private Map<String, Integer> activations;
+    private int aType;
 
-    public NEAT(List<String> i, List<String> o) {
+    public NEAT(List<String> i, List<String> o, int actType) {
         generation = 0;
         organism = 0;
         idsOfInputs = i;
@@ -58,6 +59,7 @@ public class NEAT {
         noOfSpecs = new ArrayList<>();
         specResults = new ArrayList<>();
         activations = new LinkedHashMap<>();
+        aType = actType;
     }
 
     //Network Creation
@@ -72,7 +74,7 @@ public class NEAT {
             }
         }
         for (String s : neurons) {
-            Neuron n = new Neuron(s);
+            Neuron n = new Neuron(s, aType);
             allNeurons.add(n);
             if (idsOfInputs.contains(s)) {
                 inputNeurons.add(n);
@@ -129,13 +131,14 @@ public class NEAT {
         for (Neuron a : allNeurons) {
             a.setRecurrentValueAvailable(true);
         }
-        Stack<Neuron> toCalculate = new Stack<>();
         for (Neuron n : allNeurons) {
             n.setIsCalculated(false);
         }
+        Stack<Neuron> toCalculate = new Stack<>();
         for (Neuron o : outputNeurons) {
             for (Axon a : o.getInputs()) {
-                if (!a.getInput().isCalculated() && !toCalculate.contains(a.getInput())) {
+                if (!a.getInput().isCalculated() && 
+                    !toCalculate.contains(a.getInput())) {
                     toCalculate.push(a.getInput());
                 }
             }
@@ -150,12 +153,14 @@ public class NEAT {
                 int temp = 0;
                 Neuron tempNeuron = toCalculate.peek();
                 for (Axon a : toCalculate.peek().getInputs()) {
-                    if (!a.getInput().isCalculated() && a.getInput().getRecurrentValueAvailable()) {
+                    if (!a.getInput().isCalculated() && 
+                         a.getInput().getRecurrentValueAvailable()) {
                         int r = toCalculate.search(a.getInput());
                         if (r == -1 && !outputNeurons.contains(a.getInput())) {
                             toCalculate.push(a.getInput());
                         } else {
-                            tempNeuron.setValue(previousValues.get(a.getInput()) * a.getWeight());
+                            tempNeuron.setValue(previousValues.get(a.getInput()) 
+                                    * a.getWeight());
                             a.getInput().setRecurrentValueAvailable(false);
                         }
                     } else {
@@ -230,7 +235,7 @@ public class NEAT {
         neurons.addAll(idsOfInputs);
         neurons.addAll(idsOfOutputs);
         for (String s : neurons) {
-            Neuron n = new Neuron(s);
+            Neuron n = new Neuron(s, aType);
             if (idsOfInputs.contains(s)) {
                 inputNeurons.add(n);
             } else {
@@ -644,7 +649,7 @@ public class NEAT {
     }
 
     //Mutation Functions
-    public void mutate(int popSize, double enableChance,
+    public void mutate(int popSize,
             double eliteThresh, double champThresh,
             double crossMate, double addNeuron, double addConnection,
             double weightChangeChance, double weightRandomChance,
@@ -760,7 +765,7 @@ public class NEAT {
                 if (value > crossMate) {
                     int rand1 = ThreadLocalRandom.current().nextInt(0, trimmed.size());
                     int rand2 = ThreadLocalRandom.current().nextInt(0, trimmed.size());
-                    temp = new LinkedHashMap<>(this.crossover(generation, trimmed.get(rand1), trimmed.get(rand2), enableChance));
+                    temp = new LinkedHashMap<>(this.crossover(generation, trimmed.get(rand1), trimmed.get(rand2)));
                     genome = temp;
                     double mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
                     if (mutChance <= weightChangeChance) {
@@ -783,7 +788,7 @@ public class NEAT {
                     List<Integer> trimmedTemp = species.get(randSpec).trimSpecies(eliteThresh, species.get(randSpec).orderSpecies(this));
                     if (!trimmedTemp.isEmpty()) {
                         int rand2 = ThreadLocalRandom.current().nextInt(0, trimmedTemp.size());
-                        temp = new LinkedHashMap<>(this.crossover(generation, trimmed.get(rand1), trimmedTemp.get(rand2), enableChance));
+                        temp = new LinkedHashMap<>(this.crossover(generation, trimmed.get(rand1), trimmedTemp.get(rand2)));
                         genome = temp;
                         double mutChance = ThreadLocalRandom.current().nextDouble(0, 101);
                         if (mutChance <= weightChangeChance) {
@@ -820,7 +825,7 @@ public class NEAT {
         this.tidySpecies();
     }
 
-    public Map<Integer, List<String>> crossover(int generation, int organsim1, int organsim2, double enableChance) {
+    public Map<Integer, List<String>> crossover(int generation, int organsim1, int organsim2) {
         Map<Integer, List<String>> genome1 = this.loadGenome1(generation, organsim1);
         Map<Integer, List<String>> genome2 = this.loadGenome1(generation, organsim2);
 //        this.loadGenerationResults(generation);
@@ -887,38 +892,40 @@ public class NEAT {
             } else {
                 newGenome.put(i, genome2.get(i));
             }
-            if (!(genome1.get(i).get(3).equals("ENABLED")
-                    && genome2.get(i).get(3).equals("ENABLED"))) {
-                double eChance = ThreadLocalRandom.current().nextDouble(0, 101);
-                List<String> temp = new ArrayList<>(newGenome.get(i));
-                if (eChance > enableChance) {
-                    temp.set(3, "ENABLED");
-                    newGenome.put(i, temp);
-                } else {
-                    temp.set(3, "DISABLED");
-                    newGenome.put(i, temp);
-                }
-            }
+//            if (!(genome1.get(i).get(3).equals("ENABLED")
+//                    && genome2.get(i).get(3).equals("ENABLED"))) {
+//                double eChance = ThreadLocalRandom.current().nextDouble(0, 101);
+//                List<String> temp = new ArrayList<>(newGenome.get(i));
+//                if (eChance > enableChance) {
+//                    temp.set(3, "ENABLED");
+//                    newGenome.put(i, temp);
+//                } else {
+//                    temp.set(3, "DISABLED");
+//                    newGenome.put(i, temp);
+//                }
+//            }
         }
         //disjoint and excess
         if (fittest.equals("equal")) {
             for (int i : disjoint1) {
-                int rand = ThreadLocalRandom.current().nextInt(0, 101);
-                if (rand > 50) {
+//                int rand = ThreadLocalRandom.current().nextInt(0, 101);
+//                if (rand > 50) {
                     newGenome.put(i, genome1.get(i));
-                }
+//                }
             }
             for (int i : disjoint2) {
-                int rand = ThreadLocalRandom.current().nextInt(0, 101);
-                if (rand > 50) {
+//                int rand = ThreadLocalRandom.current().nextInt(0, 101);
+//                if (rand > 50) {
                     newGenome.put(i, genome2.get(i));
-                }
+//                }
             }
             for (int i : excess) {
-                int rand = ThreadLocalRandom.current().nextInt(0, 101);
-                if (rand > 50 && (g1KeySet.size() > g2KeySet.size())) {
+//                int rand = ThreadLocalRandom.current().nextInt(0, 101);
+//                if (rand > 50 && (g1KeySet.size() > g2KeySet.size())) {
+                if (g1KeySet.size() > g2KeySet.size()) {
                     newGenome.put(i, genome1.get(i));
-                } else if (rand > 50) {
+                } else {
+//                } else if (rand > 50) {
                     newGenome.put(i, genome2.get(i));
                 }
             }
@@ -955,7 +962,7 @@ public class NEAT {
         }
 
         //create new neuron
-        Neuron n = new Neuron("h" + getNextHiddenName());
+        Neuron n = new Neuron("h" + getNextHiddenName(), aType);
         hiddenNeurons.add(n);
 
         //add new axon between old input and new, add to genome
@@ -1308,7 +1315,7 @@ public class NEAT {
         for (Species s : species) {
             adjustSize.put(s.getId(), s.specAdjustSize(this, popSize, champThresh));
         }
-        System.out.println("Adjusted: " + adjustSize);
+//        System.out.println("Adjusted: " + adjustSize);
 
         //readjust sizes to match pop count
         Map<Integer, Double> temp = new LinkedHashMap<>(adjustSize);
@@ -1319,7 +1326,7 @@ public class NEAT {
         for (Integer i : adjustSize.keySet()) {
             adjustSize.put(i, Math.floor(adjustSize.get(i)));
         }
-        System.out.println("Rounded: " + adjustSize);
+//        System.out.println("Rounded: " + adjustSize);
 
         double pop = 0;
         for (Integer i : adjustSize.keySet()) {
@@ -1327,8 +1334,8 @@ public class NEAT {
         }
 
         int diff = popSize - (int) pop;
-        System.out.println("Current Size: " + pop);
-        System.out.println("Difference: " + diff);
+//        System.out.println("Current Size: " + pop);
+//        System.out.println("Difference: " + diff);
 
         if (diff != 0) {
 //        System.out.println(temp);
@@ -1343,12 +1350,12 @@ public class NEAT {
                 }
             }
 
-            System.out.println("Sorted Fractionals: " + orderedFrac);
+//            System.out.println("Sorted Fractionals: " + orderedFrac);
             List<Integer> k = new ArrayList<>();
             for (Integer i : orderedFrac.keySet()) {
                 k.add(i);
             }
-            System.out.println("Sorted Keys: " + k);
+//            System.out.println("Sorted Keys: " + k);
 
             if (!k.isEmpty()) {
                 if ((Math.abs(diff) >= k.size())) {
@@ -1373,7 +1380,7 @@ public class NEAT {
                         diff += (int) Math.floor(Math.abs(diff) / k.size()) * k.size();
                     }
                 }
-                System.out.println("NewDiff: " + diff);
+//                System.out.println("NewDiff: " + diff);
                 if (diff > 0) {
                     for (int i = 0; i < Math.abs(diff); i++) {
                         int x = k.get(k.size() - 1 - i);
@@ -1410,8 +1417,8 @@ public class NEAT {
             }
         }
 
-        System.out.println("ReAdjusted: " + adjustSize);
-        System.out.println("");
+//        System.out.println("ReAdjusted: " + adjustSize);
+//        System.out.println("");
     }
 
     public void printSpecies() {
